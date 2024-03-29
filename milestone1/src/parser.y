@@ -1,5 +1,6 @@
 %{
 #include<bits/stdc++.h>
+#include "globals.hpp"
 using namespace std;
 extern stack<int> indent_stack;
 extern int yylineno;
@@ -15,10 +16,12 @@ struct Token{
 };
 int curr_id = 0;
 struct TreeNode{
-    struct Token token;
-    string id;
-    vector<struct TreeNode*> children;
+    public: 
+        struct Token token;
+        string id;
+        vector<struct TreeNode*> children;
 };
+
 
 map<string, string> id_to_label;
 map<string, vector<string> > edges;
@@ -252,6 +255,7 @@ small_stmt_dash : small_stmt ";" small_stmt_dash
     }
 
     ;
+
 small_stmt : expr_stmt 
     {
         $$ = $1;
@@ -279,14 +283,16 @@ small_stmt : expr_stmt
     ;
 
 expr_stmt : testlist expr_stmt_dash
-    {
+   {        
+                
         if ($2 == NULL){
             $$ = $1;
         }else{
             $$ = $2;
             insert_to_front($$, $1);
         }
-    }
+    
+    } 
     ;
 
 expr_stmt_dash : annasign 
@@ -345,6 +351,7 @@ annasign : OPER_COLON test
     }
     | OPER_COLON test ASSIGN_EQUAL test
     {
+        
         $$ = makeNode(": =");
         labelNode($$);
         appendChild($$, $2);
@@ -602,7 +609,7 @@ inheritlist: "(" arglist ")"
     ;
 
 for_stmt: "for" exprlist "in" testlist ":" suite
-    {
+    {   
         $$ = $1;
         labelNode($$);
         appendChild($$, $2);
@@ -633,8 +640,11 @@ exprlist : exprlist OPER_COMMA expr
     }
     ;
 
-funcdef : "def" NAME parameters funcdef_dash ":" suite 
+funcdef : "def" NAME parameters
     {
+        sym_tab_func* function = new sym_tab_func($2, $3);
+        
+    } funcdef_dash ":" suite {
         $$ = $1;
         labelNode($$);
         labelNode($2);
@@ -713,7 +723,10 @@ tfpdef : NAME ":" test
     |
     NAME ":" test "=" test
     {
+        cout << "I was here" << endl;
         $$ = makeNode(": =");
+        symtable_entry * temp = new symtable_entry($1->token.lexeme, 0, "int");
+        current_func->add_entry(temp);
         labelNode($$);
         labelNode($1);
         appendChild($$, $1);
@@ -729,7 +742,8 @@ tfpdef : NAME ":" test
 
 suite: simple_stmt 
     {
-        $$ = $1;
+        $$ = $1 ;
+
     }
     | NEWLINE INDENT stmt_dash DEDENT
     {
@@ -1226,6 +1240,11 @@ int main(int argc, char ** argv){
     if (verbose){
         cout << "Started parsing" <<endl;
     }
+
+    string temp_name = "Hello";
+    vector<symtable_entry *> temp_params;
+    current_func = new symtable_func(temp_name, temp_params);
+
     yyparse();
 
     if (verbose){
