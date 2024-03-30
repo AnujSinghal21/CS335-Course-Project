@@ -60,5 +60,6 @@ int symtable_func::get_localspace_size(){
 }
 
 symtable_entry* symtable_func::find_entry(string name){
+    
     return NULL;
 }

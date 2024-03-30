@@ -11,29 +11,52 @@ extern int terminated;
 
 int yylex();
 int yyerror(const char * msg);
-struct Token{
-    string lexeme;
+
+enum NODE_TYPES {
+    EXPR,
+    NAME,
+    OPERATOR, 
+    NUMBER,
+    STRING,
+    KEYWORD,
+    DECLARATION,
+    FUNCTION,
+    CLASS,
+    IF_STATEMENT,
+    ELIF_STATEMENT,
+    ELSE_STATEMENT,
+    WHILE_STATEMENT,
+    FOR_STATEMENT,
+    SUITE, 
+    STATEMENT, 
+    STATEMENT_GROUP,
+    PARAMETERS,
+    MISC
 };
+
 int curr_id = 0;
+
 struct TreeNode{
-    public: 
-        struct Token token;
-        string id;
-        vector<struct TreeNode*> children;
+    string lexeme = "";
+    string id;
+    int node_type = -1;
+    vector<struct TreeNode*> children;
 };
 
 
 map<string, string> id_to_label;
 map<string, vector<string> > edges;
 
-struct TreeNode * makeNode(string lexeme){
+
+
+struct TreeNode * makeNode(string lexeme, int node_type = -1){
     struct TreeNode * node = new (struct TreeNode);
     node->id = "N" + to_string(curr_id++);
-    node->token.lexeme = lexeme;
+    node->lexeme= lexeme;
     return node;
 }
 void labelNode(struct TreeNode * node){
-    id_to_label[node->id] = node->token.lexeme;
+    id_to_label[node->id] = node->lexeme;
     return;
 }
 void appendChild(struct TreeNode* parent, struct TreeNode* child){
@@ -41,7 +64,7 @@ void appendChild(struct TreeNode* parent, struct TreeNode* child){
         return;
     }
     parent->children.push_back(child);
-    edges[parent->id].push_back(child->id);
+    // edges[parent->id].push_back(child->id);
     return;
 }
 void insert_to_front(struct TreeNode* parent, struct TreeNode* child){
@@ -49,9 +72,22 @@ void insert_to_front(struct TreeNode* parent, struct TreeNode* child){
         return;
     }
     parent->children.insert(parent->children.begin(), child);
-    edges[parent->id].insert(edges[parent->id].begin(), child->id);
+    // edges[parent->id].insert(edges[parent->id].begin(), child->id);
     return;
 }
+
+void printTree(struct TreeNode * node){
+    if (node == NULL){
+        return;
+    }
+    cout << node->id << " " << node->lexeme << " has type: " << node->node_type << endl;
+    for (auto child: node->children){
+        printTree(child);
+    }   
+    return;
+}
+
+TreeNode * root = NULL;
 
 %}
 
@@ -196,14 +232,17 @@ void insert_to_front(struct TreeNode* parent, struct TreeNode* child){
 
 %%
 
+////// Anuj's reviewed starts here
+
 input_file : input_file_dash ENDMARKER{
     if ($1 != NULL){
-        labelNode($2);
         $$ = $1;
-        appendChild($$, $2);
+    }else{
+        $$ = NULL;
     }
+    root = $$;
 }
-    ;
+;
 
 input_file_dash : input_file_dash NEWLINE
     {
@@ -215,9 +254,15 @@ input_file_dash : input_file_dash NEWLINE
             $$ = $1;
             appendChild($$, $2);
         }else{
-            $$ = makeNode("input");
-            labelNode($$);
-            appendChild($$, $2);
+            $$ = makeNode("", SUITE);
+            if ($2->type == STATEMENT_GROUP){
+                for (auto x: $2->children){
+                    appendChild($$, x);
+                }
+            }else{
+                appendChild($$, $2);
+
+            }
         }
     }
     | /*empty*/ 
@@ -242,12 +287,16 @@ simple_stmt : small_stmt_dash NEWLINE
     }
     ;
 
-small_stmt_dash : small_stmt ";" small_stmt_dash
+small_stmt_dash : small_stmt_dash ";" small_stmt 
     {
-        $$ = $2;
-        labelNode($$);
-        appendChild($$, $1);
-        appendChild($$, $3);
+        if ($1->node_type == STATEMENT_GROUP){
+            $$ = $1;
+            appendChild($$, $3);
+        }else{
+            $$ = makeNode("", STATEMENT_GROUP);
+            appendChild($$, $1);
+            appendChild($$, $3);
+        }
     }
     | small_stmt
     {
@@ -282,17 +331,16 @@ small_stmt : expr_stmt
     }
     ;
 
+////// Anuj's reviewed ends here
 expr_stmt : testlist expr_stmt_dash
-   {        
-                
+    {
         if ($2 == NULL){
             $$ = $1;
         }else{
             $$ = $2;
             insert_to_front($$, $1);
         }
-    
-    } 
+    }
     ;
 
 expr_stmt_dash : annasign 
@@ -610,8 +658,9 @@ inheritlist: "(" arglist ")"
 
 for_stmt: "for" exprlist "in" testlist ":" suite
     {   
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        $$ = makeNode("for",FOR_STATEMENT);
         appendChild($$, $2);
         appendChild($$, $4);
         appendChild($$, $6);
@@ -619,8 +668,9 @@ for_stmt: "for" exprlist "in" testlist ":" suite
     ;
 while_stmt: KEY_WHILE test OPER_COLON suite
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        $$ = makeNode("while",WHILE_STATEMENT)
         appendChild($$, $2);
         appendChild($$, $4);
     }
@@ -641,27 +691,25 @@ exprlist : exprlist OPER_COMMA expr
     ;
 
 funcdef : "def" NAME parameters
-    {
-        sym_tab_func* function = new sym_tab_func($2, $3);
+    {   
+        // sym_tab_func* function = new sym_tab_func($2, $3);
+        $$ = makeNode($2,FUNCTION);
+        appendChild($$,$3);
         
     } funcdef_dash ":" suite {
-        $$ = $1;
-        labelNode($$);
-        labelNode($2);
-        appendChild($$, $2);
-        appendChild($$, $3);
+        
         if ($4 != NULL){
-            appendChild($$, $4);
+            type = makeNode("type",NAME);        
+            appendChild(type, $4);
+            appendChild($$,type);
         }
         appendChild($$, $6);
     }
     ;
 
-funcdef_dash :  "->" test 
+funcdef_dash : "->" test 
     {
-        $$ = $1;
-        labelNode($$);
-        appendChild($$, $2);
+        $$ = $2;
     }
     | /*Empty*/
     {
@@ -669,13 +717,9 @@ funcdef_dash :  "->" test
     }
     ;
 
-parameters : "(" parameters_dash ")"
+parameters : "(" parameters_dash ")" 
     {
-        $$ = makeNode("()");
-        labelNode($$);
-        if ($2 != NULL){
-            appendChild($$, $2);
-        }
+        $$ = $2;
     }
     ;
 
@@ -685,16 +729,21 @@ parameters_dash : typedargslist
     }
     | /*Empty*/
     {   
-        $$ = NULL;
+        $$ = makeNode("parameters",PARAMETERS);
     }
     ;
 
 typedargslist : typedargslist "," tfpdef
     {
-        $$ = $2;
-        labelNode($$);
-        appendChild($$, $1);
-        appendChild($$, $3);
+        if ($1->node_type == PARAMETERS){
+            $$ = $1;
+            appendChild($$, $3);
+        }else{
+            $$ = makeNode("parameters", PARAMETERS);
+            appendChild($$, $1);
+            appendChild($$, $3);
+        }
+
     }
     | tfpdef
     {
@@ -874,12 +923,14 @@ comp_op: "<"
 
 expr : xor_expr
     {
-        $$ = $1;
+        $$ = $1; 
     }
     | expr "|" xor_expr
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR)
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -891,8 +942,10 @@ xor_expr : and_expr
     }
     | xor_expr "^" and_expr
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $1);
         appendChild($$, $1);
         appendChild($$, $3);    
     }
@@ -1246,7 +1299,7 @@ int main(int argc, char ** argv){
     current_func = new symtable_func(temp_name, temp_params);
 
     yyparse();
-
+    print_tree(root);
     if (verbose){
         if (terminated){
             cout << "Error in parsing, AST generated might be incomplete/erroneous" << endl;
