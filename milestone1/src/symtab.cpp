@@ -32,27 +32,27 @@ void symtable_entry::update_type(string type){
 symtable_func::symtable_func(string func_name, const vector<symtable_entry*>& params){
        this->name = func_name;
        for(auto &param : params){
-            entry_map[param->name]=param;
+            paramlist[param->name]=param;
        }
 }
 
 void symtable_func::add_entry(symtable_entry* new_entry){
     string entryname = new_entry->name;
-    if(entry_map.find(entryname)!=entry_map.end()){
+    if(entries.find(entryname)!=entries.end()){
         cout << "VARIABLE ALREADY DECLARED \n";
     }
     else{
         cout << "Adding entry" << endl;
         cout << "Entry name: " << new_entry->name << endl;
-        entry_map[entryname]=new_entry;
+        entries[entryname]=new_entry;
     }
 }
 
 void symtable_func::delete_entry(string name){
-    if(entry_map.find(name)==entry_map.end()){
+    if(entries.find(name)==entries.end()){
         cout << "entry is not present in symbol table\n";
     }
-    else entry_map.erase(name);
+    else entries.erase(name);
 }
 
 int symtable_func::get_localspace_size(){

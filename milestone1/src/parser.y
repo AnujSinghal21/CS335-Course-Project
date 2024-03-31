@@ -31,6 +31,7 @@ enum NODE_TYPES {
     STATEMENT, 
     STATEMENT_GROUP,
     PARAMETERS,
+    BOOLEAN,
     MISC
 };
 
@@ -173,7 +174,7 @@ TreeNode * root = NULL;
 %type <node> arglist
 %type <node> argument
 %type <node> arith_expr
-%type <node> assert_stmt
+//%type <node> assert_stmt
 %type <node> assign_dash
 %type <node> atom
 %type <node> atom_expr
@@ -220,7 +221,7 @@ TreeNode * root = NULL;
 %type <node> suite
 %type <node> term
 %type <node> test
-%type <node> testlist
+//%type <node> testlist
 %type <node> tfpdef
 %type <node> trailer
 %type <node> trailer_dash
@@ -325,14 +326,14 @@ small_stmt : expr_stmt
     {
         $$ = $1;
     }
-    | assert_stmt
-    {
-        $$ = $1;
-    }
+    //| assert_stmt
+    //{
+    //    $$ = $1;
+    //}
     ;
 
 ////// Anuj's reviewed ends here
-expr_stmt : testlist expr_stmt_dash
+expr_stmt : test expr_stmt_dash  /* testlist->test */
     {
         if ($2 == NULL){
             $$ = $1;
@@ -347,10 +348,11 @@ expr_stmt_dash : annasign
     {
         $$ = $1;
     }
-    | augassign testlist
+    | augassign test /* testlist -> test */
     {
         $$ = $1;
         labelNode($$);
+        $$ = makeNode("$1->lexeme",EXPR);
         appendChild($$, $2);
     }
     | assign_dash
@@ -363,22 +365,23 @@ expr_stmt_dash : annasign
     }
     ;
 
-assign_dash: ASSIGN_EQUAL testlist assign_dash
+assign_dash: ASSIGN_EQUAL test assign_dash /* testlist -> test */
     {
         $$ = $1;
         labelNode($$);
         insert_to_front($3, $2);
         appendChild($$, $3);
     }
-    | ASSIGN_EQUAL testlist
+    | ASSIGN_EQUAL test /* testlist -> test */
     {
-        $$ = $1;
-        labelNode($$);
-        appendChild($$, $2);
+        //$$ = $1;
+        //labelNode($$);
+        $$ = $2;
+        //appendChild($$, $2);
     }
     ;
 
-testlist : testlist OPER_COMMA test
+/* testlist : testlist OPER_COMMA test
     {
         $$ = $2;
         labelNode($$);
@@ -389,7 +392,7 @@ testlist : testlist OPER_COMMA test
     {
         $$ = $1;
     }
-    ;
+    ; */
 
 annasign : OPER_COLON test 
     {
@@ -409,70 +412,82 @@ annasign : OPER_COLON test
 
 augassign : ASSIGN_PLUS
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        ////labelNode($$);
+        makeNode("ASSIGN_PLUS",OPERATOR);
     }
     | ASSIGN_MINUS
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_MINUS",OPERATOR);
     }
     | ASSIGN_MULTIPLY
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_MULTIPLY",OPERATOR);
     }
     | ASSIGN_DIVIDE
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_DIVIDE",OPERATOR);
     }
     | ASSIGN_MOD
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_MOD",OPERATOR);
     }
     | ASSIGN_AND
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_AND",OPERATOR);
     }
     | ASSIGN_OR
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_OR",OPERATOR);
     }
     | ASSIGN_XOR
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_XOR",OPERATOR);
     }
     | ASSIGN_LEFTSHIFT
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_LEFTSHIFT",OPERATOR);
     }
     | ASSIGN_RIGHTSHIFT
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_RIGHTSHIFT",OPERATOR);
     }
     | ASSIGN_POWER
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_POWER",OPERATOR);
     }
     | ASSIGN_DOUBLESLASH
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        makeNode("ASSIGN_DOUBLESLASH",OPERATOR);
     }
     ;
 
 del_stmt : KEY_DELETE exprlist
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode("delete",STATEMENT);
+        //labelNode($$);
         appendChild($$, $2);
     }
     ;
@@ -503,7 +518,7 @@ continue_stmt : KEY_CONTINUE
     }
     ;
 
-return_stmt : KEY_RETURN testlist 
+return_stmt : KEY_RETURN test /* testlist -> test */ 
     {
         $$ = $1;
         labelNode($$);
@@ -513,27 +528,27 @@ return_stmt : KEY_RETURN testlist
 
 global_stmt : KEY_GLOBAL NAME_dash
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode("global",STATEMENT);
+        //labelNode($$);
         appendChild($$, $2);
     }
     ;
 
 nonlocal_stmt : KEY_NONLOCAL NAME_dash
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode("nonlocal",STATEMENT);
+        //labelNode($$);
         appendChild($$, $2);
     }
     ;
 
-assert_stmt : KEY_ASSERT test
+/*assert_stmt : KEY_ASSERT test
     {
         $$ = $1;
         labelNode($$);
         appendChild($$, $2);
     }
-    ;
+    ;*/
 
 NAME_dash : NAME_dash OPER_COMMA NAME 
     {
@@ -656,7 +671,7 @@ inheritlist: "(" arglist ")"
     }
     ;
 
-for_stmt: "for" exprlist "in" testlist ":" suite
+for_stmt: "for" exprlist "in" test ":" suite /* testlist -> test */
     {   
         //$$ = $1;
         //labelNode($$);
@@ -945,7 +960,7 @@ xor_expr : and_expr
         //$$ = $2;
         //labelNode($$);
         $$ = makeNode("",EXPR);
-        appendChild($$, $1);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);    
     }
@@ -957,8 +972,10 @@ and_expr: shift_expr
     }
     | and_expr "&" shift_expr
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -970,15 +987,19 @@ shift_expr : arith_expr
     }
     | shift_expr "<<" arith_expr
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | shift_expr ">>" arith_expr
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -991,15 +1012,19 @@ arith_expr : term
     }
     | arith_expr "+" term
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | arith_expr "-" term
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -1011,29 +1036,37 @@ term: factor
     }
     | term "*" factor
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | term "/" factor
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | term "%" factor
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | term "//" factor
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -1041,20 +1074,26 @@ term: factor
 
 factor : "+" factor
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $1);
         appendChild($$, $2);
     }
     | "-" factor
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $1);
         appendChild($$, $2);
     }
     | "~" factor
     {
-        $$ = $1;
-        labelNode($$);
+        //$$ = $1;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $1);
         appendChild($$, $2);
     }
     | power
@@ -1069,8 +1108,10 @@ power : atom_expr
     }
     | atom_expr "**" factor
     {
-        $$ = $2;
-        labelNode($$);
+        //$$ = $2;
+        //labelNode($$);
+        $$ = makeNode("",EXPR);
+        appendChild($$, $2);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -1082,7 +1123,7 @@ atom_expr : atom trailer
             $$ = $1;
         }else{
             $$ = makeNode("atom_expr");
-            labelNode($$);
+            //labelNode($$);
             appendChild($$, $1);
             appendChild($$, $2);
         }
@@ -1106,18 +1147,18 @@ trailer: trailer trailer_dash
 
 atom : NAME
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode($1->lexeme,NAME);
+        //labelNode($$);
     }
     | NUMBER
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode($1->lexeme,NUMBER);
+        //labelNode($$);
     }
     | STRING
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode($1->lexeme,STRING);
+        //labelNode($$);
     }
     | "None"
     {
@@ -1126,27 +1167,27 @@ atom : NAME
     }
     | "True"
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode("true",BOOLEAN);
+        //labelNode($$);
     }
     | "False"
     {
-        $$ = $1;
+        $$ = makeNode("false",BOOLEAN);
         labelNode($$);
     }
-    | "(" testlist ")"
+    | "(" test ")"  /* testlist -> test */
     {
         $$ = makeNode("()");
         labelNode($$);
         appendChild($$, $2);
     }
-    | "[" testlist "]"
+    | "[" test "]"  /* testlist -> test */
     {
         $$ = makeNode("[]");
         labelNode($$);
         appendChild($$, $2);
     }
-    |"[" testlist "," "]"
+    |"[" test "," "]"  /* testlist -> test */
     {
         $$ = makeNode("[]");
         labelNode($$);
@@ -1164,7 +1205,7 @@ trailer_dash : "(" arglist ")"
         labelNode($$);
         appendChild($$, $2);
     }
-    | "[" testlist "]"
+    | "[" test "]"  /* testlist -> test */
     {
         $$ = makeNode("[]");
         labelNode($$);

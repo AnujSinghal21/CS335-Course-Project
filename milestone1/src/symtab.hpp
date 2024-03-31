@@ -29,26 +29,27 @@ class symtable_global{
         map<string,symtable_func*> functions;
         map<string,symtable_class*> classes;
         map<string,symtable_entry*> global_vars;
-        // symtable_global();
-        // void add_func(symtable_func* function);
-        // void add_class(symtable_class* class_);
-        // void add_global_var(symtable_entry* global_var);
-        // symtable_func* search_func(string &name, vector<string> &params);
-        // symtable_class* search_class(string &name);
-        // symtable_entry* search_global_var(string &name);
-        // void delete_func(string name);
-        // void delete_class(string name);
-        // void delete_global_var(string name);
-        // void print();
-        // void print_func(string name);
-        // void print_class(string name);
-        // void print_global_var(string name);
-        // void print_all();
+        symtable_global();
+        void add_func(symtable_func* function);
+        void add_class(symtable_class* class_);
+        void add_global_var(symtable_entry* global_var);
+        symtable_func* search_func(string &name, vector<string> &params);
+        symtable_class* search_class(string &name);
+        symtable_entry* search_global_var(string &name);
+        void delete_func(string name);
+        void delete_class(string name);
+        void delete_global_var(string name);
+        void print();
+        void print_func(string name);
+        void print_class(string name);
+        void print_global_var(string name);
+        void print_all();
 };
 
 class symtable_func {
     public :
-        map <string,symtable_entry*> entry_map;
+        map <string,symtable_entry*> entries;
+        map <string,symtable_entry*> paramlist;
         string name;
         //string returntype;
         symtable_global* parent_symtab = NULL;
@@ -61,18 +62,19 @@ class symtable_func {
 };
 
 
-// class symtable_class {
-//     public: 
-//         string name;
-//         map<string,symtable_func*> methods;
-//         map<string,symtable_entry*> attributes;
-//         //int size;
-//         // symtable_class(string class_name);
-//         // void add_func(symtable_func* function);
-//         // void add_attribute
-//         // symtable_func* search_func(string &name, vector<string> &params) 
+class symtable_class {
+    public: 
+        string name;
+        map<string,symtable_func*> methods;
+        map<string,symtable_entry*> attributes;
+        //int size;
+        symtable_global* parent_symtab = NULL;
+        symtable_class(string class_name);
+        void add_func(symtable_func* function);
+        // void add_attribute
+        symtable_func* search_func(string &name, vector<string> &params);
 
-// };
+};
 
 
 #endif
