@@ -4,7 +4,7 @@ map <string,int> size_of_type = {
 
 };
 
-symtable_global* global_symtab = new symtable_global();
+symtable_global* global_symtable = new symtable_global();
 
 //////////SYMTABENTRY STARTS////////////
 ////////////////////////////////////////
@@ -18,7 +18,6 @@ symtable_entry :: symtable_entry(TreeNode* entry, ll line_no)
     TreeNode* var_name = entry->children[0];
     TreeNode* type_name = entry->children[1];
     this->name = var_name->lexeme;
-    this->type = type_name->lexeme;
     // if(entry->children.size()==3){
     //     this->init_val = 
     // }
@@ -119,12 +118,12 @@ symtable_entry* symtable_global :: search_global_var(string &name){
 ////////////////////////////////////
 
 symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* returntype, ll line_no){
-     this->name = function->lexeme;
-     this->returntype = returntype->lexeme;
-     for(int i =0;i<params->children.size();i++){
+    this->name = function->lexeme;
+    this->returntype = returntype->lexeme;
+    for(int i =0;i<params->children.size();i++){
         symtable_entry* temp = new symtable_entry(params->children[i], line_no);
         this->paramlist[temp->name] = temp;
-     }
+    }
 }
 
 void symtable_func::add_entry(TreeNode* new_entry,ll line_no){
@@ -183,12 +182,15 @@ symtable_entry* symtable_func::find_entry(string name){
 ////////////////////////////////////
 symtable_class::symtable_class(TreeNode* class_, TreeNode* parentclass){    
     this->name = class_->lexeme;
-    string parentclassname = parentclass->lexeme;
-    symtable_class* temp = global_symtab->search_class(parentclassname);
-    this->parentclass_symtab = temp;
+    symtable_class parent_class = NULL;
+    if(parentclass!=NULL){
+        string parentclassname = parentclass->lexeme;
+        parent_class = global_symtable->search_class(parentclassname);
+    }
+    this->parentclass_symtab = parent_class;
 }
 
-void symtable_class :: add_func_class(symtable_func* function){
+void symtable_class :: add_func(symtable_func* function){
     string funcname = function->name;
     for(auto param : function->paramlist){
         funcname.push_back('@');

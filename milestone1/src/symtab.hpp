@@ -73,7 +73,7 @@ class symtable_class {
         symtable_global* parent_symtab = NULL;
         symtable_class* parentclass_symtab = NULL;
         symtable_class(TreeNode* class_, TreeNode* parentclass);
-        void add_func_class(symtable_func* function);
+        void add_func(symtable_func* function);
         void add_attribute(TreeNode* entry, ll line_no);
         symtable_func* search_func(string &name, vector<string> &types);
         symtable_entry* search_entry(string &name);

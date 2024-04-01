@@ -1,5 +1,5 @@
 
-def funct(x: int = 5, y: int = 10) -> int:
+def funct(x: int = 5, y: int = 10) -> list[int]:
     a: int
     b: float
     global xa, xy
@@ -10,7 +10,7 @@ def funct(x: int = 5, y: int = 10) -> int:
     u: int = 3
 
 class A():
-    def __init__(self, x: int, y: int, z: int) -> None:
+    def __init__(self, x: int, y: int, z: int) -> list[int]:
         self.x = x
         self.y = y
         i:int = 0

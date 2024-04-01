@@ -8,7 +8,7 @@ extern FILE* yyin;
 extern string last_token;
 extern string last_token_value;
 extern int terminated;
-
+extern symtable_global* global_symtable;
 int yylex();
 int yyerror(const char * msg);
 
@@ -26,7 +26,7 @@ map<string, string> id_to_label;
 map<string, vector<string> > edges;
 symtable_func* curr_symtable_func = NULL;
 symtable_class* curr_symtable_class = NULL;
-symtable_global* curr_symtable_global = NULL;
+symtable_global* curr_symtable_global = global_symtable;
 
 
 struct TreeNode * makeNode(string lexeme, int node_type = -1){
@@ -542,14 +542,22 @@ else_stmt : KEY_ELSE OPER_COLON suite
     }
     ;
 
-classdef: "class" NAME inheritlist ":" suite
+classdef: "class" NAME inheritlist {
+    curr_symtable_class = new symtable_class($2,$3)
+    } ":" suite
     {
+        
+        
         $$ = makeNode("",CLASS_TYPE);
         appendChild($$, $2);
         if ($3 != NULL){
             appendChild($$, $3);
         }
-        appendChild($$, $5);
+        appendChild($$, $6);
+
+        curr_symtable_global->add_class(curr_symtable_class);
+        curr_symtable_class = NULL;
+
     }
     ;
 
@@ -567,6 +575,7 @@ inheritlist: "(" NAME ")"
         $$ = NULL;
     }
     ;
+
 
 for_stmt: "for" test "in" test ":" suite
     {   
@@ -586,12 +595,7 @@ while_stmt: KEY_WHILE test OPER_COLON suite
     ;
 
 funcdef : "def" NAME parameters funcdef_dash {
-    if(curr_symtable_class!=NULL){
-        
-        curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
-
-    }
-
+    curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
 } ":" suite {
         $$ = makeNode("def",FUNCTION_TYPE);
         appendChild($$,$2);
@@ -601,6 +605,12 @@ funcdef : "def" NAME parameters funcdef_dash {
             appendChild($$,$4);
         }
         appendChild($$, $7);
+        if(curr_symtable_class != NULL){
+            curr_symtable_class->add_func_class(curr_symtable_func);
+        }else{
+            curr_symtable_global->add_func(curr_symtable_func);
+        }
+
         curr_symtable_func = NULL;
 
 
