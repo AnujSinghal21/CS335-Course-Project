@@ -71,60 +71,57 @@ extern int yydebug;
     DEDENT = 272,                  /* DEDENT  */
     ENDMARKER = 273,               /* ENDMARKER  */
     INDENT = 274,                  /* INDENT  */
-    KEY_ASSERT = 275,              /* "assert"  */
-    KEY_BREAK = 276,               /* "break"  */
-    KEY_CLASS = 277,               /* "class"  */
-    KEY_CONTINUE = 278,            /* "continue"  */
-    KEY_DELETE = 279,              /* "delete"  */
-    KEY_ELIF = 280,                /* "elif"  */
-    KEY_ELSE = 281,                /* "else"  */
-    KEY_FALSE = 282,               /* "False"  */
-    KEY_FOR = 283,                 /* "for"  */
-    KEY_FUNCTION_DEF = 284,        /* "def"  */
-    KEY_GLOBAL = 285,              /* "global"  */
-    KEY_IF = 286,                  /* "if"  */
-    KEY_NONE = 287,                /* "None"  */
-    KEY_NONLOCAL = 288,            /* "nonlocal"  */
-    KEY_RETURN = 289,              /* "return"  */
-    KEY_TRUE = 290,                /* "True"  */
-    KEY_WHILE = 291,               /* "while"  */
-    NAME = 292,                    /* NAME  */
-    NEWLINE = 293,                 /* NEWLINE  */
-    NUMBER = 294,                  /* NUMBER  */
-    OPEN_SQUARE_BRACKET = 295,     /* "["  */
-    OPER_AND = 296,                /* "and"  */
-    OPER_AND_BITWISE = 297,        /* "&"  */
-    OPER_CLOSE_BRACKET = 298,      /* ")"  */
-    OPER_COLON = 299,              /* ":"  */
-    OPER_COMMA = 300,              /* ","  */
-    OPER_DIVIDE = 301,             /* "/"  */
-    OPER_DOT = 302,                /* "."  */
-    OPER_EQUAL = 303,              /* "=="  */
-    OPER_GREATER_THAN = 304,       /* ">"  */
-    OPER_GREATER_THAN_EQUAL = 305, /* ">="  */
-    OPER_IN = 306,                 /* "in"  */
-    OPER_INT_DIV = 307,            /* "//"  */
-    OPER_IS = 308,                 /* "is"  */
-    OPER_LEFT_SHIFT = 309,         /* "<<"  */
-    OPER_LESS_GREATER = 310,       /* "<>"  */
-    OPER_LESS_THAN = 311,          /* "<"  */
-    OPER_LESS_THAN_EQUAL = 312,    /* "<="  */
-    OPER_MINUS = 313,              /* "-"  */
-    OPER_MOD = 314,                /* "%"  */
-    OPER_MULTIPLY = 315,           /* "*"  */
-    OPER_NEGATIVE = 316,           /* "~"  */
-    OPER_NOT = 317,                /* "not"  */
-    OPER_NOT_EQUAL = 318,          /* "!="  */
-    OPER_OPEN_BRACKET = 319,       /* "("  */
-    OPER_OR = 320,                 /* "or"  */
-    OPER_OR_BITWISE = 321,         /* "|"  */
-    OPER_PLUS = 322,               /* "+"  */
-    OPER_POWER = 323,              /* "**"  */
-    OPER_REFERENCE = 324,          /* "->"  */
-    OPER_RIGHT_SHIFT = 325,        /* ">>"  */
-    OPER_SEMICOLON = 326,          /* ";"  */
-    OPER_XOR_BITWISE = 327,        /* "^"  */
-    STRING = 328                   /* STRING  */
+    KEY_BREAK = 275,               /* "break"  */
+    KEY_CLASS = 276,               /* "class"  */
+    KEY_CONTINUE = 277,            /* "continue"  */
+    KEY_ELIF = 278,                /* "elif"  */
+    KEY_ELSE = 279,                /* "else"  */
+    KEY_FALSE = 280,               /* "False"  */
+    KEY_FOR = 281,                 /* "for"  */
+    KEY_FUNCTION_DEF = 282,        /* "def"  */
+    KEY_GLOBAL = 283,              /* "global"  */
+    KEY_IF = 284,                  /* "if"  */
+    KEY_NONE = 285,                /* "None"  */
+    KEY_RETURN = 286,              /* "return"  */
+    KEY_TRUE = 287,                /* "True"  */
+    KEY_WHILE = 288,               /* "while"  */
+    NAME = 289,                    /* NAME  */
+    NEWLINE = 290,                 /* NEWLINE  */
+    NUMBER = 291,                  /* NUMBER  */
+    OPEN_SQUARE_BRACKET = 292,     /* "["  */
+    OPER_AND = 293,                /* "and"  */
+    OPER_AND_BITWISE = 294,        /* "&"  */
+    OPER_CLOSE_BRACKET = 295,      /* ")"  */
+    OPER_COLON = 296,              /* ":"  */
+    OPER_COMMA = 297,              /* ","  */
+    OPER_DIVIDE = 298,             /* "/"  */
+    OPER_DOT = 299,                /* "."  */
+    OPER_EQUAL = 300,              /* "=="  */
+    OPER_GREATER_THAN = 301,       /* ">"  */
+    OPER_GREATER_THAN_EQUAL = 302, /* ">="  */
+    OPER_IN = 303,                 /* "in"  */
+    OPER_INT_DIV = 304,            /* "//"  */
+    OPER_IS = 305,                 /* "is"  */
+    OPER_LEFT_SHIFT = 306,         /* "<<"  */
+    OPER_LESS_GREATER = 307,       /* "<>"  */
+    OPER_LESS_THAN = 308,          /* "<"  */
+    OPER_LESS_THAN_EQUAL = 309,    /* "<="  */
+    OPER_MINUS = 310,              /* "-"  */
+    OPER_MOD = 311,                /* "%"  */
+    OPER_MULTIPLY = 312,           /* "*"  */
+    OPER_NEGATIVE = 313,           /* "~"  */
+    OPER_NOT = 314,                /* "not"  */
+    OPER_NOT_EQUAL = 315,          /* "!="  */
+    OPER_OPEN_BRACKET = 316,       /* "("  */
+    OPER_OR = 317,                 /* "or"  */
+    OPER_OR_BITWISE = 318,         /* "|"  */
+    OPER_PLUS = 319,               /* "+"  */
+    OPER_POWER = 320,              /* "**"  */
+    OPER_REFERENCE = 321,          /* "->"  */
+    OPER_RIGHT_SHIFT = 322,        /* ">>"  */
+    OPER_SEMICOLON = 323,          /* ";"  */
+    OPER_XOR_BITWISE = 324,        /* "^"  */
+    STRING = 325                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -133,11 +130,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 58 "parser.y"
+#line 73 "parser.y"
 
     struct TreeNode * node;
 
-#line 141 "parser.tab.h"
+#line 138 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

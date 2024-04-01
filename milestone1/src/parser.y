@@ -12,29 +12,6 @@ extern int terminated;
 int yylex();
 int yyerror(const char * msg);
 
-enum NODE_TYPES {
-    EXPR,
-    NAME,
-    OPERATOR, 
-    NUMBER,
-    STRING,
-    KEYWORD,
-    DECLARATION,
-    FUNCTION,
-    CLASS,
-    IF_STATEMENT,
-    ELIF_STATEMENT,
-    ELSE_STATEMENT,
-    WHILE_STATEMENT,
-    FOR_STATEMENT,
-    SUITE, 
-    STATEMENT, 
-    STATEMENT_GROUP,
-    PARAMETERS,
-    BOOLEAN,
-    MISC
-};
-
 int curr_id = 0;
 
 struct TreeNode{
@@ -53,7 +30,8 @@ map<string, vector<string> > edges;
 struct TreeNode * makeNode(string lexeme, int node_type = -1){
     struct TreeNode * node = new (struct TreeNode);
     node->id = "N" + to_string(curr_id++);
-    node->lexeme= lexeme;
+    node->lexeme = lexeme;
+    node->node_type = node_type;
     return node;
 }
 void labelNode(struct TreeNode * node){
@@ -113,11 +91,9 @@ TreeNode * root = NULL;
 %token <node> DEDENT
 %token <node> ENDMARKER
 %token <node> INDENT
-%token <node> KEY_ASSERT "assert"
 %token <node> KEY_BREAK "break"
 %token <node> KEY_CLASS "class"
 %token <node> KEY_CONTINUE "continue"
-%token <node> KEY_DELETE "delete"
 %token <node> KEY_ELIF "elif"
 %token <node> KEY_ELSE "else"
 %token <node> KEY_FALSE "False"
@@ -126,7 +102,6 @@ TreeNode * root = NULL;
 %token <node> KEY_GLOBAL "global"
 %token <node> KEY_IF "if"
 %token <node> KEY_NONE "None"
-%token <node> KEY_NONLOCAL "nonlocal"
 %token <node> KEY_RETURN "return"
 %token <node> KEY_TRUE "True"
 %token <node> KEY_WHILE "while"
@@ -172,9 +147,8 @@ TreeNode * root = NULL;
 %type <node> and_test
 %type <node> annasign
 %type <node> arglist
-%type <node> argument
+%type <node> arglist_dash
 %type <node> arith_expr
-//%type <node> assert_stmt
 %type <node> assign_dash
 %type <node> atom
 %type <node> atom_expr
@@ -185,12 +159,10 @@ TreeNode * root = NULL;
 %type <node> comparison
 %type <node> compound_stmt
 %type <node> continue_stmt
-%type <node> del_stmt
 %type <node> elif_stmt
 %type <node> else_stmt
 %type <node> else_stmt_dash
 %type <node> expr
-%type <node> exprlist
 %type <node> expr_stmt
 %type <node> expr_stmt_dash
 %type <node> factor
@@ -205,7 +177,6 @@ TreeNode * root = NULL;
 %type <node> input_file
 %type <node> input_file_dash
 %type <node> NAME_dash
-%type <node> nonlocal_stmt
 %type <node> not_test
 %type <node> or_test
 %type <node> parameters
@@ -221,10 +192,8 @@ TreeNode * root = NULL;
 %type <node> suite
 %type <node> term
 %type <node> test
-//%type <node> testlist
 %type <node> tfpdef
 %type <node> trailer
-%type <node> trailer_dash
 %type <node> typedargslist
 %type <node> while_stmt
 %type <node> xor_expr
@@ -255,14 +224,13 @@ input_file_dash : input_file_dash NEWLINE
             $$ = $1;
             appendChild($$, $2);
         }else{
-            $$ = makeNode("", SUITE);
-            if ($2->type == STATEMENT_GROUP){
+            $$ = makeNode("", SUITE_TYPE);
+            if ($2->node_type == STATEMENT_GROUP_TYPE){
                 for (auto x: $2->children){
                     appendChild($$, x);
                 }
             }else{
                 appendChild($$, $2);
-
             }
         }
     }
@@ -290,11 +258,11 @@ simple_stmt : small_stmt_dash NEWLINE
 
 small_stmt_dash : small_stmt_dash ";" small_stmt 
     {
-        if ($1->node_type == STATEMENT_GROUP){
+        if ($1->node_type == STATEMENT_GROUP_TYPE){
             $$ = $1;
             appendChild($$, $3);
         }else{
-            $$ = makeNode("", STATEMENT_GROUP);
+            $$ = makeNode("", STATEMENT_GROUP_TYPE);
             appendChild($$, $1);
             appendChild($$, $3);
         }
@@ -310,10 +278,6 @@ small_stmt : expr_stmt
     {
         $$ = $1;
     }
-    | del_stmt
-    {
-        $$ = $1;
-    }
     | flow_stmt 
     {
         $$ = $1;
@@ -322,24 +286,16 @@ small_stmt : expr_stmt
     {
         $$ = $1;
     }
-    | nonlocal_stmt
-    {
-        $$ = $1;
-    }
-    //| assert_stmt
-    //{
-    //    $$ = $1;
-    //}
     ;
 
-////// Anuj's reviewed ends here
-expr_stmt : test expr_stmt_dash  /* testlist->test */
+expr_stmt : test expr_stmt_dash
     {
+        $$ = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
         if ($2 == NULL){
-            $$ = $1;
+            appendChild($$, $1);
         }else{
-            $$ = $2;
-            insert_to_front($$, $1);
+            appendChild($$, $2);
+            insert_to_front($2, $1);
         }
     }
     ;
@@ -348,11 +304,9 @@ expr_stmt_dash : annasign
     {
         $$ = $1;
     }
-    | augassign test /* testlist -> test */
+    | augassign test
     {
-        $$ = $1;
-        labelNode($$);
-        $$ = makeNode("$1->lexeme",EXPR);
+        $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
     }
     | assign_dash
@@ -365,46 +319,27 @@ expr_stmt_dash : annasign
     }
     ;
 
-assign_dash: ASSIGN_EQUAL test assign_dash /* testlist -> test */
+assign_dash: ASSIGN_EQUAL test assign_dash
     {
-        $$ = $1;
-        labelNode($$);
-        insert_to_front($3, $2);
+        $$ = makeNode("=",EXPR_TYPE);
         appendChild($$, $3);
+        insert_to_front($3, $2);
     }
-    | ASSIGN_EQUAL test /* testlist -> test */
+    | ASSIGN_EQUAL test
     {
-        //$$ = $1;
-        //labelNode($$);
-        $$ = $2;
-        //appendChild($$, $2);
+        $$ = makeNode("=",EXPR_TYPE);
+        appendChild($$, $2);
     }
     ;
 
-/* testlist : testlist OPER_COMMA test
-    {
-        $$ = $2;
-        labelNode($$);
-        appendChild($$, $1);
-        appendChild($$, $3);
-    }
-    | test
-    {
-        $$ = $1;
-    }
-    ; */
-
 annasign : OPER_COLON test 
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode(":", EXPR_TYPE);
         appendChild($$, $2);
     }
     | OPER_COLON test ASSIGN_EQUAL test
     {
-        
-        $$ = makeNode(": =");
-        labelNode($$);
+        $$ = makeNode(": =", EXPR_TYPE);
         appendChild($$, $2);
         appendChild($$, $4);
     }
@@ -412,83 +347,51 @@ annasign : OPER_COLON test
 
 augassign : ASSIGN_PLUS
     {
-        //$$ = $1;
-        ////labelNode($$);
-        makeNode("ASSIGN_PLUS",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_MINUS
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_MINUS",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_MULTIPLY
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_MULTIPLY",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_DIVIDE
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_DIVIDE",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_MOD
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_MOD",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_AND
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_AND",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_OR
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_OR",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_XOR
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_XOR",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_LEFTSHIFT
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_LEFTSHIFT",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_RIGHTSHIFT
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_RIGHTSHIFT",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_POWER
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_POWER",OPERATOR);
+        $$ = $1;
     }
     | ASSIGN_DOUBLESLASH
     {
-        //$$ = $1;
-        //labelNode($$);
-        makeNode("ASSIGN_DOUBLESLASH",OPERATOR);
-    }
-    ;
-
-del_stmt : KEY_DELETE exprlist
-    {
-        $$ = makeNode("delete",STATEMENT);
-        //labelNode($$);
-        appendChild($$, $2);
+        $$ = $1;
     }
     ;
 
@@ -508,54 +411,46 @@ flow_stmt : break_stmt
 
 break_stmt : KEY_BREAK
     {
-        $$ = $1;
+        $$ = makeNode("break",STATEMENT_TYPE);
     }
     ;
 
 continue_stmt : KEY_CONTINUE
     {
-        $$ = $1;
+        $$ = makeNode("continue",STATEMENT_TYPE);
     }
     ;
 
-return_stmt : KEY_RETURN test /* testlist -> test */ 
+return_stmt : KEY_RETURN test 
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode("return",STATEMENT_TYPE);
         appendChild($$, $2);
     }
     ;
 
 global_stmt : KEY_GLOBAL NAME_dash
     {
-        $$ = makeNode("global",STATEMENT);
-        //labelNode($$);
-        appendChild($$, $2);
+        $$ = makeNode("global",STATEMENT_TYPE);
+        if ($2->node_type == MISC_TYPE){
+            for (auto x: $2->children){
+                appendChild($$, x);
+            }
+        }else{
+            appendChild($$, $2);
+        }
     }
     ;
-
-nonlocal_stmt : KEY_NONLOCAL NAME_dash
-    {
-        $$ = makeNode("nonlocal",STATEMENT);
-        //labelNode($$);
-        appendChild($$, $2);
-    }
-    ;
-
-/*assert_stmt : KEY_ASSERT test
-    {
-        $$ = $1;
-        labelNode($$);
-        appendChild($$, $2);
-    }
-    ;*/
 
 NAME_dash : NAME_dash OPER_COMMA NAME 
     {
-        $$ = $2;
-        labelNode($$);
-        appendChild($$, $1);
-        appendChild($$, $3);
+        if ($1->node_type == MISC_TYPE){
+            $$ = $1;
+            appendChild($$, $3);
+        }else{
+            $$ = makeNode("",MISC_TYPE);
+            appendChild($$, $1);
+            appendChild($$, $3);
+        }
     }
     | NAME
     {
@@ -597,7 +492,6 @@ if_stmt : if_stmt_dash else_stmt_dash
 if_stmt_dash : KEY_IF test OPER_COLON suite 
     {
         $$ = $1;
-        labelNode($$);
         appendChild($$, $2);
         appendChild($$, $4);    
     }
@@ -624,7 +518,6 @@ else_stmt_dash : else_stmt
 elif_stmt : KEY_ELIF test OPER_COLON suite elif_stmt
     {
         $$ = $1;
-        labelNode($$);
         appendChild($$, $2);
         appendChild($$, $4);
         appendChild($$, $5);        
@@ -632,7 +525,6 @@ elif_stmt : KEY_ELIF test OPER_COLON suite elif_stmt
     | KEY_ELIF test OPER_COLON suite
     {
         $$ = $1;
-        labelNode($$);
         appendChild($$, $2);
         appendChild($$, $4);
     }
@@ -641,16 +533,13 @@ elif_stmt : KEY_ELIF test OPER_COLON suite elif_stmt
 else_stmt : KEY_ELSE OPER_COLON suite
     {
         $$ = $1;
-        labelNode($$);
         appendChild($$, $3);
     }
     ;
 
 classdef: "class" NAME inheritlist ":" suite
     {
-        $$ = $1;
-        labelNode($$);
-        labelNode($2);
+        $$ = makeNode("",CLASS_TYPE);
         appendChild($$, $2);
         if ($3 != NULL){
             appendChild($$, $3);
@@ -659,11 +548,14 @@ classdef: "class" NAME inheritlist ":" suite
     }
     ;
 
-inheritlist: "(" arglist ")"
+inheritlist: "(" NAME ")"
     {
-        $$ = makeNode("inheritlist");
-        labelNode($$);
-        appendChild($$, $2);
+        $$ = $2;
+    }
+    |
+    "(" ")"
+    {
+        $$ = NULL;
     }
     | /*Empty*/ 
     {
@@ -671,52 +563,31 @@ inheritlist: "(" arglist ")"
     }
     ;
 
-for_stmt: "for" exprlist "in" test ":" suite /* testlist -> test */
+for_stmt: "for" test "in" test ":" suite
     {   
-        //$$ = $1;
-        //labelNode($$);
-        $$ = makeNode("for",FOR_STATEMENT);
+        $$ = $1;
         appendChild($$, $2);
         appendChild($$, $4);
         appendChild($$, $6);
     }
     ;
+
 while_stmt: KEY_WHILE test OPER_COLON suite
     {
-        //$$ = $1;
-        //labelNode($$);
-        $$ = makeNode("while",WHILE_STATEMENT)
+        $$ = $1;
         appendChild($$, $2);
         appendChild($$, $4);
     }
     ;
 
-
-exprlist : exprlist OPER_COMMA expr
-    {
-        $$ = $2;
-        labelNode($$);
-        appendChild($$, $1);
-        appendChild($$, $3);
-    }
-    | expr
-    {
-        $$ = $1;
-    }
-    ;
-
-funcdef : "def" NAME parameters
-    {   
-        // sym_tab_func* function = new sym_tab_func($2, $3);
-        $$ = makeNode($2,FUNCTION);
+funcdef : "def" NAME parameters funcdef_dash ":" suite {
+        $$ = makeNode("def",FUNCTION_TYPE);
+        appendChild($$,$2);
         appendChild($$,$3);
-        
-    } funcdef_dash ":" suite {
+        appendChild($$,$4);
         
         if ($4 != NULL){
-            type = makeNode("type",NAME);        
-            appendChild(type, $4);
-            appendChild($$,type);
+            appendChild($$,$4);
         }
         appendChild($$, $6);
     }
@@ -740,25 +611,29 @@ parameters : "(" parameters_dash ")"
 
 parameters_dash : typedargslist
     {
-        $$ = $1;
+        if ($1->node_type == PARAMETERS_TYPE){
+            $$ = $1;
+        }else{
+            $$ = makeNode("parameters",PARAMETERS_TYPE);
+            appendChild($$, $1);
+        }
     }
     | /*Empty*/
     {   
-        $$ = makeNode("parameters",PARAMETERS);
+        $$ = makeNode("parameters",PARAMETERS_TYPE);
     }
     ;
 
 typedargslist : typedargslist "," tfpdef
     {
-        if ($1->node_type == PARAMETERS){
+        if ($1->node_type == PARAMETERS_TYPE){
             $$ = $1;
             appendChild($$, $3);
         }else{
-            $$ = makeNode("parameters", PARAMETERS);
+            $$ = makeNode("parameters", PARAMETERS_TYPE);
             appendChild($$, $1);
             appendChild($$, $3);
         }
-
     }
     | tfpdef
     {
@@ -766,71 +641,53 @@ typedargslist : typedargslist "," tfpdef
     }
     ;
 
-
-tfpdef : NAME ":" test
+tfpdef : NAME ":" atom_expr
     {
-        $$ = $2;
-        labelNode($$);
-        labelNode($1);
+        $$ = makeNode("",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     |
-    NAME "=" test
+    NAME
     {
-        $$ = $2;
-        labelNode($$);
-        labelNode($1);
-        appendChild($$, $1);
-        appendChild($$, $3);
+        $$ = $1;
     }
     |
-    NAME ":" test "=" test
+    NAME ":" atom_expr "=" test
     {
-        cout << "I was here" << endl;
-        $$ = makeNode(": =");
-        symtable_entry * temp = new symtable_entry($1->token.lexeme, 0, "int");
-        current_func->add_entry(temp);
-        labelNode($$);
-        labelNode($1);
+        $$ = makeNode("",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
         appendChild($$, $5);
-    }
-    | NAME 
-    {
-        $$ = $1;
-        labelNode($$);
     }
     ;
 
 suite: simple_stmt 
     {
-        $$ = $1 ;
-
+        $$ = makeNode("", SUITE_TYPE);
+        appendChild($$, $1);
     }
     | NEWLINE INDENT stmt_dash DEDENT
     {
-        $$ = $3;
+        $$ = makeNode("", SUITE_TYPE);
+        for (auto x: $3->children){
+            appendChild($$, x);
+        }
     }
     ;
 
 stmt_dash : stmt_dash stmt 
     {
-        if ($1 != NULL){
-            $$ = $1;
-            appendChild($$, $2);
-        }else{
-            $$ = makeNode("statements");
-            labelNode($$);
-            appendChild($$, $2);
-        }
+        appendChild($1, $2);
+        $$ = $1;
     }
-    | /*Empty*/
+    | stmt
     {
-        $$ = NULL;
+        $$ = makeNode("statements", STATEMENT_GROUP_TYPE);
+        appendChild($$, $1);
     }
     ;
+
 test: or_test
     {
         $$ = $1;
@@ -843,8 +700,7 @@ or_test : and_test
     }
     | or_test "or" and_test
     {
-        $$ = $2;
-        labelNode($$);
+        $$ = makeNode("or",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -856,8 +712,7 @@ and_test : not_test
     }
     | and_test "and" not_test
     {
-        $$ = $2;
-        labelNode($$);
+        $$ = makeNode("and",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -865,8 +720,7 @@ and_test : not_test
 
 not_test : "not" not_test
     {
-        $$ = $1;
-        labelNode($$);
+        $$ = makeNode("not",EXPR_TYPE);
         appendChild($$, $2);
     }
     | comparison
@@ -875,10 +729,9 @@ not_test : "not" not_test
     }
     ;
 
-
 comparison : comparison comp_op expr
     {
-        $$ = $2;
+        $$ = makeNode($2->lexeme,EXPR_TYPE); 
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -890,49 +743,39 @@ comparison : comparison comp_op expr
 
 comp_op: "<"
     {
-        labelNode($$);
+        $$ = $1;
     }
     |">"
     {
-        labelNode($$);
+        $$ = $1;
     }
     |"=="
     {
-        labelNode($$);
+        $$ = $1;
     }
     |">="
     {
-        labelNode($$);
+        $$ = $1;
     }
     |"<="
     {
-        labelNode($$);
+        $$ = $1;
     }
     |"<>"
     {
-        labelNode($$);
+        $$ = $1;
     }
     |"!="
     {
-        labelNode($$);
-    }
-    |"in"
-    {
-        labelNode($$);
-    }
-    |"not" "in"
-    {
-        $$ = makeNode("not in");
-        labelNode($$);
+        $$ = $1;
     }
     |"is"
     {
-        labelNode($$);
+        $$ = $1;
     }
     |"is" "not"
     {
-        $$ = makeNode("is not");
-        labelNode($$);
+        $$ = makeNode("is not", OPERATOR_TYPE);
     }
     ;
 
@@ -942,10 +785,7 @@ expr : xor_expr
     }
     | expr "|" xor_expr
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR)
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -957,12 +797,9 @@ xor_expr : and_expr
     }
     | xor_expr "^" and_expr
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
-        appendChild($$, $3);    
+        appendChild($$, $3);
     }
     ;
 
@@ -972,10 +809,7 @@ and_expr: shift_expr
     }
     | and_expr "&" shift_expr
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -987,24 +821,17 @@ shift_expr : arith_expr
     }
     | shift_expr "<<" arith_expr
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | shift_expr ">>" arith_expr
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     ;
-
 
 arith_expr : term
     {
@@ -1012,19 +839,13 @@ arith_expr : term
     }
     | arith_expr "+" term
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | arith_expr "-" term
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -1036,37 +857,25 @@ term: factor
     }
     | term "*" factor
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | term "/" factor
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | term "%" factor
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     | term "//" factor
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -1074,26 +883,17 @@ term: factor
 
 factor : "+" factor
     {
-        //$$ = $1;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $1);
+        $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
     }
     | "-" factor
     {
-        //$$ = $1;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $1);
+        $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
     }
     | "~" factor
     {
-        //$$ = $1;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $1);
+        $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
     }
     | power
@@ -1108,10 +908,7 @@ power : atom_expr
     }
     | atom_expr "**" factor
     {
-        //$$ = $2;
-        //labelNode($$);
-        $$ = makeNode("",EXPR);
-        appendChild($$, $2);
+        $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
@@ -1122,24 +919,33 @@ atom_expr : atom trailer
         if ($2 == NULL){
             $$ = $1;
         }else{
-            $$ = makeNode("atom_expr");
-            //labelNode($$);
+            $$ = makeNode("atom_expr", EXPR_TYPE);
             appendChild($$, $1);
             appendChild($$, $2);
         }
     }
     ;
 
-trailer: trailer trailer_dash
+trailer : "(" arglist ")" 
     {
-        if ($1 == NULL){
-            $$ = $2;
-        }else{
-            $$ = $1;
-            appendChild($$, $2);
+        $$ = makeNode("()", EXPR_TYPE);
+        if ($2 != NULL){
+            for (auto x: $2->children){
+                appendChild($$, x);
+            }
         }
     }
-    | /*empty*/ 
+    | "[" test "]" 
+    {
+        $$ = makeNode("[]", EXPR_TYPE);
+        appendChild($$, $2);
+    }
+    | "." NAME
+    {
+        $$ = makeNode(".", EXPR_TYPE);
+        appendChild($$, $2);
+    }
+    | /*Empty*/ 
     {
         $$ = NULL;
     }
@@ -1147,104 +953,65 @@ trailer: trailer trailer_dash
 
 atom : NAME
     {
-        $$ = makeNode($1->lexeme,NAME);
-        //labelNode($$);
+        $$ = makeNode($1->lexeme,NAME_TYPE);
     }
     | NUMBER
     {
-        $$ = makeNode($1->lexeme,NUMBER);
-        //labelNode($$);
+        $$ = makeNode($1->lexeme,NUMBER_TYPE);
     }
     | STRING
     {
-        $$ = makeNode($1->lexeme,STRING);
-        //labelNode($$);
+        $$ = makeNode($1->lexeme,STRING_TYPE);
     }
     | "None"
     {
         $$ = $1;
-        labelNode($$);
     }
     | "True"
     {
-        $$ = makeNode("true",BOOLEAN);
-        //labelNode($$);
+        $$ = makeNode($1->lexeme,BOOLEAN_TYPE);
     }
     | "False"
     {
-        $$ = makeNode("false",BOOLEAN);
-        labelNode($$);
+        $$ = makeNode($1->lexeme,BOOLEAN_TYPE);
     }
-    | "(" test ")"  /* testlist -> test */
-    {
-        $$ = makeNode("()");
-        labelNode($$);
-        appendChild($$, $2);
-    }
-    | "[" test "]"  /* testlist -> test */
-    {
-        $$ = makeNode("[]");
-        labelNode($$);
-        appendChild($$, $2);
-    }
-    |"[" test "," "]"  /* testlist -> test */
-    {
-        $$ = makeNode("[]");
-        labelNode($$);
-        appendChild($$, $2);
-    }
-    | "[" "]"
-    {
-        $$ = makeNode("[]");
-        labelNode($$);
-    }
-    ;
-trailer_dash : "(" arglist ")" 
-    {
-        $$ = makeNode("()");
-        labelNode($$);
-        appendChild($$, $2);
-    }
-    | "[" test "]"  /* testlist -> test */
-    {
-        $$ = makeNode("[]");
-        labelNode($$);
-        appendChild($$, $2);
-    }
-    | "." NAME
-    {
-        $$ = $1;
-        labelNode($$);
-        labelNode($2);
-        appendChild($$, $2);
-    }
-    ;
-arglist : arglist "," argument
+    | "(" test ")"
     {
         $$ = $2;
-        labelNode($$);
-        appendChild($$,$1);
-        appendChild($$,$3);
     }
-    | argument
+    | "[" arglist "]" 
+    {
+        $$ = makeNode("[]", LIST_TYPE);
+        if ($2 != NULL){
+            for (auto x: $2->children){
+                appendChild($$, x);
+            }
+        }
+    }
+    ;
+
+arglist : arglist_dash
     {
         $$ = $1;
     }
-    | /*empty*/ {$$ = NULL;}
+    | /*empty*/ 
+    {
+        $$ = NULL;
+    }
     ; 
 
-argument : test
+arglist_dash : arglist_dash "," test
     {
+        appendChild($1, $3);
         $$ = $1;
     }
-    | test ASSIGN_EQUAL test
+    | test
     {
-        $$ = $2;
+        $$ = makeNode("",MISC_TYPE);
         appendChild($$, $1);
-        appendChild($$, $3);
     }
-    ;
 
+////// Anuj's reviewed ends here
 
 %%
 void printAST(char * filename){
@@ -1335,12 +1102,12 @@ int main(int argc, char ** argv){
         cout << "Started parsing" <<endl;
     }
 
-    string temp_name = "Hello";
-    vector<symtable_entry *> temp_params;
-    current_func = new symtable_func(temp_name, temp_params);
+    // string temp_name = "Hello";
+    // vector<symtable_entry *> temp_params;
+    // current_func = new symtable_func(temp_name, temp_params);
 
     yyparse();
-    print_tree(root);
+    printTree(root);
     if (verbose){
         if (terminated){
             cout << "Error in parsing, AST generated might be incomplete/erroneous" << endl;
