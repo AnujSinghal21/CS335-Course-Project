@@ -24,7 +24,9 @@ struct TreeNode{
 
 map<string, string> id_to_label;
 map<string, vector<string> > edges;
-
+symtable_func* curr_symtable_func = NULL;
+symtable_class* curr_symtable_class = NULL;
+symtable_global* curr_symtable_global = NULL;
 
 
 struct TreeNode * makeNode(string lexeme, int node_type = -1){
@@ -258,6 +260,7 @@ simple_stmt : small_stmt_dash NEWLINE
 
 small_stmt_dash : small_stmt_dash ";" small_stmt 
     {
+        
         if ($1->node_type == STATEMENT_GROUP_TYPE){
             $$ = $1;
             appendChild($$, $3);
@@ -275,7 +278,8 @@ small_stmt_dash : small_stmt_dash ";" small_stmt
     ;
 
 small_stmt : expr_stmt 
-    {
+    {   
+
         $$ = $1;
     }
     | flow_stmt 
@@ -289,7 +293,8 @@ small_stmt : expr_stmt
     ;
 
 expr_stmt : test expr_stmt_dash
-    {
+    {       
+
         $$ = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
         if ($2 == NULL){
             appendChild($$, $1);
@@ -580,16 +585,25 @@ while_stmt: KEY_WHILE test OPER_COLON suite
     }
     ;
 
-funcdef : "def" NAME parameters funcdef_dash ":" suite {
+funcdef : "def" NAME parameters funcdef_dash {
+    if(curr_symtable_class!=NULL){
+        
+        curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
+
+    }
+
+} ":" suite {
         $$ = makeNode("def",FUNCTION_TYPE);
         appendChild($$,$2);
         appendChild($$,$3);
         appendChild($$,$4);
-        
         if ($4 != NULL){
             appendChild($$,$4);
         }
-        appendChild($$, $6);
+        appendChild($$, $7);
+        curr_symtable_func = NULL;
+
+
     }
     ;
 
@@ -663,7 +677,7 @@ tfpdef : NAME ":" atom_expr
     ;
 
 suite: simple_stmt 
-    {
+    {   
         $$ = makeNode("", SUITE_TYPE);
         appendChild($$, $1);
     }
@@ -926,7 +940,7 @@ atom_expr : atom trailer
     }
     ;
 
-trailer : "(" arglist ")" 
+trailer : "(" arglist ")"
     {
         $$ = makeNode("()", EXPR_TYPE);
         if ($2 != NULL){

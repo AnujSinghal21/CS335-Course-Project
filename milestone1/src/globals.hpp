@@ -3,6 +3,7 @@
 
 #include <bits/stdc++.h>
 using namespace std;
+
 // #include <node.hpp>
 // #include "symtab.hpp"
 // #include <threeAC.hpp>
@@ -34,5 +35,11 @@ enum NODE_TYPES {
     MISC_TYPE
 };
 
+struct TreeNode{
+    string lexeme = "";
+    string id;
+    int node_type = -1;
+    vector<struct TreeNode*> children;
+};
 
 #endif
