@@ -12,16 +12,28 @@ symtable_global* global_symtable = new symtable_global();
 
 symtable_entry :: symtable_entry(){;}
 
-symtable_entry :: symtable_entry(TreeNode* entry, ll line_no)
+string create_string_type(TreeNode* type,string &type_str){
+
+    if(type->node_type == NAME_TYPE){
+        type_str += type->lexeme;
+        return type_str;
+    }
+
+    for(int i=0;i<type->children.size();i++){
+        create_string_type(type->children[i],type_str);
+    }
+
+}
+
+
+symtable_entry :: symtable_entry(TreeNode* entry, TreeNode* type, ll line_no)
 {
     this->line_no = line_no;
+    TreeNode* type_name = type;
     TreeNode* var_name = entry->children[0];
-    TreeNode* type_name = entry->children[1];
+    string temp_str = "";
+    this->type = create_string_type(type);
     this->name = var_name->lexeme;
-    // if(entry->children.size()==3){
-    //     this->init_val = 
-    // }
-    
 }
 
 
@@ -32,8 +44,8 @@ symtable_entry :: symtable_entry(string name, const symtable_entry &other){
     this->size = other.size;
 }
 
-void symtable_entry::update_type(string type){
-    this->type = type;
+void symtable_entry::update_type(TreeNode* type){
+    this->type = create_string_type(type);
     this->size = size_of_type[type];
     // if(this -> size == 0) {
     //     this -> size = address_size;       // otherwise it's a reference and hence address_size bytes
@@ -67,11 +79,17 @@ void symtable_global :: add_class(symtable_class* class_){
     class_->parent_symtab = this;
 }
 
-void symtable_global :: add_global_var(TreeNode* global_var, ll line_no){
+symtable_entry* symtable_global :: add_global_var(TreeNode* global_var, ll line_no){
     symtable_entry* temp = new symtable_entry(global_var, line_no);
     string varname = temp->name;
-    if(global_vars.find(varname)!=global_vars.end()) cout << "Not a valid variable, already present";
-    else global_vars[varname] = temp;
+    if(global_vars.find(varname)!=global_vars.end()){
+         cout << "Not a valid variable, already present";
+        return NULL;
+    }
+    else{
+        global_vars[varname] = temp; 
+        return temp;
+    }
 }
 
 symtable_func* symtable_global :: search_func(string &name, vector<string> &types){
@@ -121,12 +139,13 @@ symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* re
     this->name = function->lexeme;
     this->returntype = returntype->lexeme;
     for(int i =0;i<params->children.size();i++){
+        
         symtable_entry* temp = new symtable_entry(params->children[i], line_no);
         this->paramlist[temp->name] = temp;
     }
 }
 
-void symtable_func::add_entry(TreeNode* new_entry,ll line_no){
+symtable_entry* symtable_func::add_entry(TreeNode* new_entry,ll line_no){
     symtable_entry* temp = new symtable_entry(new_entry, line_no);
     string entryname = temp->name;
     if(entries.find(entryname)!=entries.end() || paramlist.find(entryname)!=paramlist.end()){
@@ -137,6 +156,7 @@ void symtable_func::add_entry(TreeNode* new_entry,ll line_no){
         cout << "Entry name: " << temp->name << endl;
         entries[entryname]=temp;
     }
+    return temp;
 }
 
 void symtable_func::delete_entry(string name){

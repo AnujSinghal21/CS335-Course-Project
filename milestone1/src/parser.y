@@ -254,6 +254,7 @@ stmt : simple_stmt
 
 simple_stmt : small_stmt_dash NEWLINE
     {
+
         $$ = $1;
     }
     ;
@@ -294,13 +295,27 @@ small_stmt : expr_stmt
 
 expr_stmt : test expr_stmt_dash
     {       
-
         $$ = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
         if ($2 == NULL){
             appendChild($$, $1);
         }else{
             appendChild($$, $2);
             insert_to_front($2, $1);
+        }
+        symtable_entry* entry=NULL; 
+
+        if($2->lexeme == ":" || $2->lexeme == ":="){
+            if(curr_symtable_func!=NULL){
+                entry = curr_symtable_func->add_entry($1,yylineno);        
+
+            }else if(curr_symtable_class!=NULL){
+                entry = curr_symtable_class->add_entry($1,yylineno);        
+            }else{
+                entry = curr_symtable_class->add_global_var($1,yylineno);        
+            }
+
+            if(entry!=NULL)
+                entry->update_entry($2->children[0]); 
         }
     }
     ;
@@ -312,7 +327,7 @@ expr_stmt_dash : annasign
     | augassign test
     {
         $$ = makeNode($1->lexeme,EXPR_TYPE);
-        appendChild($$, $2);
+        appendChild($$, $2);    
     }
     | assign_dash
     {
@@ -543,7 +558,7 @@ else_stmt : KEY_ELSE OPER_COLON suite
     ;
 
 classdef: "class" NAME inheritlist {
-    curr_symtable_class = new symtable_class($2,$3)
+        curr_symtable_class = new symtable_class($2,$3)
     } ":" suite
     {
         
@@ -606,14 +621,12 @@ funcdef : "def" NAME parameters funcdef_dash {
         }
         appendChild($$, $7);
         if(curr_symtable_class != NULL){
-            curr_symtable_class->add_func_class(curr_symtable_func);
+            curr_symtable_class->add_func(curr_symtable_func);
         }else{
             curr_symtable_global->add_func(curr_symtable_func);
         }
 
         curr_symtable_func = NULL;
-
-
     }
     ;
 

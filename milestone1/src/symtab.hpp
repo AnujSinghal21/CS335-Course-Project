@@ -21,7 +21,7 @@ class symtable_entry {
         //ll dims = 0; // for multidim array 
         
         symtable_entry();
-        symtable_entry(TreeNode* entry, ll line_no);
+        symtable_entry(TreeNode* entry, TreeNode* type, ll line_no);
         symtable_entry(string name, const symtable_entry& other); // may be for a=b type
         void update_type(string type);
 };
