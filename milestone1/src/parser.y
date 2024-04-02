@@ -12,61 +12,23 @@ extern symtable_global* global_symtable;
 int yylex();
 int yyerror(const char * msg);
 
-int curr_id = 0;
-
-struct TreeNode{
-    string lexeme = "";
-    string id;
-    int node_type = -1;
-    vector<struct TreeNode*> children;
-};
-
-
+symtable_global* global_symtable;
 map<string, string> id_to_label;
 map<string, vector<string> > edges;
 symtable_func* curr_symtable_func = NULL;
 symtable_class* curr_symtable_class = NULL;
-symtable_global* curr_symtable_global = global_symtable;
-
-
-struct TreeNode * makeNode(string lexeme, int node_type = -1){
-    struct TreeNode * node = new (struct TreeNode);
-    node->id = "N" + to_string(curr_id++);
-    node->lexeme = lexeme;
-    node->node_type = node_type;
-    return node;
-}
-void labelNode(struct TreeNode * node){
-    id_to_label[node->id] = node->lexeme;
-    return;
-}
-void appendChild(struct TreeNode* parent, struct TreeNode* child){
-    if(child == NULL || parent == NULL){
-        return;
-    }
-    parent->children.push_back(child);
-    // edges[parent->id].push_back(child->id);
-    return;
-}
-void insert_to_front(struct TreeNode* parent, struct TreeNode* child){
-    if(child == NULL || parent == NULL){
-        return;
-    }
-    parent->children.insert(parent->children.begin(), child);
-    // edges[parent->id].insert(edges[parent->id].begin(), child->id);
-    return;
-}
+symtable_global* curr_symtable_global;
 
 void printTree(struct TreeNode * node){
     if (node == NULL){
         return;
     }
-    cout << node->id << " " << node->lexeme << " has type: " << node->node_type << endl;
+    // cout << node->id << " " << node->lexeme << " has type: " << node->node_type << endl;
     for (auto child: node->children){
         printTree(child);
     }   
     return;
-}
+} 
 
 TreeNode * root = NULL;
 
@@ -196,6 +158,7 @@ TreeNode * root = NULL;
 %type <node> test
 %type <node> tfpdef
 %type <node> trailer
+%type <node> trailerlist
 %type <node> typedargslist
 %type <node> while_stmt
 %type <node> xor_expr
@@ -294,7 +257,7 @@ small_stmt : expr_stmt
     ;
 
 expr_stmt : test expr_stmt_dash
-    {       
+    { 
         $$ = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
         if ($2 == NULL){
             appendChild($$, $1);
@@ -305,17 +268,17 @@ expr_stmt : test expr_stmt_dash
         symtable_entry* entry=NULL; 
 
         if($2->lexeme == ":" || $2->lexeme == ":="){
+            DEBUG("here");
             if(curr_symtable_func!=NULL){
-                entry = curr_symtable_func->add_entry($1,yylineno);        
-
+                DEBUG("Entered Add Function Entry" << curr_symtable_func);
+                entry = curr_symtable_func->add_entry($2,yylineno);        
+                DEBUG("Exited Add Function Entry");
             }else if(curr_symtable_class!=NULL){
-                entry = curr_symtable_class->add_entry($1,yylineno);        
+                entry = curr_symtable_class->add_attribute($2,yylineno);        
             }else{
-                entry = curr_symtable_class->add_global_var($1,yylineno);        
+                cout << "add global" << endl;
+                entry = curr_symtable_global->add_global_var($2,yylineno);        
             }
-
-            if(entry!=NULL)
-                entry->update_entry($2->children[0]); 
         }
     }
     ;
@@ -359,7 +322,7 @@ annasign : OPER_COLON test
     }
     | OPER_COLON test ASSIGN_EQUAL test
     {
-        $$ = makeNode(": =", EXPR_TYPE);
+        $$ = makeNode(":=", EXPR_TYPE);
         appendChild($$, $2);
         appendChild($$, $4);
     }
@@ -558,10 +521,11 @@ else_stmt : KEY_ELSE OPER_COLON suite
     ;
 
 classdef: "class" NAME inheritlist {
-        curr_symtable_class = new symtable_class($2,$3)
+        curr_symtable_class = new symtable_class($2,$3);
+        curr_symtable_global->add_class(curr_symtable_class);
     } ":" suite
     {
-        
+            
         
         $$ = makeNode("",CLASS_TYPE);
         appendChild($$, $2);
@@ -570,7 +534,6 @@ classdef: "class" NAME inheritlist {
         }
         appendChild($$, $6);
 
-        curr_symtable_global->add_class(curr_symtable_class);
         curr_symtable_class = NULL;
 
     }
@@ -611,6 +574,13 @@ while_stmt: KEY_WHILE test OPER_COLON suite
 
 funcdef : "def" NAME parameters funcdef_dash {
     curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
+    if(curr_symtable_class != NULL){
+        curr_symtable_class->add_func(curr_symtable_func);
+    }else{
+        DEBUG("Adding function to global sym tab");
+        curr_symtable_global->add_func(curr_symtable_func);
+        DEBUG("Added function to global sym tab");
+    }
 } ":" suite {
         $$ = makeNode("def",FUNCTION_TYPE);
         appendChild($$,$2);
@@ -620,11 +590,7 @@ funcdef : "def" NAME parameters funcdef_dash {
             appendChild($$,$4);
         }
         appendChild($$, $7);
-        if(curr_symtable_class != NULL){
-            curr_symtable_class->add_func(curr_symtable_func);
-        }else{
-            curr_symtable_global->add_func(curr_symtable_func);
-        }
+        
 
         curr_symtable_func = NULL;
     }
@@ -632,6 +598,7 @@ funcdef : "def" NAME parameters funcdef_dash {
 
 funcdef_dash : "->" test 
     {
+        DEBUG($2->lexeme);
         $$ = $2;
     }
     | /*Empty*/
@@ -642,13 +609,15 @@ funcdef_dash : "->" test
 
 parameters : "(" parameters_dash ")" 
     {
+        DEBUG($2);
+        DEBUG("parameters" << $2->children.size());
         $$ = $2;
     }
     ;
 
 parameters_dash : typedargslist
     {
-        if ($1->node_type == PARAMETERS_TYPE){
+        if (($1 != NULL) && $1->node_type == PARAMETERS_TYPE){
             $$ = $1;
         }else{
             $$ = makeNode("parameters",PARAMETERS_TYPE);
@@ -663,7 +632,7 @@ parameters_dash : typedargslist
 
 typedargslist : typedargslist "," tfpdef
     {
-        if ($1->node_type == PARAMETERS_TYPE){
+        if ($1 != NULL && $1->node_type == PARAMETERS_TYPE){
             $$ = $1;
             appendChild($$, $3);
         }else{
@@ -678,21 +647,25 @@ typedargslist : typedargslist "," tfpdef
     }
     ;
 
-tfpdef : NAME ":" atom_expr
+tfpdef : NAME ":" test
     {
-        $$ = makeNode("",EXPR_TYPE);
+        $$ = makeNode(":",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
     }
     |
     NAME
     {
-        $$ = $1;
+        if (curr_symtable_class != NULL){
+            if ($1->lexeme == "self"){
+                $$ = NULL;
+            }
+        }
     }
     |
-    NAME ":" atom_expr "=" test
+    NAME ":" test "=" test
     {
-        $$ = makeNode("",EXPR_TYPE);
+        $$ = makeNode(":=",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
         appendChild($$, $5);
@@ -951,7 +924,7 @@ power : atom_expr
     }
     ;
 
-atom_expr : atom trailer
+atom_expr : atom trailerlist
     {
         if ($2 == NULL){
             $$ = $1;
@@ -962,6 +935,21 @@ atom_expr : atom trailer
         }
     }
     ;
+
+trailerlist : trailerlist trailer
+    {
+        if ($$ == NULL){
+            $$ = makeNode("trailer",TRAILER_TYPE);
+            appendChild($$, $2);
+        }else{
+            $$ = $1;
+            appendChild($$, $2);
+        }
+    }
+    | /*Empty*/
+    {
+        $$ = NULL;
+    }
 
 trailer : "(" arglist ")"
     {
@@ -981,10 +969,6 @@ trailer : "(" arglist ")"
     {
         $$ = makeNode(".", EXPR_TYPE);
         appendChild($$, $2);
-    }
-    | /*Empty*/ 
-    {
-        $$ = NULL;
     }
     ;
 
@@ -1143,6 +1127,8 @@ int main(int argc, char ** argv){
     // vector<symtable_entry *> temp_params;
     // current_func = new symtable_func(temp_name, temp_params);
 
+    global_symtable = new symtable_global();
+    curr_symtable_global = global_symtable;
     yyparse();
     printTree(root);
     if (verbose){

@@ -2,7 +2,12 @@
 #define GLOBALS
 
 #include <bits/stdc++.h>
+#include"symtab.hpp"
 using namespace std;
+
+#define DEBUG(msg) \
+    std::cerr << "Debug [" << __FILE__ << ":" << __LINE__ << "]: " << msg << std::endl;
+
 
 // #include <node.hpp>
 // #include "symtab.hpp"
@@ -30,6 +35,7 @@ enum NODE_TYPES {
     SUITE_TYPE, 
     STATEMENT_TYPE, 
     STATEMENT_GROUP_TYPE,
+    TRAILER_TYPE,
     PARAMETERS_TYPE,
     BOOLEAN_TYPE,
     MISC_TYPE
@@ -41,5 +47,9 @@ struct TreeNode{
     int node_type = -1;
     vector<struct TreeNode*> children;
 };
+
+struct TreeNode * makeNode(string lexeme, int node_type);
+void appendChild(struct TreeNode* parent, struct TreeNode* child);
+void insert_to_front(struct TreeNode* parent, struct TreeNode* child);
 
 #endif

@@ -3,7 +3,6 @@
 #include "globals.hpp"
 // #include<bits/stdc++.h>
 stack<int> indent_stack;
-struct TreeNode * makeNode(string lexeme, int node_type=-1);
 int global_indent = 0;
 int generated_EOF = 0;
 int ready_EOF = 0;
@@ -97,7 +96,7 @@ dunder "__main__"|"__name__"|"__init__"
 "def" {last_token="def";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_FUNCTION_DEF;}
 "global" {last_token="global";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_GLOBAL;}
 "if" {last_token="if";yylval.node = makeNode(yytext,IF_STATEMENT_TYPE); return KEY_IF;}
-"None" {last_token="None";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_NONE;}
+"None" {last_token="None";yylval.node = makeNode(yytext,NAME_TYPE); return KEY_NONE;}
 "return" {last_token="return";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_RETURN;}
 "True" {last_token="True";yylval.node = makeNode(yytext,BOOLEAN_TYPE); return KEY_TRUE;}
 "while" {last_token="while";yylval.node = makeNode(yytext,WHILE_STATEMENT_TYPE); return KEY_WHILE;}

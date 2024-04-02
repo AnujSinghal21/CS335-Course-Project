@@ -1,29 +1,16 @@
+def func(x: int, y:float) -> int:
+    z : int = x + y
+    return z 
 
-def funct(x: int = 5, y: int = 10) -> list[int]:
-    a: int
-    b: float
-    global xa, xy
+class Circle:
+    def __init__(self, radius: float) -> None:
+        self.radius: float = radius
 
-    z: int = x + y
-    z: int = z + a
-    w: int = 2
-    u: int = 3
+    def area(self) -> float:
+        return 3.14159 * self.radius ** 2
 
-class A():
-    def __init__(self, x: int, y: int, z: int) -> list[int]:
-        self.x = x
-        self.y = y
-        i:int = 0
-        a = [1 , 2, 3]
-        for a[i] in range(3):
-            print(i)
-    def funct(self, z: int) -> int:
-        return self.x + self.y + z
-    
-class B():
-    def __init__(self, x: int, y: int, z: int) -> None:
-        super()
-        self.z = z
+    def circumference(self) -> float:
+        return 2 * 3.14159 * self.radius
 
-    def funct(self, w: int) -> int:
-        return self.x + self.y + self.z + w
+    def diameter(self) -> float:
+        return 2 * self.radius

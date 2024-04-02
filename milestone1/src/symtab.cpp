@@ -1,39 +1,69 @@
 #include "symtab.hpp"
 
+extern symtable_global* global_symtable;
 map <string,int> size_of_type = {
-
+    
 };
-
-symtable_global* global_symtable = new symtable_global();
 
 //////////SYMTABENTRY STARTS////////////
 ////////////////////////////////////////
 
-
 symtable_entry :: symtable_entry(){;}
 
-string create_string_type(TreeNode* type,string &type_str){
-
-    if(type->node_type == NAME_TYPE){
-        type_str += type->lexeme;
-        return type_str;
+string create_string_type(TreeNode* type){
+    if (type == NULL){
+        DEBUG("Type is NULL");
     }
-
-    for(int i=0;i<type->children.size();i++){
-        create_string_type(type->children[i],type_str);
+    switch (type->node_type){
+        case NAME_TYPE:
+            return type->lexeme;
+        case EXPR_TYPE:
+            if (type->children[0]->node_type == NAME_TYPE 
+                && type->children[0]->lexeme == "list"
+                && type->children[1]->node_type == TRAILER_TYPE 
+                && type->children[1]->children[0]->node_type == EXPR_TYPE
+                && type->children[1]->children[0]->lexeme == "[]"
+                && type->children[1]->children[0]->children[0]->node_type == NAME_TYPE
+                ){
+                return "list[" + type->children[1]->children[0]->children[0]->lexeme + "]";
+            }
+            else{
+                DEBUG("INVALID TYPE");
+                return "";
+            }
+        default:
+            DEBUG("Type is NULL");
+            return "";
     }
-
 }
 
-
-symtable_entry :: symtable_entry(TreeNode* entry, TreeNode* type, ll line_no)
+symtable_entry :: symtable_entry(TreeNode* entry, ll line_no)
 {
-    this->line_no = line_no;
-    TreeNode* type_name = type;
+    // this->line_no = line_no;
+    // TreeNode* type_name = type;
+    // TreeNode* var_name = entry->children[0];
+    // string temp_str = "";
+    // this->type = create_string_type(type,temp_str);
+    // this->name = var_name->lexeme;
+    // this->name = name;
+    // this->line_no = line_no;
+    // this->type = type;
+    // this->size = size_of_type[type];
+    DEBUG("Entered Sym Table Entry method");
     TreeNode* var_name = entry->children[0];
+    TreeNode* type_name = entry->children[1];
+    DEBUG("Exited Sym Table Entry method");
+    
     string temp_str = "";
-    this->type = create_string_type(type);
     this->name = var_name->lexeme;
+    //cout << var_name->lexeme << endl;
+    //cout << "entry" << endl;
+    this->type = create_string_type(type_name);
+    
+    cout << "NEW SYMTAB ENTRY CREATED" << endl;
+    cout << "Name : " << this->name << endl;
+    cout << "Type : " << this->type << endl;
+    
 }
 
 
@@ -45,8 +75,9 @@ symtable_entry :: symtable_entry(string name, const symtable_entry &other){
 }
 
 void symtable_entry::update_type(TreeNode* type){
+
     this->type = create_string_type(type);
-    this->size = size_of_type[type];
+    // this->size = size_of_type[type];
     // if(this -> size == 0) {
     //     this -> size = address_size;       // otherwise it's a reference and hence address_size bytes
     // }
@@ -67,9 +98,13 @@ void symtable_global :: add_func(symtable_func* function){
         funcname.push_back('@');
         funcname = funcname+param.second->type;
     }
+    funcname.push_back('-');
+    funcname.push_back('>');
+    funcname = funcname + function->returntype;
     if(functions.find(funcname)!=functions.end()) cout << "Not a valid function, already present";
     else functions[funcname] = function;
     function->parent_symtab = this;
+    DEBUG("function added in global symbol table" << funcname);
 }
 
 void symtable_global :: add_class(symtable_class* class_){
@@ -77,19 +112,25 @@ void symtable_global :: add_class(symtable_class* class_){
     if(classes.find(classname)!=classes.end()) cout << "Not a valid function, already present";
     else classes[classname] = class_;
     class_->parent_symtab = this;
+     DEBUG("class added in global symbol table" << classname);
 }
 
-symtable_entry* symtable_global :: add_global_var(TreeNode* global_var, ll line_no){
-    symtable_entry* temp = new symtable_entry(global_var, line_no);
+symtable_entry* symtable_global::add_global_var(TreeNode* global_var,ll line_no){
+    symtable_entry* temp = new symtable_entry(global_var,line_no);
+    //cout<<"here"<<endl;
     string varname = temp->name;
-    if(global_vars.find(varname)!=global_vars.end()){
-         cout << "Not a valid variable, already present";
+    //cout << varname << endl;
+    DEBUG("global var added in global symbol table" << varname);
+    if(this->global_vars.find(varname)!=this->global_vars.end()){
+        cout << "Not a valid variable, already present";
         return NULL;
     }
     else{
+        //cout << "here at global add" << endl;
         global_vars[varname] = temp; 
         return temp;
     }
+    return NULL; 
 }
 
 symtable_func* symtable_global :: search_func(string &name, vector<string> &types){
@@ -107,9 +148,9 @@ symtable_func* symtable_global :: search_func(string &name, vector<string> &type
 }
 
 symtable_class* symtable_global :: search_class(string &name){
-    for(auto class: this->classes){
-        if(class.first == name){
-            return class.second;
+    for(auto c: this->classes){
+        if(c.first == name){
+            return c.second;
         }
     }
     cout<< "Class "<<name<<" not present"<<endl;
@@ -130,24 +171,30 @@ symtable_entry* symtable_global :: search_global_var(string &name){
 ////////// GLOBAL ENDS /////////////
 ////////////////////////////////////
 
-
-
 ////////// FUNCTION STARTS /////////
 ////////////////////////////////////
 
 symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* returntype, ll line_no){
     this->name = function->lexeme;
-    this->returntype = returntype->lexeme;
+    this->returntype = create_string_type(returntype);
+    
     for(int i =0;i<params->children.size();i++){
-        
+        DEBUG(i);
         symtable_entry* temp = new symtable_entry(params->children[i], line_no);
         this->paramlist[temp->name] = temp;
+        DEBUG(temp->name);
     }
+
+    cout << "NEW FUNC SYMTAB CREATED" << endl;
+    cout << "Name : " << this->name << endl;
+    cout << "Return type : " << this->returntype << endl;
 }
 
 symtable_entry* symtable_func::add_entry(TreeNode* new_entry,ll line_no){
     symtable_entry* temp = new symtable_entry(new_entry, line_no);
+    DEBUG(temp);
     string entryname = temp->name;
+    DEBUG("Adding Symbol Table Entry to Function" << entryname);
     if(entries.find(entryname)!=entries.end() || paramlist.find(entryname)!=paramlist.end()){
         cout << "ALREADY DECLARED \n";
     }
@@ -202,32 +249,54 @@ symtable_entry* symtable_func::find_entry(string name){
 ////////////////////////////////////
 symtable_class::symtable_class(TreeNode* class_, TreeNode* parentclass){    
     this->name = class_->lexeme;
-    symtable_class parent_class = NULL;
+    symtable_class* parent_class = NULL;
     if(parentclass!=NULL){
         string parentclassname = parentclass->lexeme;
         parent_class = global_symtable->search_class(parentclassname);
     }
     this->parentclass_symtab = parent_class;
+
+    DEBUG("NEW CLASS SYMTAB CREATED" << this->name);
+    //cout << "Name : " << this->name << endl;
+    //cout << "Return type : " << this->returntype << endl;
 }
 
 void symtable_class :: add_func(symtable_func* function){
+    symtable_entry* temp = new symtable_entry();
+    temp->name = "self";
+    temp->type = this->name;
+
+    function->paramlist["self"] = temp;
+    
     string funcname = function->name;
     for(auto param : function->paramlist){
         funcname.push_back('@');
         funcname = funcname+param.second->type;
     }
+    funcname.push_back('-');
+    funcname.push_back('>');
+    funcname = funcname + function->returntype;
     if(methods.find(funcname)!=methods.end()) cout << "Not a valid function, already present";
     else methods[funcname] = function;
     function->parent_class = this;
+    DEBUG("function added in class symbol table" << funcname);
 }
 
 //// abhi i am assuming ki i am getting symtab of that function, may be i am wrong
 
-void symtable_class::add_attribute(TreeNode* entry, ll line_no){
+symtable_entry* symtable_class::add_attribute(TreeNode* entry, ll line_no){
     symtable_entry* temp = new symtable_entry(entry, line_no);
     string varname = temp->name;
-    if(attributes.find(varname)!=attributes.end()) cout << "Not a valid variable, already present";
-    else attributes[varname] = temp;
+    DEBUG("attribute added in global symbol table" << varname);
+    if(attributes.find(varname)!=attributes.end()) {
+        cout << "Not a valid variable, already present";
+        return NULL;
+    }
+    else {
+        attributes[varname] = temp;
+        return temp;
+    }
+     return NULL;
 }
 
 symtable_func* symtable_class:: search_func(string &name, vector<string> &types){
@@ -259,7 +328,7 @@ symtable_entry* symtable_class::search_entry(string &name){
     }
 
     if(this->parentclass_symtab != NULL){
-        return this->parentclass_symtab->search-entry(name);
+        return this->parentclass_symtab->search_entry(name);
     }
 
     return NULL;
