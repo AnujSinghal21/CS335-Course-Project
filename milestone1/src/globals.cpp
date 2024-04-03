@@ -89,9 +89,9 @@ void Error::sem_no_declaration_var(string name, long long line_no){
     cout << "variable " << name << " is not declared before use" << endl;
 }
 
-void Error::invalid_operation(int yylineno, string operation, struct type t1){
+void Error::invalid_unary_operation(int yylineno, struct type t1, string operation){
     cout<<"Error at line no : " << yylineno<<endl;
-    cout<<"Invalid Operation " <<operation<< " with type " <<type_to_string(t1);
+    cout<<"Invalid Unary Operation " <<operation<< " with type " <<type_to_string(t1);
 
 }
 

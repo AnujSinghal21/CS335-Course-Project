@@ -21,7 +21,9 @@ symtable_global* curr_symtable_global;
 
 struct type int_node;
 struct type float_node;
-
+struct type bool_node;
+struct type str_node;
+struct type void_node;
 
 
 void checker_traverse(struct TreeNode* node){
@@ -53,6 +55,30 @@ void printTree(struct TreeNode * node){
     }   
     return;
 } 
+
+struct type get_max_type(struct type t1, struct type t2){
+
+    int val_t1= 0, val_t2 = 0;
+    if(type_equal(t1,float_node)) val_t1 = 5; 
+    else if(type_equal(t1,float_node)) val_t1 = 4; 
+    else if(type_equal(t1,float_node)) val_t1 = 3; 
+    else if(type_equal(t1,float_node)) val_t1 = 2; 
+    else if(type_equal(t1,float_node)) val_t1 = 1; 
+
+    if(type_equal(t2,float_node)) val_t2 = 5; 
+    else if(type_equal(t2,float_node)) val_t2 = 4; 
+    else if(type_equal(t2,float_node)) val_t2 = 3; 
+    else if(type_equal(t2,float_node)) val_t2 = 2; 
+    else if(type_equal(t2,float_node)) val_t2 = 1; 
+
+    if(val_t1 > val_t2){
+        return t1; 
+    }else{
+        return t2;
+    }
+
+
+}
 
 TreeNode * root = NULL;
 
@@ -301,25 +327,38 @@ expr_stmt : test expr_stmt_dash
             DEBUG("here");
             if(curr_symtable_func!=NULL){
                 DEBUG("Entered Add Function Entry" << curr_symtable_func);
-                entry = curr_symtable_func->add_entry($2,yylineno);        
+                entry = curr_symtable_func->add_entry($2,yylineno);
                 DEBUG("Exited Add Function Entry");
+                $1->type = entry->type;
             }else if(curr_symtable_class!=NULL){
                 entry = curr_symtable_class->add_attribute($2,yylineno);        
+                $1->type = entry->type;
             }else{
                 cout << "add global" << endl;
                 entry = curr_symtable_global->add_global_var($2,yylineno);        
+                $1->type = entry->type;
             }
 
-            if($2->children.size()>2){
-                for(int i = 2;i<$2->children.size();i++){
-                checker_traverse($2->children[i]);
+            if($2->children.size() == 3){
+                checker_traverse($2->children[2]);
+                if (!type_equal($1->type, $2->children[2]->type)){
+                    Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
+                }else{
+                    if ($1->type.elems != -1){
+                        $1->type.elems = $2->children[2]->type.elems;
+                    }
                 }
             } 
         }
-        else{
-            checker_traverse($1);
+        else if ($2 != NULL){
             checker_traverse($2);
+            if (type_equal($1->type, $2->children[0]->type)){
+                $$->type = $1->type;
+            }else{
+                Error::type_mismatch(yylineno, $1->type, $2->children[0]->type, "assignment");
+            }
         }
+        checker_traverse($1);
     }
     ;
 
@@ -509,6 +548,7 @@ if_stmt : if_stmt_dash else_stmt_dash
         if ($2 != NULL){
             appendChild($$, $2);
         }
+        $$->type.t = "void";
     }
     ;
 
@@ -599,6 +639,10 @@ for_stmt: "for" test "in" test ":" suite
         appendChild($$, $2);
         appendChild($$, $4);
         appendChild($$, $6);
+        $$->type.t = "void";
+        if (!type_equal($2->type, int_node)){
+            Error::other_semantic_error("TYPE_ERROR: Expected type int for iterator variable in for loop, got " + type_to_string($2->type), yylineno);
+        }
     }
     ;
 
@@ -607,6 +651,10 @@ while_stmt: KEY_WHILE test OPER_COLON suite
         $$ = $1;
         appendChild($$, $2);
         appendChild($$, $4);
+        $$->type.t = "void";
+        if (!type_equal($2->type, bool_node) && !type_equal($2->type, int_node)){
+            Error::type_mismatch(yylineno, $2->type, bool_node, "while loop condition");
+        }
     }
     ;
 
@@ -623,13 +671,13 @@ funcdef : "def" NAME parameters funcdef_dash {
         $$ = makeNode("def",FUNCTION_TYPE);
         appendChild($$,$2);
         appendChild($$,$3);
-        appendChild($$,$4);
         if ($4 != NULL){
             appendChild($$,$4);
         }
-        appendChild($$, $7);
-        
 
+        appendChild($$, $7);
+
+        $$->type.t = "void";        
         curr_symtable_func = NULL;
     }
     ;
@@ -641,7 +689,7 @@ funcdef_dash : "->" test
     }
     | /*Empty*/
     {
-        $$ = NULL;
+        $$ = makeNode("void",NAME_TYPE);
     }
     ;
 
@@ -751,6 +799,14 @@ or_test : and_test
         $$ = makeNode("or",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+    
+        if(!(((type_equal($1->type,bool_node)) && (type_equal($3->type,bool_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
+        }
+        $$->type = bool_node;
+
+    
     }
     ;
 
@@ -763,6 +819,13 @@ and_test : not_test
         $$ = makeNode("and",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+        if(!(((type_equal($1->type,bool_node)) && (type_equal($3->type,bool_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
+        }
+        $$->type = bool_node;
+
+    
     }
     ;
 
@@ -770,24 +833,33 @@ not_test : "not" not_test
     {
         $$ = makeNode("not",EXPR_TYPE);
         appendChild($$, $2);
+
+        if(!(((type_equal($2->type,bool_node))))){
+            Error::invalid_unary_operation(yylineno,$2->type,"not");
+        }        
+
+        $$->type = bool_node;
+
     }
     | comparison
     {
         $$ = $1;
+
     }
     ;
 
-comparison : comparison comp_op expr
+comparison : expr comp_op expr
     {
         $$ = makeNode($2->lexeme,EXPR_TYPE); 
         appendChild($$, $1);
         appendChild($$, $3);
+
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
+        }
+        $$->type = bool_node;
+
     }
-    | expr
-    {
-        $$ = $1;
-    }
-    ; 
 
 comp_op: "<"
     {
@@ -828,6 +900,12 @@ expr : xor_expr
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+
+        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"|");
+        }
+        $$->type = int_node;
+
     }
     ;
 
@@ -840,6 +918,13 @@ xor_expr : and_expr
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"^");
+        }
+        $$->type = int_node;
+
+    
     }
     ;
 
@@ -852,6 +937,13 @@ and_expr: shift_expr
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+
+        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"&");
+        }
+        $$->type = int_node;
+
+
     }
     ;
 
@@ -864,12 +956,26 @@ shift_expr : arith_expr
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+        
+        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"<<");
+        }
+        $$->type = int_node;
+
     }
     | shift_expr ">>" arith_expr
     {
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,">>");
+        }
+        $$->type = int_node;
+
+
+    
     }
     ;
 
@@ -882,12 +988,25 @@ arith_expr : term
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"+");
+        }
+        $$->type = get_max_type($1->type,$3->type);
+
     }
     | arith_expr "-" term
     {
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"-");
+        }
+        $$->type = get_max_type($1->type,$3->type);
+
+    
     }
     ;
 
@@ -900,24 +1019,50 @@ term: factor
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"*");
+        }
+        $$->type = get_max_type($1->type,$3->type);
+
+
     }
     | term "/" factor
     {   
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+    
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"/");
+        }
+        $$->type = get_max_type($1->type,$3->type);
+
+    
     }
     | term "%" factor
     {
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+        
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"%");
+        }
+        $$->type = get_max_type($1->type,$3->type);
     }
     | term "//" factor
     {
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"//");
+        }
+        $$->type = get_max_type($1->type,$3->type);
+
+
     }
     ;
 
@@ -925,17 +1070,34 @@ factor : "+" factor
     {
         $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
-           
+        
+        if(!(((type_equal($2->type,int_node)||type_equal($2->type,float_node))))){
+            Error::invalid_unary_operation(yylineno,$2->type,"+");
+        }
+        $$->type = $2->type;
+
     }
     | "-" factor
     {
         $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
+
+        if(!(((type_equal($2->type,int_node)||type_equal($2->type,float_node))))){
+            Error::invalid_unary_operation(yylineno,$2->type,"-");
+        }
+        $$->type = $2->type;
     }
     | "~" factor
     {
         $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
+
+        if(!(((type_equal($2->type,int_node))))){
+            Error::invalid_unary_operation(yylineno,$2->type,"~");
+        }        
+
+        $$->type = int_node;
+
         
     }
     | power
@@ -957,7 +1119,9 @@ power : atom_expr
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
             Error::type_mismatch(yylineno,$1->type,$3->type,"**");
         }
-    }
+        
+        $$->type = get_max_type($1->type,$3->type);
+    }   
     ;
 
 atom_expr : atom trailerlist
@@ -989,12 +1153,39 @@ atom_expr : atom trailerlist
                     }
                     }else if ($2->children[i]->lexeme == "[]"){
                         // list indexing
-                        
+                        if (temp.elems != -1){
+                            if (!type_equal($2->children[i]->children[0]->type, int_node)){
+                                temp.elems = -1;
+                            }else{
+                                Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
+                            }
+                        }else{
+                            Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
+                        }
                     }else if ($2->children[i]->lexeme == "."){
                         if (i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "()"){
                             // method call
+                            string class_id = type_to_string(temp);
+                            class_id += "." + $2->children[i]->children[0]->lexeme;
+                            for (auto x: $2->children[i+1]->children){
+                                class_id += "@" + type_to_string(x->type);
+                            }
+                            struct type ret = string_to_type(class_id);
+                            if (ret.t == "-1"){
+                                Error::other_semantic_error("TYPE_ERROR: No such method with given parameter types in class " + type_to_string(temp), yylineno);
+                            }else{
+                                temp = ret;
+                            }
                         }else{
                             // attribute access
+                            string class_id = type_to_string(temp);
+                            class_id += "." + $2->children[i]->children[0]->lexeme;
+                            struct type ret = string_to_type(class_id);
+                            if (ret.t == "-1"){
+                                Error::other_semantic_error("TYPE_ERROR: No declaration of attribute " + $2->children[i]->children[0]->lexeme + " in class " + type_to_string(temp), yylineno);
+                            }else{
+                                temp = ret;
+                            }
                         }
                     }else{
                         Error::other_semantic_error("TYPE_ERROR: Invalid operation near " + $2->children[i]->lexeme[0], yylineno);   
@@ -1070,7 +1261,7 @@ atom : NAME
     }
     | "None"
     {
-        $$ = $1;
+        $$ = makeNode("void",NAME_TYPE);
         $$->type.t = "void";
     }
     | "True"
@@ -1226,6 +1417,9 @@ int main(int argc, char ** argv){
 
     int_node.t = "int";
     float_node.t = "float";
+    bool_node.t = "bool";
+    str_node.t = "str";
+    void_node.t = "void";
 
 
 

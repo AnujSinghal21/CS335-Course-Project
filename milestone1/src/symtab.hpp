@@ -16,6 +16,7 @@ class symtable_entry {
         struct type type;
         ll line_no;
         ll size;
+        ll list_size = -1;
         bool is_init;
         ll init_val;
         ll offset = 0; // no idea
