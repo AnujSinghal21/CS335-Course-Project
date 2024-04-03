@@ -643,7 +643,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  58
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  136
+#define YYNRULES  137
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  209
 
@@ -708,13 +708,13 @@ static const yytype_int16 yyrline[] =
      486,   493,   506,   517,   523,   527,   531,   535,   539,   545,
      555,   563,   567,   572,   576,   581,   588,   596,   603,   603,
      620,   625,   630,   636,   649,   661,   661,   685,   691,   696,
-     704,   714,   719,   730,   736,   743,   752,   761,   766,   775,
-     780,   787,   793,   797,   813,   817,   832,   844,   851,   864,
-     868,   872,   876,   880,   884,   888,   894,   898,   912,   916,
-     931,   935,   950,   954,   966,   982,   986,   998,  1013,  1017,
-    1030,  1043,  1054,  1069,  1080,  1090,  1103,  1110,  1114,  1127,
-    1200,  1211,  1215,  1224,  1229,  1236,  1241,  1257,  1262,  1267,
-    1272,  1277,  1281,  1294,  1299,  1304,  1314
+     704,   714,   719,   730,   736,   744,   753,   762,   767,   776,
+     781,   788,   794,   798,   815,   819,   835,   848,   855,   868,
+     875,   879,   883,   887,   891,   895,   899,   905,   909,   924,
+     928,   944,   948,   964,   968,   981,   998,  1002,  1015,  1031,
+    1035,  1049,  1063,  1075,  1091,  1103,  1114,  1128,  1135,  1139,
+    1153,  1226,  1237,  1241,  1250,  1255,  1262,  1267,  1283,  1288,
+    1293,  1298,  1303,  1307,  1320,  1325,  1330,  1340
 };
 #endif
 
@@ -804,26 +804,26 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       5,     0,     0,     1,     2,    38,     0,    39,   130,     0,
-       0,     0,     0,   128,     0,   129,     0,   125,     3,   126,
-     134,     0,     0,     0,     0,     0,   127,     4,     6,     0,
+       5,     0,     0,     1,     2,    38,     0,    39,   131,     0,
+       0,     0,     0,   129,     0,   130,     0,   126,     3,   127,
+     135,     0,     0,     0,     0,     0,   128,     4,     6,     0,
       10,    11,    12,    35,    36,    37,    13,     7,    45,    54,
-      48,    47,    46,    44,    18,    81,    82,    84,    87,     0,
-      96,    98,   100,   102,   105,   108,   116,   117,   121,    62,
-       0,     0,    43,    41,     0,    40,     0,   136,     0,   133,
-     114,   115,    86,     0,   113,     8,     0,     0,     0,    49,
+      48,    47,    46,    44,    18,    81,    82,    84,    87,    89,
+      97,    99,   101,   103,   106,   109,   117,   118,   122,    62,
+       0,     0,    43,    41,     0,    40,     0,   137,     0,   134,
+     115,   116,    86,     0,   114,     8,     0,     0,     0,    49,
       53,    51,    28,    26,    34,     0,    31,    24,    27,    25,
       29,    23,    33,    32,    30,     0,    14,    17,    15,     0,
-       0,     0,    91,    90,    92,    94,    89,    93,    95,     0,
+       0,     0,    92,    91,    93,    95,    90,    94,    96,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,   119,     0,    58,     0,    71,    68,     0,     0,
-       0,   132,     0,   131,     9,     0,     0,    52,    20,    21,
-      16,    83,    85,    97,    88,    99,   101,   103,   104,   107,
-     106,   110,   112,   111,   109,   118,     0,     0,   134,   120,
+       0,     0,   120,     0,    58,     0,    71,    68,     0,     0,
+       0,   133,     0,   132,     9,     0,     0,    52,    20,    21,
+      16,    83,    85,    98,    88,   100,   102,   104,   105,   108,
+     107,   111,   113,   112,   110,   119,     0,     0,   135,   121,
        0,    61,     0,     0,    75,     0,    70,    73,     0,    65,
-      42,     0,    77,    50,    64,   135,     0,    57,    19,     0,
-       0,   124,     0,    60,     0,     0,     0,    69,     0,    67,
-       0,     0,    56,    22,   123,   122,    59,    63,    74,    72,
+      42,     0,    77,    50,    64,   136,     0,    57,    19,     0,
+       0,   125,     0,    60,     0,     0,     0,    69,     0,    67,
+       0,     0,    56,    22,   124,   123,    59,    63,    74,    72,
        0,    80,     0,    55,     0,    66,    78,    79,    76
 };
 
@@ -972,12 +972,12 @@ static const yytype_int8 yyr1[] =
       90,    91,    91,    91,    91,    92,    92,    93,    95,    94,
       96,    96,    96,    97,    98,   100,    99,   101,   101,   102,
      103,   103,   104,   104,   105,   105,   105,   106,   106,   107,
-     107,   108,   109,   109,   110,   110,   111,   111,   112,   113,
-     113,   113,   113,   113,   113,   113,   114,   114,   115,   115,
-     116,   116,   117,   117,   117,   118,   118,   118,   119,   119,
-     119,   119,   119,   120,   120,   120,   120,   121,   121,   122,
-     123,   123,   124,   124,   124,   125,   125,   125,   125,   125,
-     125,   125,   125,   126,   126,   127,   127
+     107,   108,   109,   109,   110,   110,   111,   111,   112,   112,
+     113,   113,   113,   113,   113,   113,   113,   114,   114,   115,
+     115,   116,   116,   117,   117,   117,   118,   118,   118,   119,
+     119,   119,   119,   119,   120,   120,   120,   120,   121,   121,
+     122,   123,   123,   124,   124,   124,   125,   125,   125,   125,
+     125,   125,   125,   125,   126,   126,   127,   127
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -992,11 +992,11 @@ static const yytype_int8 yyr2[] =
        3,     2,     0,     6,     4,     0,     7,     2,     0,     3,
        1,     0,     3,     1,     3,     1,     5,     1,     4,     2,
        1,     1,     1,     3,     1,     3,     2,     1,     3,     1,
-       1,     1,     1,     1,     1,     1,     1,     3,     1,     3,
-       1,     3,     1,     3,     3,     1,     3,     3,     1,     3,
-       3,     3,     3,     2,     2,     2,     1,     1,     3,     2,
-       2,     0,     3,     3,     2,     1,     1,     1,     1,     1,
-       1,     3,     3,     1,     0,     3,     1
+       1,     1,     1,     1,     1,     1,     1,     1,     3,     1,
+       3,     1,     3,     1,     3,     3,     1,     3,     3,     1,
+       3,     3,     3,     3,     2,     2,     2,     1,     1,     3,
+       2,     2,     0,     3,     3,     2,     1,     1,     1,     1,
+       1,     1,     3,     3,     1,     0,     3,     1
 };
 
 
@@ -2205,15 +2205,16 @@ yyreduce:
   case 74: /* tfpdef: NAME ":" test  */
 #line 737 "parser.y"
     {
+        DEBUG("tfpdef" << (yyvsp[-2].node)->lexeme << " " << (yyvsp[0].node)->lexeme);
         (yyval.node) = makeNode(":",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2213 "parser.tab.c"
+#line 2214 "parser.tab.c"
     break;
 
   case 75: /* tfpdef: NAME  */
-#line 744 "parser.y"
+#line 745 "parser.y"
     {
         if (curr_symtable_class != NULL){
             if ((yyvsp[0].node)->lexeme == "self"){
@@ -2221,76 +2222,76 @@ yyreduce:
             }
         }
     }
-#line 2225 "parser.tab.c"
+#line 2226 "parser.tab.c"
     break;
 
   case 76: /* tfpdef: NAME ":" test "=" test  */
-#line 753 "parser.y"
+#line 754 "parser.y"
     {
         (yyval.node) = makeNode(":=",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-4].node));
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2236 "parser.tab.c"
+#line 2237 "parser.tab.c"
     break;
 
   case 77: /* suite: simple_stmt  */
-#line 762 "parser.y"
+#line 763 "parser.y"
     {   
         (yyval.node) = makeNode("", SUITE_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2245 "parser.tab.c"
+#line 2246 "parser.tab.c"
     break;
 
   case 78: /* suite: NEWLINE INDENT stmt_dash DEDENT  */
-#line 767 "parser.y"
+#line 768 "parser.y"
     {
         (yyval.node) = makeNode("", SUITE_TYPE);
         for (auto x: (yyvsp[-1].node)->children){
             appendChild((yyval.node), x);
         }
     }
-#line 2256 "parser.tab.c"
+#line 2257 "parser.tab.c"
     break;
 
   case 79: /* stmt_dash: stmt_dash stmt  */
-#line 776 "parser.y"
+#line 777 "parser.y"
     {
         appendChild((yyvsp[-1].node), (yyvsp[0].node));
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 2265 "parser.tab.c"
+#line 2266 "parser.tab.c"
     break;
 
   case 80: /* stmt_dash: stmt  */
-#line 781 "parser.y"
+#line 782 "parser.y"
     {
         (yyval.node) = makeNode("statements", STATEMENT_GROUP_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2274 "parser.tab.c"
+#line 2275 "parser.tab.c"
     break;
 
   case 81: /* test: or_test  */
-#line 788 "parser.y"
+#line 789 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2282 "parser.tab.c"
+#line 2283 "parser.tab.c"
     break;
 
   case 82: /* or_test: and_test  */
-#line 794 "parser.y"
+#line 795 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2290 "parser.tab.c"
+#line 2291 "parser.tab.c"
     break;
 
   case 83: /* or_test: or_test "or" and_test  */
-#line 798 "parser.y"
+#line 799 "parser.y"
     {
         (yyval.node) = makeNode("or",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2298,404 +2299,430 @@ yyreduce:
     
     
         if(!(((type_equal((yyvsp[-2].node)->type,bool_node)) && (type_equal((yyvsp[0].node)->type,bool_node)) ))){
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = bool_node;
 
     
     }
-#line 2308 "parser.tab.c"
+#line 2310 "parser.tab.c"
     break;
 
   case 84: /* and_test: not_test  */
-#line 814 "parser.y"
+#line 816 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2316 "parser.tab.c"
+#line 2318 "parser.tab.c"
     break;
 
   case 85: /* and_test: and_test "and" not_test  */
-#line 818 "parser.y"
+#line 820 "parser.y"
     {
         (yyval.node) = makeNode("and",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     
         if(!(((type_equal((yyvsp[-2].node)->type,bool_node)) && (type_equal((yyvsp[0].node)->type,bool_node)) ))){
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = bool_node;
 
     
     }
-#line 2333 "parser.tab.c"
+#line 2336 "parser.tab.c"
     break;
 
   case 86: /* not_test: "not" not_test  */
-#line 833 "parser.y"
+#line 836 "parser.y"
     {
         (yyval.node) = makeNode("not",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[0].node)->type,bool_node))))){
-            Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"not");
+            if ((yyvsp[0].node)->type.t != "-1")
+                Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"not");
         }        
 
         (yyval.node)->type = bool_node;
 
     }
-#line 2349 "parser.tab.c"
+#line 2353 "parser.tab.c"
     break;
 
   case 87: /* not_test: comparison  */
-#line 845 "parser.y"
+#line 849 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
 
     }
-#line 2358 "parser.tab.c"
+#line 2362 "parser.tab.c"
     break;
 
   case 88: /* comparison: expr comp_op expr  */
-#line 852 "parser.y"
+#line 856 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE); 
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = bool_node;
 
     }
-#line 2374 "parser.tab.c"
+#line 2379 "parser.tab.c"
     break;
 
-  case 89: /* comp_op: "<"  */
-#line 865 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 2382 "parser.tab.c"
-    break;
-
-  case 90: /* comp_op: ">"  */
+  case 89: /* comparison: expr  */
 #line 869 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2390 "parser.tab.c"
+#line 2387 "parser.tab.c"
     break;
 
-  case 91: /* comp_op: "=="  */
-#line 873 "parser.y"
+  case 90: /* comp_op: "<"  */
+#line 876 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2398 "parser.tab.c"
+#line 2395 "parser.tab.c"
     break;
 
-  case 92: /* comp_op: ">="  */
-#line 877 "parser.y"
+  case 91: /* comp_op: ">"  */
+#line 880 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2406 "parser.tab.c"
+#line 2403 "parser.tab.c"
     break;
 
-  case 93: /* comp_op: "<="  */
-#line 881 "parser.y"
+  case 92: /* comp_op: "=="  */
+#line 884 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2414 "parser.tab.c"
+#line 2411 "parser.tab.c"
     break;
 
-  case 94: /* comp_op: "<>"  */
-#line 885 "parser.y"
+  case 93: /* comp_op: ">="  */
+#line 888 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2422 "parser.tab.c"
+#line 2419 "parser.tab.c"
     break;
 
-  case 95: /* comp_op: "!="  */
-#line 889 "parser.y"
+  case 94: /* comp_op: "<="  */
+#line 892 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2430 "parser.tab.c"
+#line 2427 "parser.tab.c"
     break;
 
-  case 96: /* expr: xor_expr  */
-#line 895 "parser.y"
+  case 95: /* comp_op: "<>"  */
+#line 896 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 2435 "parser.tab.c"
+    break;
+
+  case 96: /* comp_op: "!="  */
+#line 900 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 2443 "parser.tab.c"
+    break;
+
+  case 97: /* expr: xor_expr  */
+#line 906 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 2438 "parser.tab.c"
+#line 2451 "parser.tab.c"
     break;
 
-  case 97: /* expr: expr "|" xor_expr  */
-#line 899 "parser.y"
+  case 98: /* expr: expr "|" xor_expr  */
+#line 910 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)) && (type_equal((yyvsp[0].node)->type,int_node))))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"|");
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
 
     }
-#line 2454 "parser.tab.c"
+#line 2468 "parser.tab.c"
     break;
 
-  case 98: /* xor_expr: and_expr  */
-#line 913 "parser.y"
+  case 99: /* xor_expr: and_expr  */
+#line 925 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2462 "parser.tab.c"
+#line 2476 "parser.tab.c"
     break;
 
-  case 99: /* xor_expr: xor_expr "^" and_expr  */
-#line 917 "parser.y"
+  case 100: /* xor_expr: xor_expr "^" and_expr  */
+#line 929 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     
-        if(!(((type_equal((yyvsp[-2].node)->type,int_node)) && (type_equal((yyvsp[0].node)->type,int_node))))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"^");
+        if(!(((type_equal((yyvsp[-2].node)->type,int_node)) && (type_equal((yyvsp[0].node)->type,int_node))))){ 
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
 
     
     }
-#line 2479 "parser.tab.c"
+#line 2494 "parser.tab.c"
     break;
 
-  case 100: /* and_expr: shift_expr  */
-#line 932 "parser.y"
+  case 101: /* and_expr: shift_expr  */
+#line 945 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2487 "parser.tab.c"
+#line 2502 "parser.tab.c"
     break;
 
-  case 101: /* and_expr: and_expr "&" shift_expr  */
-#line 936 "parser.y"
+  case 102: /* and_expr: and_expr "&" shift_expr  */
+#line 949 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)) && (type_equal((yyvsp[0].node)->type,int_node))))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"&");
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
 
 
     }
-#line 2504 "parser.tab.c"
+#line 2520 "parser.tab.c"
     break;
 
-  case 102: /* shift_expr: arith_expr  */
-#line 951 "parser.y"
+  case 103: /* shift_expr: arith_expr  */
+#line 965 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2512 "parser.tab.c"
+#line 2528 "parser.tab.c"
     break;
 
-  case 103: /* shift_expr: shift_expr "<<" arith_expr  */
-#line 955 "parser.y"
+  case 104: /* shift_expr: shift_expr "<<" arith_expr  */
+#line 969 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
         
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)) && (type_equal((yyvsp[0].node)->type,int_node))))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"<<");
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
 
     }
-#line 2528 "parser.tab.c"
+#line 2545 "parser.tab.c"
     break;
 
-  case 104: /* shift_expr: shift_expr ">>" arith_expr  */
-#line 967 "parser.y"
+  case 105: /* shift_expr: shift_expr ">>" arith_expr  */
+#line 982 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)) && (type_equal((yyvsp[0].node)->type,int_node))))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,">>");
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
 
 
     
     }
-#line 2546 "parser.tab.c"
+#line 2564 "parser.tab.c"
     break;
 
-  case 105: /* arith_expr: term  */
-#line 983 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 2554 "parser.tab.c"
-    break;
-
-  case 106: /* arith_expr: arith_expr "+" term  */
-#line 987 "parser.y"
-    {
-        (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
-        appendChild((yyval.node), (yyvsp[-2].node));
-        appendChild((yyval.node), (yyvsp[0].node));
-    
-        if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"+");
-        }
-        (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
-
-    }
-#line 2570 "parser.tab.c"
-    break;
-
-  case 107: /* arith_expr: arith_expr "-" term  */
+  case 106: /* arith_expr: term  */
 #line 999 "parser.y"
     {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 2572 "parser.tab.c"
+    break;
+
+  case 107: /* arith_expr: arith_expr "+" term  */
+#line 1003 "parser.y"
+    {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"-");
+            if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
+        }
+        (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
+
+    }
+#line 2589 "parser.tab.c"
+    break;
+
+  case 108: /* arith_expr: arith_expr "-" term  */
+#line 1016 "parser.y"
+    {
+        (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
+        appendChild((yyval.node), (yyvsp[-2].node));
+        appendChild((yyval.node), (yyvsp[0].node));
+    
+        if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
+             if((yyvsp[-2].node)->type.t!="-1" && (yyvsp[0].node)->type.t!="-1" )
+            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
 
     
     }
-#line 2587 "parser.tab.c"
+#line 2607 "parser.tab.c"
     break;
 
-  case 108: /* term: factor  */
-#line 1014 "parser.y"
+  case 109: /* term: factor  */
+#line 1032 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2595 "parser.tab.c"
+#line 2615 "parser.tab.c"
     break;
 
-  case 109: /* term: term "*" factor  */
-#line 1018 "parser.y"
+  case 110: /* term: term "*" factor  */
+#line 1036 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"*");
+            if ((yyvsp[-2].node)->type.t != "-1" && (yyvsp[0].node)->type.t != "-1")
+                Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"*");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
 
 
     }
-#line 2612 "parser.tab.c"
+#line 2633 "parser.tab.c"
     break;
 
-  case 110: /* term: term "/" factor  */
-#line 1031 "parser.y"
+  case 111: /* term: term "/" factor  */
+#line 1050 "parser.y"
     {   
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"/");
+            if ((yyvsp[-2].node)->type.t != "-1" && (yyvsp[0].node)->type.t != "-1")
+                Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"/");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
 
     
     }
-#line 2629 "parser.tab.c"
+#line 2651 "parser.tab.c"
     break;
 
-  case 111: /* term: term "%" factor  */
-#line 1044 "parser.y"
+  case 112: /* term: term "%" factor  */
+#line 1064 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
         
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"%");
+            if ((yyvsp[-2].node)->type.t != "-1" && (yyvsp[0].node)->type.t != "-1")
+                Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"%");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
     }
-#line 2644 "parser.tab.c"
+#line 2667 "parser.tab.c"
     break;
 
-  case 112: /* term: term "//" factor  */
-#line 1055 "parser.y"
+  case 113: /* term: term "//" factor  */
+#line 1076 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"//");
+            if ((yyvsp[-2].node)->type.t != "-1" && (yyvsp[0].node)->type.t != "-1")
+                Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"//");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
 
 
     }
-#line 2661 "parser.tab.c"
+#line 2685 "parser.tab.c"
     break;
 
-  case 113: /* factor: "+" factor  */
-#line 1070 "parser.y"
+  case 114: /* factor: "+" factor  */
+#line 1092 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
         
         if(!(((type_equal((yyvsp[0].node)->type,int_node)||type_equal((yyvsp[0].node)->type,float_node))))){
-            Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"+");
+            if ((yyvsp[0].node)->type.t != "-1")
+                Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"+");
         }
         (yyval.node)->type = (yyvsp[0].node)->type;
 
     }
-#line 2676 "parser.tab.c"
+#line 2701 "parser.tab.c"
     break;
 
-  case 114: /* factor: "-" factor  */
-#line 1081 "parser.y"
+  case 115: /* factor: "-" factor  */
+#line 1104 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[0].node)->type,int_node)||type_equal((yyvsp[0].node)->type,float_node))))){
-            Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"-");
+            if ((yyvsp[0].node)->type.t != "-1")
+                Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"-");
         }
         (yyval.node)->type = (yyvsp[0].node)->type;
     }
-#line 2690 "parser.tab.c"
+#line 2716 "parser.tab.c"
     break;
 
-  case 115: /* factor: "~" factor  */
-#line 1091 "parser.y"
+  case 116: /* factor: "~" factor  */
+#line 1115 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
 
         if(!(((type_equal((yyvsp[0].node)->type,int_node))))){
+            if((yyvsp[0].node)->type.t!="-1")
             Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"~");
         }        
 
@@ -2703,43 +2730,44 @@ yyreduce:
 
         
     }
-#line 2707 "parser.tab.c"
+#line 2734 "parser.tab.c"
     break;
 
-  case 116: /* factor: power  */
-#line 1104 "parser.y"
+  case 117: /* factor: power  */
+#line 1129 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
         
     }
-#line 2716 "parser.tab.c"
+#line 2743 "parser.tab.c"
     break;
 
-  case 117: /* power: atom_expr  */
-#line 1111 "parser.y"
+  case 118: /* power: atom_expr  */
+#line 1136 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2724 "parser.tab.c"
+#line 2751 "parser.tab.c"
     break;
 
-  case 118: /* power: atom_expr "**" factor  */
-#line 1115 "parser.y"
+  case 119: /* power: atom_expr "**" factor  */
+#line 1140 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
         if(!(((type_equal((yyvsp[-2].node)->type,int_node)||type_equal((yyvsp[-2].node)->type,float_node)) && (type_equal((yyvsp[0].node)->type,float_node)||type_equal((yyvsp[0].node)->type,int_node)) ))){
-            Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"**");
+            if ((yyvsp[-2].node)->type.t != "-1" && (yyvsp[0].node)->type.t != "-1")
+                Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"**");
         }
         
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
     }
-#line 2739 "parser.tab.c"
+#line 2767 "parser.tab.c"
     break;
 
-  case 119: /* atom_expr: atom trailerlist  */
-#line 1128 "parser.y"
+  case 120: /* atom_expr: atom trailerlist  */
+#line 1154 "parser.y"
     {
         if ((yyvsp[0].node) == NULL){
             (yyval.node) = (yyvsp[-1].node);
@@ -2810,11 +2838,11 @@ yyreduce:
             (yyval.node)->type = temp;
         }
     }
-#line 2814 "parser.tab.c"
+#line 2842 "parser.tab.c"
     break;
 
-  case 120: /* trailerlist: trailerlist trailer  */
-#line 1201 "parser.y"
+  case 121: /* trailerlist: trailerlist trailer  */
+#line 1227 "parser.y"
     {
         if ((yyval.node) == NULL){
             (yyval.node) = makeNode("trailer",TRAILER_TYPE);
@@ -2824,19 +2852,19 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 2828 "parser.tab.c"
+#line 2856 "parser.tab.c"
     break;
 
-  case 121: /* trailerlist: %empty  */
-#line 1211 "parser.y"
+  case 122: /* trailerlist: %empty  */
+#line 1237 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 2836 "parser.tab.c"
+#line 2864 "parser.tab.c"
     break;
 
-  case 122: /* trailer: "(" arglist ")"  */
-#line 1216 "parser.y"
+  case 123: /* trailer: "(" arglist ")"  */
+#line 1242 "parser.y"
     {
         (yyval.node) = makeNode("()", EXPR_TYPE);
         if ((yyvsp[-1].node) != NULL){
@@ -2845,38 +2873,38 @@ yyreduce:
             }
         }
     }
-#line 2849 "parser.tab.c"
+#line 2877 "parser.tab.c"
     break;
 
-  case 123: /* trailer: "[" test "]"  */
-#line 1225 "parser.y"
+  case 124: /* trailer: "[" test "]"  */
+#line 1251 "parser.y"
     {
         (yyval.node) = makeNode("[]", EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-1].node));
     }
-#line 2858 "parser.tab.c"
+#line 2886 "parser.tab.c"
     break;
 
-  case 124: /* trailer: "." NAME  */
-#line 1230 "parser.y"
+  case 125: /* trailer: "." NAME  */
+#line 1256 "parser.y"
     {
         (yyval.node) = makeNode(".", EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2867 "parser.tab.c"
+#line 2895 "parser.tab.c"
     break;
 
-  case 125: /* atom: NAME  */
-#line 1237 "parser.y"
+  case 126: /* atom: NAME  */
+#line 1263 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,NAME_TYPE);
         (yyval.node)->type = string_to_type((yyvsp[0].node)->lexeme);
     }
-#line 2876 "parser.tab.c"
+#line 2904 "parser.tab.c"
     break;
 
-  case 126: /* atom: NUMBER  */
-#line 1242 "parser.y"
+  case 127: /* atom: NUMBER  */
+#line 1268 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,NUMBER_TYPE);
         int isnot_int = 0;
@@ -2892,55 +2920,55 @@ yyreduce:
             (yyval.node)->type.t = "int";
         }
     }
-#line 2896 "parser.tab.c"
+#line 2924 "parser.tab.c"
     break;
 
-  case 127: /* atom: STRING  */
-#line 1258 "parser.y"
+  case 128: /* atom: STRING  */
+#line 1284 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,STRING_TYPE);
         (yyval.node)->type.t = "str";
     }
-#line 2905 "parser.tab.c"
+#line 2933 "parser.tab.c"
     break;
 
-  case 128: /* atom: "None"  */
-#line 1263 "parser.y"
+  case 129: /* atom: "None"  */
+#line 1289 "parser.y"
     {
         (yyval.node) = makeNode("void",NAME_TYPE);
         (yyval.node)->type.t = "void";
     }
-#line 2914 "parser.tab.c"
+#line 2942 "parser.tab.c"
     break;
 
-  case 129: /* atom: "True"  */
-#line 1268 "parser.y"
+  case 130: /* atom: "True"  */
+#line 1294 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,BOOLEAN_TYPE);
         (yyval.node)->type.t = "bool";
     }
-#line 2923 "parser.tab.c"
+#line 2951 "parser.tab.c"
     break;
 
-  case 130: /* atom: "False"  */
-#line 1273 "parser.y"
+  case 131: /* atom: "False"  */
+#line 1299 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,BOOLEAN_TYPE);
         (yyval.node)->type.t = "bool";
     }
-#line 2932 "parser.tab.c"
+#line 2960 "parser.tab.c"
     break;
 
-  case 131: /* atom: "(" test ")"  */
-#line 1278 "parser.y"
+  case 132: /* atom: "(" test ")"  */
+#line 1304 "parser.y"
     {
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 2940 "parser.tab.c"
+#line 2968 "parser.tab.c"
     break;
 
-  case 132: /* atom: "[" arglist "]"  */
-#line 1282 "parser.y"
+  case 133: /* atom: "[" arglist "]"  */
+#line 1308 "parser.y"
     {
         (yyval.node) = makeNode("[]", LIST_TYPE);
         (yyval.node)->type.t = (yyvsp[-1].node) == NULL? "void": (yyvsp[-1].node)->type.t;
@@ -2951,27 +2979,27 @@ yyreduce:
             }
         }
     }
-#line 2955 "parser.tab.c"
+#line 2983 "parser.tab.c"
     break;
 
-  case 133: /* arglist: arglist_dash  */
-#line 1295 "parser.y"
+  case 134: /* arglist: arglist_dash  */
+#line 1321 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2963 "parser.tab.c"
+#line 2991 "parser.tab.c"
     break;
 
-  case 134: /* arglist: %empty  */
-#line 1299 "parser.y"
+  case 135: /* arglist: %empty  */
+#line 1325 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 2971 "parser.tab.c"
+#line 2999 "parser.tab.c"
     break;
 
-  case 135: /* arglist_dash: arglist_dash "," test  */
-#line 1305 "parser.y"
+  case 136: /* arglist_dash: arglist_dash "," test  */
+#line 1331 "parser.y"
     {
         appendChild((yyvsp[-2].node), (yyvsp[0].node));
         (yyval.node) = (yyvsp[-2].node);
@@ -2981,21 +3009,21 @@ yyreduce:
             (yyval.node)->type = (yyvsp[-2].node)->type;
         }
     }
-#line 2985 "parser.tab.c"
+#line 3013 "parser.tab.c"
     break;
 
-  case 136: /* arglist_dash: test  */
-#line 1315 "parser.y"
+  case 137: /* arglist_dash: test  */
+#line 1341 "parser.y"
     {
         (yyval.node) = makeNode("",MISC_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
         (yyval.node)->type = (yyvsp[0].node)->type;
     }
-#line 2995 "parser.tab.c"
+#line 3023 "parser.tab.c"
     break;
 
 
-#line 2999 "parser.tab.c"
+#line 3027 "parser.tab.c"
 
       default: break;
     }
@@ -3188,7 +3216,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1323 "parser.y"
+#line 1349 "parser.y"
 
 void printAST(char * filename){
     FILE * file = fopen(filename, "w");

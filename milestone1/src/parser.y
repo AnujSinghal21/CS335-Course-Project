@@ -735,6 +735,7 @@ typedargslist : typedargslist "," tfpdef
 
 tfpdef : NAME ":" test
     {
+        DEBUG("tfpdef" << $1->lexeme << " " << $3->lexeme);
         $$ = makeNode(":",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
@@ -802,6 +803,7 @@ or_test : and_test
     
     
         if(!(((type_equal($1->type,bool_node)) && (type_equal($3->type,bool_node)) ))){
+            if($1->type.t!="-1" && $3->type.t!="-1" )
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = bool_node;
@@ -821,6 +823,7 @@ and_test : not_test
         appendChild($$, $3);
     
         if(!(((type_equal($1->type,bool_node)) && (type_equal($3->type,bool_node)) ))){
+            if($1->type.t!="-1" && $3->type.t!="-1" )
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = bool_node;
@@ -835,7 +838,8 @@ not_test : "not" not_test
         appendChild($$, $2);
 
         if(!(((type_equal($2->type,bool_node))))){
-            Error::invalid_unary_operation(yylineno,$2->type,"not");
+            if ($2->type.t != "-1")
+                Error::invalid_unary_operation(yylineno,$2->type,"not");
         }        
 
         $$->type = bool_node;
@@ -855,11 +859,18 @@ comparison : expr comp_op expr
         appendChild($$, $3);
 
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            if($1->type.t!="-1" && $3->type.t!="-1" )
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = bool_node;
 
     }
+    | expr
+    {
+        $$ = $1;
+    }
+    ; 
+
 
 comp_op: "<"
     {
@@ -902,7 +913,8 @@ expr : xor_expr
         appendChild($$, $3);
 
         if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"|");
+            if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
 
@@ -919,8 +931,9 @@ xor_expr : and_expr
         appendChild($$, $1);
         appendChild($$, $3);
     
-        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"^");
+        if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){ 
+            if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
 
@@ -939,7 +952,8 @@ and_expr: shift_expr
         appendChild($$, $3);
 
         if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"&");
+            if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
 
@@ -958,7 +972,8 @@ shift_expr : arith_expr
         appendChild($$, $3);
         
         if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"<<");
+            if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
 
@@ -970,7 +985,8 @@ shift_expr : arith_expr
         appendChild($$, $3);
     
         if(!(((type_equal($1->type,int_node)) && (type_equal($3->type,int_node))))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,">>");
+            if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
 
@@ -990,7 +1006,8 @@ arith_expr : term
         appendChild($$, $3);
     
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"+");
+            if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = get_max_type($1->type,$3->type);
 
@@ -1002,7 +1019,8 @@ arith_expr : term
         appendChild($$, $3);
     
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"-");
+             if($1->type.t!="-1" && $3->type.t!="-1" )
+            Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = get_max_type($1->type,$3->type);
 
@@ -1021,7 +1039,8 @@ term: factor
         appendChild($$, $3);
 
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"*");
+            if ($1->type.t != "-1" && $3->type.t != "-1")
+                Error::type_mismatch(yylineno,$1->type,$3->type,"*");
         }
         $$->type = get_max_type($1->type,$3->type);
 
@@ -1034,7 +1053,8 @@ term: factor
         appendChild($$, $3);
     
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"/");
+            if ($1->type.t != "-1" && $3->type.t != "-1")
+                Error::type_mismatch(yylineno,$1->type,$3->type,"/");
         }
         $$->type = get_max_type($1->type,$3->type);
 
@@ -1047,7 +1067,8 @@ term: factor
         appendChild($$, $3);
         
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"%");
+            if ($1->type.t != "-1" && $3->type.t != "-1")
+                Error::type_mismatch(yylineno,$1->type,$3->type,"%");
         }
         $$->type = get_max_type($1->type,$3->type);
     }
@@ -1058,7 +1079,8 @@ term: factor
         appendChild($$, $3);
 
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"//");
+            if ($1->type.t != "-1" && $3->type.t != "-1")
+                Error::type_mismatch(yylineno,$1->type,$3->type,"//");
         }
         $$->type = get_max_type($1->type,$3->type);
 
@@ -1072,7 +1094,8 @@ factor : "+" factor
         appendChild($$, $2);
         
         if(!(((type_equal($2->type,int_node)||type_equal($2->type,float_node))))){
-            Error::invalid_unary_operation(yylineno,$2->type,"+");
+            if ($2->type.t != "-1")
+                Error::invalid_unary_operation(yylineno,$2->type,"+");
         }
         $$->type = $2->type;
 
@@ -1083,7 +1106,8 @@ factor : "+" factor
         appendChild($$, $2);
 
         if(!(((type_equal($2->type,int_node)||type_equal($2->type,float_node))))){
-            Error::invalid_unary_operation(yylineno,$2->type,"-");
+            if ($2->type.t != "-1")
+                Error::invalid_unary_operation(yylineno,$2->type,"-");
         }
         $$->type = $2->type;
     }
@@ -1093,6 +1117,7 @@ factor : "+" factor
         appendChild($$, $2);
 
         if(!(((type_equal($2->type,int_node))))){
+            if($2->type.t!="-1")
             Error::invalid_unary_operation(yylineno,$2->type,"~");
         }        
 
@@ -1117,7 +1142,8 @@ power : atom_expr
         appendChild($$, $1);
         appendChild($$, $3);
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
-            Error::type_mismatch(yylineno,$1->type,$3->type,"**");
+            if ($1->type.t != "-1" && $3->type.t != "-1")
+                Error::type_mismatch(yylineno,$1->type,$3->type,"**");
         }
         
         $$->type = get_max_type($1->type,$3->type);
