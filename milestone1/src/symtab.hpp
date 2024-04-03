@@ -18,7 +18,9 @@ class symtable_entry {
         ll size;
         ll list_size = -1;
         bool is_init;
+        string addr = "NOT ASSIGNED";
         ll init_val;
+        
         ll offset = 0; // no idea
         //ll dims = 0; // for multidim array 
         
@@ -33,10 +35,11 @@ class symtable_global{
         map<string,symtable_class*> classes;
         map<string,symtable_entry*> global_vars;
         symtable_global();
+        void add_range_func();
         void add_func(symtable_func* function);
         void add_class(symtable_class* class_);
-        symtable_entry*  add_global_var(struct TreeNode* global_var, ll line_no);
-        symtable_func* search_func(string &name, vector<string> &types);
+        symtable_entry* add_global_var(struct TreeNode* global_var, ll line_no);
+        symtable_func* search_func(string &name);
         symtable_class* search_class(string &name);
         symtable_entry* search_global_var(string &name);
         void check_declaration_var(string name, ll line_no);
@@ -61,9 +64,11 @@ class symtable_func {
         ll line_no;
         symtable_global* parent_symtab = NULL;
         symtable_class* parent_class = NULL;
+        symtable_func();
         symtable_func(struct TreeNode* function,struct TreeNode* params,struct TreeNode* returntype, ll line_no);
         symtable_entry * add_entry(struct TreeNode* new_entry, ll line_no);
         void check_declaration_var(string name, ll line_no);
+        void check_returntype(struct TreeNode* node, ll line_no);
         void delete_entry(string name);
         int get_localspace_size();
         symtable_entry* find_entry(string name);

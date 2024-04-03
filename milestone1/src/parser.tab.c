@@ -88,6 +88,8 @@ map<string, vector<string> > edges;
 symtable_func* curr_symtable_func = NULL;
 symtable_class* curr_symtable_class = NULL;
 symtable_global* curr_symtable_global;
+unordered_set<string> declared_types;
+ofstream threeac_file;
 
 struct type int_node;
 struct type float_node;
@@ -95,6 +97,9 @@ struct type bool_node;
 struct type str_node;
 struct type void_node;
 
+int is_declared_type(string t){
+    return declared_types.find(t) != declared_types.end();
+}
 
 void checker_traverse(struct TreeNode* node){
     if(node == NULL){
@@ -103,14 +108,19 @@ void checker_traverse(struct TreeNode* node){
 
     for(auto child : node->children){
         if(child->node_type == NAME_TYPE){
-            if(curr_symtable_func!=NULL){
-                curr_symtable_func->check_declaration_var(child->lexeme,yylineno-1);
-            }
-            else{
-                curr_symtable_global->check_declaration_var(child->lexeme,yylineno-1);
-            }
+            //auto temp = global_symtable->functions.find(child->lexeme);
+            //if(temp==global_symtable->functions.end()){
+                if(curr_symtable_func!=NULL){
+                    curr_symtable_func->check_declaration_var(child->lexeme,yylineno);
+                }
+                else{
+                    curr_symtable_global->check_declaration_var(child->lexeme,yylineno);
+                }
+            //}
         }
-
+        if(child->children.size()>1){
+            if(child->children[1]->node_type!=TRAILER_TYPE) checker_traverse(child);
+        }
         checker_traverse(child);
     }
     return;
@@ -153,7 +163,7 @@ struct type get_max_type(struct type t1, struct type t2){
 TreeNode * root = NULL;
 
 
-#line 157 "parser.tab.c"
+#line 167 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -701,20 +711,20 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   221,   221,   231,   235,   252,   257,   261,   267,   274,
-     286,   293,   298,   302,   308,   365,   369,   374,   379,   384,
-     390,   397,   402,   410,   414,   418,   422,   426,   430,   434,
-     438,   442,   446,   450,   454,   460,   464,   468,   474,   480,
-     486,   493,   506,   517,   523,   527,   531,   535,   539,   545,
-     555,   563,   567,   572,   576,   581,   588,   596,   603,   603,
-     620,   625,   630,   636,   649,   661,   661,   685,   691,   696,
-     704,   714,   719,   730,   736,   744,   753,   762,   767,   776,
-     781,   788,   794,   798,   815,   819,   835,   848,   855,   868,
-     875,   879,   883,   887,   891,   895,   899,   905,   909,   924,
-     928,   944,   948,   964,   968,   981,   998,  1002,  1015,  1031,
-    1035,  1049,  1063,  1075,  1091,  1103,  1114,  1128,  1135,  1139,
-    1153,  1226,  1237,  1241,  1250,  1255,  1262,  1267,  1283,  1288,
-    1293,  1298,  1303,  1307,  1320,  1325,  1330,  1340
+       0,   231,   231,   241,   245,   262,   267,   271,   277,   284,
+     295,   302,   307,   311,   317,   398,   402,   407,   412,   417,
+     429,   439,   444,   452,   456,   460,   464,   468,   472,   476,
+     480,   484,   488,   492,   496,   502,   506,   510,   516,   522,
+     528,   538,   551,   562,   568,   572,   576,   580,   584,   590,
+     600,   608,   612,   617,   621,   626,   633,   641,   648,   648,
+     667,   672,   677,   683,   702,   714,   714,   738,   744,   749,
+     757,   767,   772,   783,   789,   797,   808,   817,   822,   831,
+     836,   843,   849,   853,   872,   876,   894,   909,   915,   931,
+     938,   942,   946,   950,   954,   958,   962,   968,   972,   990,
+     994,  1012,  1016,  1034,  1038,  1054,  1072,  1076,  1092,  1110,
+    1114,  1130,  1146,  1162,  1180,  1194,  1208,  1223,  1230,  1234,
+    1251,  1331,  1342,  1346,  1355,  1360,  1367,  1373,  1389,  1394,
+    1399,  1404,  1409,  1413,  1426,  1431,  1436,  1446
 };
 #endif
 
@@ -1460,7 +1470,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* input_file: input_file_dash ENDMARKER  */
-#line 221 "parser.y"
+#line 231 "parser.y"
                                       {
     if ((yyvsp[-1].node) != NULL){
         (yyval.node) = (yyvsp[-1].node);
@@ -1469,19 +1479,19 @@ yyreduce:
     }
     root = (yyval.node);
 }
-#line 1473 "parser.tab.c"
+#line 1483 "parser.tab.c"
     break;
 
   case 3: /* input_file_dash: input_file_dash NEWLINE  */
-#line 232 "parser.y"
+#line 242 "parser.y"
     {
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 1481 "parser.tab.c"
+#line 1491 "parser.tab.c"
     break;
 
   case 4: /* input_file_dash: input_file_dash stmt  */
-#line 236 "parser.y"
+#line 246 "parser.y"
     {
         if ((yyvsp[-1].node) != NULL){
             (yyval.node) = (yyvsp[-1].node);
@@ -1497,46 +1507,45 @@ yyreduce:
             }
         }
     }
-#line 1501 "parser.tab.c"
+#line 1511 "parser.tab.c"
     break;
 
   case 5: /* input_file_dash: %empty  */
-#line 252 "parser.y"
+#line 262 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 1509 "parser.tab.c"
+#line 1519 "parser.tab.c"
     break;
 
   case 6: /* stmt: simple_stmt  */
-#line 258 "parser.y"
+#line 268 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1517 "parser.tab.c"
+#line 1527 "parser.tab.c"
     break;
 
   case 7: /* stmt: compound_stmt  */
-#line 262 "parser.y"
+#line 272 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1525 "parser.tab.c"
+#line 1535 "parser.tab.c"
     break;
 
   case 8: /* simple_stmt: small_stmt_dash NEWLINE  */
-#line 268 "parser.y"
+#line 278 "parser.y"
     {
 
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 1534 "parser.tab.c"
+#line 1544 "parser.tab.c"
     break;
 
   case 9: /* small_stmt_dash: small_stmt_dash ";" small_stmt  */
-#line 275 "parser.y"
+#line 285 "parser.y"
     {
-        
         if ((yyvsp[-2].node)->node_type == STATEMENT_GROUP_TYPE){
             (yyval.node) = (yyvsp[-2].node);
             appendChild((yyval.node), (yyvsp[0].node));
@@ -1546,48 +1555,49 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 1550 "parser.tab.c"
+#line 1559 "parser.tab.c"
     break;
 
   case 10: /* small_stmt_dash: small_stmt  */
-#line 287 "parser.y"
+#line 296 "parser.y"
     {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1558 "parser.tab.c"
-    break;
-
-  case 11: /* small_stmt: expr_stmt  */
-#line 294 "parser.y"
-    {   
-
         (yyval.node) = (yyvsp[0].node);
     }
 #line 1567 "parser.tab.c"
     break;
 
+  case 11: /* small_stmt: expr_stmt  */
+#line 303 "parser.y"
+    {   
+
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1576 "parser.tab.c"
+    break;
+
   case 12: /* small_stmt: flow_stmt  */
-#line 299 "parser.y"
+#line 308 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1575 "parser.tab.c"
+#line 1584 "parser.tab.c"
     break;
 
   case 13: /* small_stmt: global_stmt  */
-#line 303 "parser.y"
+#line 312 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1583 "parser.tab.c"
+#line 1592 "parser.tab.c"
     break;
 
   case 14: /* expr_stmt: test expr_stmt_dash  */
-#line 309 "parser.y"
+#line 318 "parser.y"
     { 
         (yyval.node) = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
         struct type t;
         t.t = "void";
+
         (yyval.node)->type = t;
         if ((yyvsp[0].node) == NULL){
             appendChild((yyval.node), (yyvsp[-1].node));
@@ -1595,18 +1605,15 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
             insert_to_front((yyvsp[0].node), (yyvsp[-1].node));
         }
-        if ((yyvsp[0].node) == NULL){
-            return 0;
-        }
 
         symtable_entry* entry=NULL; 
 
-        if((yyvsp[0].node)->lexeme == ":" || (yyvsp[0].node)->lexeme == ":="){
-            DEBUG("here");
+        if((yyvsp[0].node) != NULL && ((yyvsp[0].node)->lexeme == ":" || (yyvsp[0].node)->lexeme == ":=")){
+            //DEBUG("here");
             if(curr_symtable_func!=NULL){
-                DEBUG("Entered Add Function Entry" << curr_symtable_func);
+                //DEBUG("Entered Add Function Entry" << curr_symtable_func);
                 entry = curr_symtable_func->add_entry((yyvsp[0].node),yylineno);
-                DEBUG("Exited Add Function Entry");
+                //DEBUG("Exited Add Function Entry");
                 (yyvsp[-1].node)->type = entry->type;
             }else if(curr_symtable_class!=NULL){
                 entry = curr_symtable_class->add_attribute((yyvsp[0].node),yylineno);        
@@ -1626,6 +1633,8 @@ yyreduce:
                         (yyvsp[-1].node)->type.elems = (yyvsp[0].node)->children[2]->type.elems;
                     }
                 }
+                three_ac::dereference((yyvsp[0].node)->children[2]);
+                three_ac::gen("unary", "=", (yyvsp[0].node)->children[2]->addr, "", (yyvsp[0].node)->children[0]->addr);
             } 
         }
         else if ((yyvsp[0].node) != NULL){
@@ -1635,230 +1644,266 @@ yyreduce:
             }else{
                 Error::type_mismatch(yylineno, (yyvsp[-1].node)->type, (yyvsp[0].node)->children[0]->type, "assignment");
             }
+            three_ac::dereference((yyvsp[0].node)->children[2]);
+            string op = (yyvsp[0].node)->children[1]->lexeme;
+            if (op == "="){
+                if ((yyvsp[0].node)->children[0]->to_dereference){
+                    three_ac::gen("address_assign", "=", (yyvsp[0].node)->children[2]->addr, "", (yyvsp[0].node)->children[0]->addr);
+                }else{
+                    three_ac::gen("unary", "=", (yyvsp[0].node)->children[2]->addr, "", (yyvsp[0].node)->children[0]->addr);
+                }
+            }else{
+                if ((yyvsp[0].node)->children[0]->to_dereference){
+                    string temp = three_ac::new_temp();
+                    three_ac::gen("DEREF", "*", (yyvsp[0].node)->children[0]->addr, "", temp);
+                    string op = (yyvsp[0].node)->children[1]->lexeme.substr(0, (yyvsp[0].node)->children[1]->lexeme.size()-1);
+                    string temp2 = three_ac::new_temp();
+                    three_ac::gen("quad", op, temp, (yyvsp[0].node)->children[2]->addr, temp2);
+                    three_ac::gen("address_assign", "=", temp2, "", (yyvsp[0].node)->children[0]->addr);
+                }else{
+                    string op = (yyvsp[0].node)->children[1]->lexeme.substr(0, (yyvsp[0].node)->children[1]->lexeme.size()-1);
+                    string temp2 = three_ac::new_temp();
+                    three_ac::gen("quad", op, (yyvsp[0].node)->children[0]->addr, (yyvsp[0].node)->children[2]->addr, temp2);
+                    three_ac::gen("address_assign", "=", temp2, "", (yyvsp[0].node)->children[0]->addr);
+                }
+            }
+
         }
         checker_traverse((yyvsp[-1].node));
-    }
-#line 1642 "parser.tab.c"
-    break;
-
-  case 15: /* expr_stmt_dash: annasign  */
-#line 366 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1650 "parser.tab.c"
-    break;
-
-  case 16: /* expr_stmt_dash: augassign test  */
-#line 370 "parser.y"
-    {
-        (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
-        appendChild((yyval.node), (yyvsp[0].node));    
-    }
-#line 1659 "parser.tab.c"
-    break;
-
-  case 17: /* expr_stmt_dash: assign_dash  */
-#line 375 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1667 "parser.tab.c"
-    break;
-
-  case 18: /* expr_stmt_dash: %empty  */
-#line 379 "parser.y"
-    {
-        (yyval.node) = NULL;
     }
 #line 1675 "parser.tab.c"
     break;
 
+  case 15: /* expr_stmt_dash: annasign  */
+#line 399 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1683 "parser.tab.c"
+    break;
+
+  case 16: /* expr_stmt_dash: augassign test  */
+#line 403 "parser.y"
+    {
+        (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
+        appendChild((yyval.node), (yyvsp[0].node));    
+    }
+#line 1692 "parser.tab.c"
+    break;
+
+  case 17: /* expr_stmt_dash: assign_dash  */
+#line 408 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1700 "parser.tab.c"
+    break;
+
+  case 18: /* expr_stmt_dash: %empty  */
+#line 412 "parser.y"
+    {
+        (yyval.node) = NULL;
+    }
+#line 1708 "parser.tab.c"
+    break;
+
   case 19: /* assign_dash: "=" test assign_dash  */
-#line 385 "parser.y"
+#line 418 "parser.y"
     {
         (yyval.node) = makeNode("=",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
         insert_to_front((yyvsp[0].node), (yyvsp[-1].node));
+        (yyval.node)->addr = (yyvsp[0].node)->addr;
+        if ((yyvsp[-1].node)->to_dereference){
+            three_ac::gen("address_assign", "=", (yyvsp[0].node)->addr, "", (yyvsp[-1].node)->addr);
+        }else{
+            three_ac::gen("unary", "=", (yyvsp[0].node)->addr, "", (yyvsp[-1].node)->addr);
+        }
     }
-#line 1685 "parser.tab.c"
+#line 1724 "parser.tab.c"
     break;
 
   case 20: /* assign_dash: "=" test  */
-#line 391 "parser.y"
+#line 430 "parser.y"
     {
         (yyval.node) = makeNode("=",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
+     
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = (yyvsp[0].node)->addr;
     }
-#line 1694 "parser.tab.c"
+#line 1736 "parser.tab.c"
     break;
 
   case 21: /* annasign: ":" test  */
-#line 398 "parser.y"
+#line 440 "parser.y"
     {
         (yyval.node) = makeNode(":", EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 1703 "parser.tab.c"
+#line 1745 "parser.tab.c"
     break;
 
   case 22: /* annasign: ":" test "=" test  */
-#line 403 "parser.y"
+#line 445 "parser.y"
     {
         (yyval.node) = makeNode(":=", EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 1713 "parser.tab.c"
+#line 1755 "parser.tab.c"
     break;
 
   case 23: /* augassign: "+="  */
-#line 411 "parser.y"
+#line 453 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1721 "parser.tab.c"
+#line 1763 "parser.tab.c"
     break;
 
   case 24: /* augassign: "-="  */
-#line 415 "parser.y"
+#line 457 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1729 "parser.tab.c"
+#line 1771 "parser.tab.c"
     break;
 
   case 25: /* augassign: "*="  */
-#line 419 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1737 "parser.tab.c"
-    break;
-
-  case 26: /* augassign: "/="  */
-#line 423 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1745 "parser.tab.c"
-    break;
-
-  case 27: /* augassign: "%="  */
-#line 427 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1753 "parser.tab.c"
-    break;
-
-  case 28: /* augassign: "&="  */
-#line 431 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1761 "parser.tab.c"
-    break;
-
-  case 29: /* augassign: "|="  */
-#line 435 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1769 "parser.tab.c"
-    break;
-
-  case 30: /* augassign: "^="  */
-#line 439 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1777 "parser.tab.c"
-    break;
-
-  case 31: /* augassign: "<<="  */
-#line 443 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1785 "parser.tab.c"
-    break;
-
-  case 32: /* augassign: ">>="  */
-#line 447 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1793 "parser.tab.c"
-    break;
-
-  case 33: /* augassign: "**="  */
-#line 451 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1801 "parser.tab.c"
-    break;
-
-  case 34: /* augassign: "//="  */
-#line 455 "parser.y"
-    {
-        (yyval.node) = (yyvsp[0].node);
-    }
-#line 1809 "parser.tab.c"
-    break;
-
-  case 35: /* flow_stmt: break_stmt  */
 #line 461 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1817 "parser.tab.c"
+#line 1779 "parser.tab.c"
     break;
 
-  case 36: /* flow_stmt: continue_stmt  */
+  case 26: /* augassign: "/="  */
 #line 465 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1825 "parser.tab.c"
+#line 1787 "parser.tab.c"
     break;
 
-  case 37: /* flow_stmt: return_stmt  */
+  case 27: /* augassign: "%="  */
 #line 469 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1833 "parser.tab.c"
+#line 1795 "parser.tab.c"
+    break;
+
+  case 28: /* augassign: "&="  */
+#line 473 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1803 "parser.tab.c"
+    break;
+
+  case 29: /* augassign: "|="  */
+#line 477 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1811 "parser.tab.c"
+    break;
+
+  case 30: /* augassign: "^="  */
+#line 481 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1819 "parser.tab.c"
+    break;
+
+  case 31: /* augassign: "<<="  */
+#line 485 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1827 "parser.tab.c"
+    break;
+
+  case 32: /* augassign: ">>="  */
+#line 489 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1835 "parser.tab.c"
+    break;
+
+  case 33: /* augassign: "**="  */
+#line 493 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1843 "parser.tab.c"
+    break;
+
+  case 34: /* augassign: "//="  */
+#line 497 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1851 "parser.tab.c"
+    break;
+
+  case 35: /* flow_stmt: break_stmt  */
+#line 503 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1859 "parser.tab.c"
+    break;
+
+  case 36: /* flow_stmt: continue_stmt  */
+#line 507 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1867 "parser.tab.c"
+    break;
+
+  case 37: /* flow_stmt: return_stmt  */
+#line 511 "parser.y"
+    {
+        (yyval.node) = (yyvsp[0].node);
+    }
+#line 1875 "parser.tab.c"
     break;
 
   case 38: /* break_stmt: "break"  */
-#line 475 "parser.y"
+#line 517 "parser.y"
     {
         (yyval.node) = makeNode("break",STATEMENT_TYPE);
     }
-#line 1841 "parser.tab.c"
+#line 1883 "parser.tab.c"
     break;
 
   case 39: /* continue_stmt: "continue"  */
-#line 481 "parser.y"
+#line 523 "parser.y"
     {
         (yyval.node) = makeNode("continue",STATEMENT_TYPE);
     }
-#line 1849 "parser.tab.c"
+#line 1891 "parser.tab.c"
     break;
 
   case 40: /* return_stmt: "return" test  */
-#line 487 "parser.y"
+#line 529 "parser.y"
     {
         (yyval.node) = makeNode("return",STATEMENT_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
+        checker_traverse((yyvsp[0].node));
+        //DEBUG($2->type.t);
+        curr_symtable_func->check_returntype((yyvsp[0].node), yylineno);
     }
-#line 1858 "parser.tab.c"
+#line 1903 "parser.tab.c"
     break;
 
   case 41: /* global_stmt: "global" NAME_dash  */
-#line 494 "parser.y"
+#line 539 "parser.y"
     {
         (yyval.node) = makeNode("global",STATEMENT_TYPE);
         if ((yyvsp[0].node)->node_type == MISC_TYPE){
@@ -1869,11 +1914,11 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 1873 "parser.tab.c"
+#line 1918 "parser.tab.c"
     break;
 
   case 42: /* NAME_dash: NAME_dash "," NAME  */
-#line 507 "parser.y"
+#line 552 "parser.y"
     {
         if ((yyvsp[-2].node)->node_type == MISC_TYPE){
             (yyval.node) = (yyvsp[-2].node);
@@ -1884,59 +1929,59 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 1888 "parser.tab.c"
+#line 1933 "parser.tab.c"
     break;
 
   case 43: /* NAME_dash: NAME  */
-#line 518 "parser.y"
+#line 563 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1896 "parser.tab.c"
+#line 1941 "parser.tab.c"
     break;
 
   case 44: /* compound_stmt: funcdef  */
-#line 524 "parser.y"
+#line 569 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1904 "parser.tab.c"
+#line 1949 "parser.tab.c"
     break;
 
   case 45: /* compound_stmt: if_stmt  */
-#line 528 "parser.y"
+#line 573 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1912 "parser.tab.c"
+#line 1957 "parser.tab.c"
     break;
 
   case 46: /* compound_stmt: while_stmt  */
-#line 532 "parser.y"
+#line 577 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1920 "parser.tab.c"
+#line 1965 "parser.tab.c"
     break;
 
   case 47: /* compound_stmt: for_stmt  */
-#line 536 "parser.y"
+#line 581 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1928 "parser.tab.c"
+#line 1973 "parser.tab.c"
     break;
 
   case 48: /* compound_stmt: classdef  */
-#line 540 "parser.y"
+#line 585 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1936 "parser.tab.c"
+#line 1981 "parser.tab.c"
     break;
 
   case 49: /* if_stmt: if_stmt_dash else_stmt_dash  */
-#line 546 "parser.y"
+#line 591 "parser.y"
     {
         (yyval.node) = (yyvsp[-1].node);
         if ((yyvsp[0].node) != NULL){
@@ -1944,95 +1989,97 @@ yyreduce:
         }
         (yyval.node)->type.t = "void";
     }
-#line 1948 "parser.tab.c"
+#line 1993 "parser.tab.c"
     break;
 
   case 50: /* if_stmt_dash: "if" test ":" suite  */
-#line 556 "parser.y"
+#line 601 "parser.y"
     {
         (yyval.node) = (yyvsp[-3].node);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));    
     }
-#line 1958 "parser.tab.c"
+#line 2003 "parser.tab.c"
     break;
 
   case 51: /* else_stmt_dash: else_stmt  */
-#line 564 "parser.y"
+#line 609 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1966 "parser.tab.c"
+#line 2011 "parser.tab.c"
     break;
 
   case 52: /* else_stmt_dash: elif_stmt else_stmt  */
-#line 568 "parser.y"
+#line 613 "parser.y"
     {
         (yyval.node) = (yyvsp[-1].node);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 1975 "parser.tab.c"
+#line 2020 "parser.tab.c"
     break;
 
   case 53: /* else_stmt_dash: elif_stmt  */
-#line 573 "parser.y"
+#line 618 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1983 "parser.tab.c"
+#line 2028 "parser.tab.c"
     break;
 
   case 54: /* else_stmt_dash: %empty  */
-#line 576 "parser.y"
+#line 621 "parser.y"
                 {
         (yyval.node) = NULL;
     }
-#line 1991 "parser.tab.c"
+#line 2036 "parser.tab.c"
     break;
 
   case 55: /* elif_stmt: "elif" test ":" suite elif_stmt  */
-#line 582 "parser.y"
+#line 627 "parser.y"
     {
         (yyval.node) = (yyvsp[-4].node);
         appendChild((yyval.node), (yyvsp[-3].node));
         appendChild((yyval.node), (yyvsp[-1].node));
         appendChild((yyval.node), (yyvsp[0].node));        
     }
-#line 2002 "parser.tab.c"
+#line 2047 "parser.tab.c"
     break;
 
   case 56: /* elif_stmt: "elif" test ":" suite  */
-#line 589 "parser.y"
+#line 634 "parser.y"
     {
         (yyval.node) = (yyvsp[-3].node);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2012 "parser.tab.c"
+#line 2057 "parser.tab.c"
     break;
 
   case 57: /* else_stmt: "else" ":" suite  */
-#line 597 "parser.y"
+#line 642 "parser.y"
     {
         (yyval.node) = (yyvsp[-2].node);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2021 "parser.tab.c"
+#line 2066 "parser.tab.c"
     break;
 
   case 58: /* $@1: %empty  */
-#line 603 "parser.y"
+#line 648 "parser.y"
                                    {
         curr_symtable_class = new symtable_class((yyvsp[-1].node),(yyvsp[0].node));
         curr_symtable_global->add_class(curr_symtable_class);
+        declared_types.insert((yyvsp[-1].node)->lexeme);
     }
-#line 2030 "parser.tab.c"
+#line 2076 "parser.tab.c"
     break;
 
   case 59: /* classdef: "class" NAME inheritlist $@1 ":" suite  */
-#line 607 "parser.y"
+#line 653 "parser.y"
     {
         (yyval.node) = makeNode("",CLASS_TYPE);
+        (yyval.node)->type.t = "void";
         appendChild((yyval.node), (yyvsp[-4].node));
         if ((yyvsp[-3].node) != NULL){
             appendChild((yyval.node), (yyvsp[-3].node));
@@ -2042,36 +2089,42 @@ yyreduce:
         curr_symtable_class = NULL;
 
     }
-#line 2046 "parser.tab.c"
+#line 2093 "parser.tab.c"
     break;
 
   case 60: /* inheritlist: "(" NAME ")"  */
-#line 621 "parser.y"
+#line 668 "parser.y"
     {
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 2054 "parser.tab.c"
+#line 2101 "parser.tab.c"
     break;
 
   case 61: /* inheritlist: "(" ")"  */
-#line 626 "parser.y"
+#line 673 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 2062 "parser.tab.c"
+#line 2109 "parser.tab.c"
     break;
 
   case 62: /* inheritlist: %empty  */
-#line 630 "parser.y"
+#line 677 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 2070 "parser.tab.c"
+#line 2117 "parser.tab.c"
     break;
 
   case 63: /* for_stmt: "for" test "in" test ":" suite  */
-#line 637 "parser.y"
+#line 684 "parser.y"
     {   
+       /* struct TreeNode* temp1 = makeNode($2->lexeme,NAME_TYPE);
+        struct TreeNode* temp2 = makeNode("int",NAME_TYPE);
+        struct TreeNode* temp = makeNode("",EXPR_TYPE);
+        appendChild(temp,temp1);
+        appendChild(temp,temp2);
+        curr_symtable_func->add_entry(temp,yylineno); */
         (yyval.node) = (yyvsp[-5].node);
         appendChild((yyval.node), (yyvsp[-4].node));
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2081,11 +2134,11 @@ yyreduce:
             Error::other_semantic_error("TYPE_ERROR: Expected type int for iterator variable in for loop, got " + type_to_string((yyvsp[-4].node)->type), yylineno);
         }
     }
-#line 2085 "parser.tab.c"
+#line 2138 "parser.tab.c"
     break;
 
   case 64: /* while_stmt: "while" test ":" suite  */
-#line 650 "parser.y"
+#line 703 "parser.y"
     {
         (yyval.node) = (yyvsp[-3].node);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2095,27 +2148,26 @@ yyreduce:
             Error::type_mismatch(yylineno, (yyvsp[-2].node)->type, bool_node, "while loop condition");
         }
     }
-#line 2099 "parser.tab.c"
+#line 2152 "parser.tab.c"
     break;
 
   case 65: /* $@2: %empty  */
-#line 661 "parser.y"
+#line 714 "parser.y"
                                              {
-    curr_symtable_func  = new symtable_func((yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node),yylineno); 
-    if(curr_symtable_class != NULL){
-        curr_symtable_class->add_func(curr_symtable_func);
-    }else{
-        DEBUG("Adding function to global sym tab");
-        curr_symtable_global->add_func(curr_symtable_func);
-        DEBUG("Added function to global sym tab");
+        curr_symtable_func  = new symtable_func((yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node),yylineno); 
+        if(curr_symtable_class != NULL){
+            curr_symtable_class->add_func(curr_symtable_func);
+        }else{
+            curr_symtable_global->add_func(curr_symtable_func);
+        }
+        three_ac::gen("beginfunc", "beginfunc", curr_symtable_func->name);
     }
-}
-#line 2114 "parser.tab.c"
+#line 2166 "parser.tab.c"
     break;
 
   case 66: /* funcdef: "def" NAME parameters funcdef_dash $@2 ":" suite  */
-#line 670 "parser.y"
-            {
+#line 722 "parser.y"
+                {
         (yyval.node) = makeNode("def",FUNCTION_TYPE);
         appendChild((yyval.node),(yyvsp[-5].node));
         appendChild((yyval.node),(yyvsp[-4].node));
@@ -2125,41 +2177,42 @@ yyreduce:
 
         appendChild((yyval.node), (yyvsp[0].node));
 
-        (yyval.node)->type.t = "void";        
+        (yyval.node)->type.t = "void";
         curr_symtable_func = NULL;
+        three_ac::gen("endfunc");
     }
-#line 2132 "parser.tab.c"
+#line 2185 "parser.tab.c"
     break;
 
   case 67: /* funcdef_dash: "->" test  */
-#line 686 "parser.y"
+#line 739 "parser.y"
     {
-        DEBUG((yyvsp[0].node)->lexeme);
+        //DEBUG($2->lexeme);
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2141 "parser.tab.c"
+#line 2194 "parser.tab.c"
     break;
 
   case 68: /* funcdef_dash: %empty  */
-#line 691 "parser.y"
+#line 744 "parser.y"
     {
         (yyval.node) = makeNode("void",NAME_TYPE);
     }
-#line 2149 "parser.tab.c"
+#line 2202 "parser.tab.c"
     break;
 
   case 69: /* parameters: "(" parameters_dash ")"  */
-#line 697 "parser.y"
+#line 750 "parser.y"
     {
-        DEBUG((yyvsp[-1].node));
-        DEBUG("parameters" << (yyvsp[-1].node)->children.size());
+        //DEBUG($2);
+        //DEBUG("parameters" << $2->children.size());
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 2159 "parser.tab.c"
+#line 2212 "parser.tab.c"
     break;
 
   case 70: /* parameters_dash: typedargslist  */
-#line 705 "parser.y"
+#line 758 "parser.y"
     {
         if (((yyvsp[0].node) != NULL) && (yyvsp[0].node)->node_type == PARAMETERS_TYPE){
             (yyval.node) = (yyvsp[0].node);
@@ -2168,19 +2221,19 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 2172 "parser.tab.c"
+#line 2225 "parser.tab.c"
     break;
 
   case 71: /* parameters_dash: %empty  */
-#line 714 "parser.y"
+#line 767 "parser.y"
     {   
         (yyval.node) = makeNode("parameters",PARAMETERS_TYPE);
     }
-#line 2180 "parser.tab.c"
+#line 2233 "parser.tab.c"
     break;
 
   case 72: /* typedargslist: typedargslist "," tfpdef  */
-#line 720 "parser.y"
+#line 773 "parser.y"
     {
         if ((yyvsp[-2].node) != NULL && (yyvsp[-2].node)->node_type == PARAMETERS_TYPE){
             (yyval.node) = (yyvsp[-2].node);
@@ -2191,107 +2244,109 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 2195 "parser.tab.c"
+#line 2248 "parser.tab.c"
     break;
 
   case 73: /* typedargslist: tfpdef  */
-#line 731 "parser.y"
+#line 784 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2203 "parser.tab.c"
+#line 2256 "parser.tab.c"
     break;
 
   case 74: /* tfpdef: NAME ":" test  */
-#line 737 "parser.y"
+#line 790 "parser.y"
     {
-        DEBUG("tfpdef" << (yyvsp[-2].node)->lexeme << " " << (yyvsp[0].node)->lexeme);
+        //DEBUG("tfpdef" << $1->lexeme << " " << $3->lexeme);
         (yyval.node) = makeNode(":",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2214 "parser.tab.c"
+#line 2267 "parser.tab.c"
     break;
 
   case 75: /* tfpdef: NAME  */
-#line 745 "parser.y"
+#line 798 "parser.y"
     {
         if (curr_symtable_class != NULL){
             if ((yyvsp[0].node)->lexeme == "self"){
                 (yyval.node) = NULL;
+            }else{
+                Error::other_semantic_error("TYPE_ERROR: Expected variable type for "+(yyvsp[0].node)->lexeme, yylineno);
             }
         }
     }
-#line 2226 "parser.tab.c"
+#line 2281 "parser.tab.c"
     break;
 
   case 76: /* tfpdef: NAME ":" test "=" test  */
-#line 754 "parser.y"
+#line 809 "parser.y"
     {
         (yyval.node) = makeNode(":=",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-4].node));
         appendChild((yyval.node), (yyvsp[-2].node));
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2237 "parser.tab.c"
+#line 2292 "parser.tab.c"
     break;
 
   case 77: /* suite: simple_stmt  */
-#line 763 "parser.y"
+#line 818 "parser.y"
     {   
         (yyval.node) = makeNode("", SUITE_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2246 "parser.tab.c"
+#line 2301 "parser.tab.c"
     break;
 
   case 78: /* suite: NEWLINE INDENT stmt_dash DEDENT  */
-#line 768 "parser.y"
+#line 823 "parser.y"
     {
         (yyval.node) = makeNode("", SUITE_TYPE);
         for (auto x: (yyvsp[-1].node)->children){
             appendChild((yyval.node), x);
         }
     }
-#line 2257 "parser.tab.c"
+#line 2312 "parser.tab.c"
     break;
 
   case 79: /* stmt_dash: stmt_dash stmt  */
-#line 777 "parser.y"
+#line 832 "parser.y"
     {
         appendChild((yyvsp[-1].node), (yyvsp[0].node));
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 2266 "parser.tab.c"
+#line 2321 "parser.tab.c"
     break;
 
   case 80: /* stmt_dash: stmt  */
-#line 782 "parser.y"
+#line 837 "parser.y"
     {
         (yyval.node) = makeNode("statements", STATEMENT_GROUP_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2275 "parser.tab.c"
+#line 2330 "parser.tab.c"
     break;
 
   case 81: /* test: or_test  */
-#line 789 "parser.y"
+#line 844 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2283 "parser.tab.c"
+#line 2338 "parser.tab.c"
     break;
 
   case 82: /* or_test: and_test  */
-#line 795 "parser.y"
+#line 850 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2291 "parser.tab.c"
+#line 2346 "parser.tab.c"
     break;
 
   case 83: /* or_test: or_test "or" and_test  */
-#line 799 "parser.y"
+#line 854 "parser.y"
     {
         (yyval.node) = makeNode("or",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2303,22 +2358,24 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = bool_node;
-
-    
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "or", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2310 "parser.tab.c"
+#line 2367 "parser.tab.c"
     break;
 
   case 84: /* and_test: not_test  */
-#line 816 "parser.y"
+#line 873 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2318 "parser.tab.c"
+#line 2375 "parser.tab.c"
     break;
 
   case 85: /* and_test: and_test "and" not_test  */
-#line 820 "parser.y"
+#line 877 "parser.y"
     {
         (yyval.node) = makeNode("and",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2329,14 +2386,16 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = bool_node;
-
-    
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "and", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2336 "parser.tab.c"
+#line 2395 "parser.tab.c"
     break;
 
   case 86: /* not_test: "not" not_test  */
-#line 836 "parser.y"
+#line 895 "parser.y"
     {
         (yyval.node) = makeNode("not",EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
@@ -2347,22 +2406,23 @@ yyreduce:
         }        
 
         (yyval.node)->type = bool_node;
-
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("unary", "not", (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2353 "parser.tab.c"
+#line 2414 "parser.tab.c"
     break;
 
   case 87: /* not_test: comparison  */
-#line 849 "parser.y"
+#line 910 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
-
     }
-#line 2362 "parser.tab.c"
+#line 2422 "parser.tab.c"
     break;
 
   case 88: /* comparison: expr comp_op expr  */
-#line 856 "parser.y"
+#line 916 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE); 
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2373,85 +2433,88 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = bool_node;
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", (yyvsp[-1].node)->lexeme, (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2379 "parser.tab.c"
+#line 2442 "parser.tab.c"
     break;
 
   case 89: /* comparison: expr  */
-#line 869 "parser.y"
+#line 932 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2387 "parser.tab.c"
+#line 2450 "parser.tab.c"
     break;
 
   case 90: /* comp_op: "<"  */
-#line 876 "parser.y"
+#line 939 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2395 "parser.tab.c"
+#line 2458 "parser.tab.c"
     break;
 
   case 91: /* comp_op: ">"  */
-#line 880 "parser.y"
+#line 943 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2403 "parser.tab.c"
+#line 2466 "parser.tab.c"
     break;
 
   case 92: /* comp_op: "=="  */
-#line 884 "parser.y"
+#line 947 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2411 "parser.tab.c"
+#line 2474 "parser.tab.c"
     break;
 
   case 93: /* comp_op: ">="  */
-#line 888 "parser.y"
+#line 951 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2419 "parser.tab.c"
+#line 2482 "parser.tab.c"
     break;
 
   case 94: /* comp_op: "<="  */
-#line 892 "parser.y"
+#line 955 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2427 "parser.tab.c"
+#line 2490 "parser.tab.c"
     break;
 
   case 95: /* comp_op: "<>"  */
-#line 896 "parser.y"
+#line 959 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2435 "parser.tab.c"
+#line 2498 "parser.tab.c"
     break;
 
   case 96: /* comp_op: "!="  */
-#line 900 "parser.y"
+#line 963 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2443 "parser.tab.c"
+#line 2506 "parser.tab.c"
     break;
 
   case 97: /* expr: xor_expr  */
-#line 906 "parser.y"
+#line 969 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 2451 "parser.tab.c"
+#line 2514 "parser.tab.c"
     break;
 
   case 98: /* expr: expr "|" xor_expr  */
-#line 910 "parser.y"
+#line 973 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2462,21 +2525,24 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "|", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2468 "parser.tab.c"
+#line 2534 "parser.tab.c"
     break;
 
   case 99: /* xor_expr: and_expr  */
-#line 925 "parser.y"
+#line 991 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2476 "parser.tab.c"
+#line 2542 "parser.tab.c"
     break;
 
   case 100: /* xor_expr: xor_expr "^" and_expr  */
-#line 929 "parser.y"
+#line 995 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2487,22 +2553,24 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
-
-    
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "^", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2494 "parser.tab.c"
+#line 2562 "parser.tab.c"
     break;
 
   case 101: /* and_expr: shift_expr  */
-#line 945 "parser.y"
+#line 1013 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2502 "parser.tab.c"
+#line 2570 "parser.tab.c"
     break;
 
   case 102: /* and_expr: and_expr "&" shift_expr  */
-#line 949 "parser.y"
+#line 1017 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2513,22 +2581,24 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
-
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "&", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2520 "parser.tab.c"
+#line 2590 "parser.tab.c"
     break;
 
   case 103: /* shift_expr: arith_expr  */
-#line 965 "parser.y"
+#line 1035 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2528 "parser.tab.c"
+#line 2598 "parser.tab.c"
     break;
 
   case 104: /* shift_expr: shift_expr "<<" arith_expr  */
-#line 969 "parser.y"
+#line 1039 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2539,13 +2609,16 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "<<", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2545 "parser.tab.c"
+#line 2618 "parser.tab.c"
     break;
 
   case 105: /* shift_expr: shift_expr ">>" arith_expr  */
-#line 982 "parser.y"
+#line 1055 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2556,23 +2629,24 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = int_node;
-
-
-    
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", ">>", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2564 "parser.tab.c"
+#line 2638 "parser.tab.c"
     break;
 
   case 106: /* arith_expr: term  */
-#line 999 "parser.y"
+#line 1073 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2572 "parser.tab.c"
+#line 2646 "parser.tab.c"
     break;
 
   case 107: /* arith_expr: arith_expr "+" term  */
-#line 1003 "parser.y"
+#line 1077 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2583,13 +2657,16 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "+", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2589 "parser.tab.c"
+#line 2666 "parser.tab.c"
     break;
 
   case 108: /* arith_expr: arith_expr "-" term  */
-#line 1016 "parser.y"
+#line 1093 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2600,22 +2677,24 @@ yyreduce:
             Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,(yyvsp[-1].node)->lexeme);
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
-
-    
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "-", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);    
     }
-#line 2607 "parser.tab.c"
+#line 2686 "parser.tab.c"
     break;
 
   case 109: /* term: factor  */
-#line 1032 "parser.y"
+#line 1111 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2615 "parser.tab.c"
+#line 2694 "parser.tab.c"
     break;
 
   case 110: /* term: term "*" factor  */
-#line 1036 "parser.y"
+#line 1115 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2626,14 +2705,16 @@ yyreduce:
                 Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"*");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
-
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "*", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2633 "parser.tab.c"
+#line 2714 "parser.tab.c"
     break;
 
   case 111: /* term: term "/" factor  */
-#line 1050 "parser.y"
+#line 1131 "parser.y"
     {   
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2644,14 +2725,16 @@ yyreduce:
                 Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"/");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
-
-    
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "/", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);    
     }
-#line 2651 "parser.tab.c"
+#line 2734 "parser.tab.c"
     break;
 
   case 112: /* term: term "%" factor  */
-#line 1064 "parser.y"
+#line 1147 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2662,12 +2745,16 @@ yyreduce:
                 Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"%");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "%", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2667 "parser.tab.c"
+#line 2754 "parser.tab.c"
     break;
 
   case 113: /* term: term "//" factor  */
-#line 1076 "parser.y"
+#line 1163 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2678,14 +2765,16 @@ yyreduce:
                 Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"//");
         }
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
-
-
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "//", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2685 "parser.tab.c"
+#line 2774 "parser.tab.c"
     break;
 
   case 114: /* factor: "+" factor  */
-#line 1092 "parser.y"
+#line 1181 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
@@ -2695,13 +2784,15 @@ yyreduce:
                 Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"+");
         }
         (yyval.node)->type = (yyvsp[0].node)->type;
-
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("unary", "+", (yyvsp[0].node)->addr, "", (yyval.node)->addr);        
     }
-#line 2701 "parser.tab.c"
+#line 2792 "parser.tab.c"
     break;
 
   case 115: /* factor: "-" factor  */
-#line 1104 "parser.y"
+#line 1195 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
@@ -2711,12 +2802,15 @@ yyreduce:
                 Error::invalid_unary_operation(yylineno,(yyvsp[0].node)->type,"-");
         }
         (yyval.node)->type = (yyvsp[0].node)->type;
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("unary", "-", (yyvsp[0].node)->addr, "", (yyval.node)->addr);        
     }
-#line 2716 "parser.tab.c"
+#line 2810 "parser.tab.c"
     break;
 
   case 116: /* factor: "~" factor  */
-#line 1115 "parser.y"
+#line 1209 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
@@ -2727,31 +2821,32 @@ yyreduce:
         }        
 
         (yyval.node)->type = int_node;
-
-        
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("unary", "~", (yyvsp[0].node)->addr, "", (yyval.node)->addr);        
     }
-#line 2734 "parser.tab.c"
+#line 2829 "parser.tab.c"
     break;
 
   case 117: /* factor: power  */
-#line 1129 "parser.y"
+#line 1224 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
         
     }
-#line 2743 "parser.tab.c"
+#line 2838 "parser.tab.c"
     break;
 
   case 118: /* power: atom_expr  */
-#line 1136 "parser.y"
+#line 1231 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2751 "parser.tab.c"
+#line 2846 "parser.tab.c"
     break;
 
   case 119: /* power: atom_expr "**" factor  */
-#line 1140 "parser.y"
+#line 1235 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[-1].node)->lexeme,EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-2].node));
@@ -2760,14 +2855,17 @@ yyreduce:
             if ((yyvsp[-2].node)->type.t != "-1" && (yyvsp[0].node)->type.t != "-1")
                 Error::type_mismatch(yylineno,(yyvsp[-2].node)->type,(yyvsp[0].node)->type,"**");
         }
-        
         (yyval.node)->type = get_max_type((yyvsp[-2].node)->type,(yyvsp[0].node)->type);
+        three_ac::dereference((yyvsp[-2].node));
+        three_ac::dereference((yyvsp[0].node));
+        (yyval.node)->addr = three_ac::new_temp();
+        three_ac::gen("quad", "**", (yyvsp[-2].node)->addr, (yyvsp[0].node)->addr, (yyval.node)->addr);
     }
-#line 2767 "parser.tab.c"
+#line 2865 "parser.tab.c"
     break;
 
   case 120: /* atom_expr: atom trailerlist  */
-#line 1154 "parser.y"
+#line 1252 "parser.y"
     {
         if ((yyvsp[0].node) == NULL){
             (yyval.node) = (yyvsp[-1].node);
@@ -2776,6 +2874,7 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[-1].node));
             appendChild((yyval.node), (yyvsp[0].node));
             struct type temp = (yyvsp[-1].node)->type;
+            if(is_declared_type((yyvsp[-1].node)->lexeme))
             for (int i = 0; i < (yyvsp[0].node)->children.size(); i++){
                 if ((yyvsp[0].node)->node_type == TRAILER_TYPE){
                     if ((yyvsp[0].node)->children[i]->lexeme == "()" && i == 0){
@@ -2789,21 +2888,27 @@ yyreduce:
                             }
                             struct type ret = string_to_type(func_id);
                             if (ret.t == "-1"){
-                                Error::other_semantic_error("TYPE_ERROR: No declaration of function " + (yyvsp[-1].node)->lexeme+ " with these parameter types, called ", yylineno);
+                                if(func_id!="main") Error::other_semantic_error("TYPE_ERROR: No declaration of function " + (yyvsp[-1].node)->lexeme+ " with these parameter types, called ", yylineno);
                             }else{
                                 temp = ret;
-                            }   
+                            }
+                          
                     }
                     }else if ((yyvsp[0].node)->children[i]->lexeme == "[]"){
                         // list indexing
-                        if (temp.elems != -1){
-                            if (!type_equal((yyvsp[0].node)->children[i]->children[0]->type, int_node)){
-                                temp.elems = -1;
+                        if((yyvsp[0].node)->children[i]->children[0]->type.t!="-1"){ // taking care of list parameters, oye rukja 2 min, try kar rha
+                            if (temp.elems != -1){
+                                if (type_equal((yyvsp[0].node)->children[i]->children[0]->type, int_node)){
+                                    temp.elems = -1;
+                                }else{
+                                    Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string((yyvsp[0].node)->children[i]->children[0]->type), yylineno);
+                                }
                             }else{
-                                Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string((yyvsp[0].node)->children[i]->children[0]->type), yylineno);
+                                Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
                             }
-                        }else{
-                            Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
+                        }
+                        else{
+                            
                         }
                     }else if ((yyvsp[0].node)->children[i]->lexeme == "."){
                         if (i + 1 < (yyvsp[0].node)->children.size() && (yyvsp[0].node)->children[i+1]->lexeme == "()"){
@@ -2838,13 +2943,13 @@ yyreduce:
             (yyval.node)->type = temp;
         }
     }
-#line 2842 "parser.tab.c"
+#line 2947 "parser.tab.c"
     break;
 
   case 121: /* trailerlist: trailerlist trailer  */
-#line 1227 "parser.y"
+#line 1332 "parser.y"
     {
-        if ((yyval.node) == NULL){
+        if ((yyvsp[-1].node) == NULL){
             (yyval.node) = makeNode("trailer",TRAILER_TYPE);
             appendChild((yyval.node), (yyvsp[0].node));
         }else{
@@ -2852,19 +2957,19 @@ yyreduce:
             appendChild((yyval.node), (yyvsp[0].node));
         }
     }
-#line 2856 "parser.tab.c"
+#line 2961 "parser.tab.c"
     break;
 
   case 122: /* trailerlist: %empty  */
-#line 1237 "parser.y"
+#line 1342 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 2864 "parser.tab.c"
+#line 2969 "parser.tab.c"
     break;
 
   case 123: /* trailer: "(" arglist ")"  */
-#line 1242 "parser.y"
+#line 1347 "parser.y"
     {
         (yyval.node) = makeNode("()", EXPR_TYPE);
         if ((yyvsp[-1].node) != NULL){
@@ -2873,38 +2978,39 @@ yyreduce:
             }
         }
     }
-#line 2877 "parser.tab.c"
+#line 2982 "parser.tab.c"
     break;
 
   case 124: /* trailer: "[" test "]"  */
-#line 1251 "parser.y"
+#line 1356 "parser.y"
     {
         (yyval.node) = makeNode("[]", EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[-1].node));
     }
-#line 2886 "parser.tab.c"
+#line 2991 "parser.tab.c"
     break;
 
   case 125: /* trailer: "." NAME  */
-#line 1256 "parser.y"
+#line 1361 "parser.y"
     {
         (yyval.node) = makeNode(".", EXPR_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
     }
-#line 2895 "parser.tab.c"
+#line 3000 "parser.tab.c"
     break;
 
   case 126: /* atom: NAME  */
-#line 1263 "parser.y"
+#line 1368 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,NAME_TYPE);
         (yyval.node)->type = string_to_type((yyvsp[0].node)->lexeme);
+        //DEBUG("atom: " << $1->lexeme << ": " << $$->type.t);
     }
-#line 2904 "parser.tab.c"
+#line 3010 "parser.tab.c"
     break;
 
   case 127: /* atom: NUMBER  */
-#line 1268 "parser.y"
+#line 1374 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,NUMBER_TYPE);
         int isnot_int = 0;
@@ -2920,55 +3026,55 @@ yyreduce:
             (yyval.node)->type.t = "int";
         }
     }
-#line 2924 "parser.tab.c"
+#line 3030 "parser.tab.c"
     break;
 
   case 128: /* atom: STRING  */
-#line 1284 "parser.y"
+#line 1390 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,STRING_TYPE);
         (yyval.node)->type.t = "str";
     }
-#line 2933 "parser.tab.c"
+#line 3039 "parser.tab.c"
     break;
 
   case 129: /* atom: "None"  */
-#line 1289 "parser.y"
+#line 1395 "parser.y"
     {
         (yyval.node) = makeNode("void",NAME_TYPE);
         (yyval.node)->type.t = "void";
     }
-#line 2942 "parser.tab.c"
+#line 3048 "parser.tab.c"
     break;
 
   case 130: /* atom: "True"  */
-#line 1294 "parser.y"
+#line 1400 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,BOOLEAN_TYPE);
         (yyval.node)->type.t = "bool";
     }
-#line 2951 "parser.tab.c"
+#line 3057 "parser.tab.c"
     break;
 
   case 131: /* atom: "False"  */
-#line 1299 "parser.y"
+#line 1405 "parser.y"
     {
         (yyval.node) = makeNode((yyvsp[0].node)->lexeme,BOOLEAN_TYPE);
         (yyval.node)->type.t = "bool";
     }
-#line 2960 "parser.tab.c"
+#line 3066 "parser.tab.c"
     break;
 
   case 132: /* atom: "(" test ")"  */
-#line 1304 "parser.y"
+#line 1410 "parser.y"
     {
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 2968 "parser.tab.c"
+#line 3074 "parser.tab.c"
     break;
 
   case 133: /* atom: "[" arglist "]"  */
-#line 1308 "parser.y"
+#line 1414 "parser.y"
     {
         (yyval.node) = makeNode("[]", LIST_TYPE);
         (yyval.node)->type.t = (yyvsp[-1].node) == NULL? "void": (yyvsp[-1].node)->type.t;
@@ -2979,27 +3085,27 @@ yyreduce:
             }
         }
     }
-#line 2983 "parser.tab.c"
+#line 3089 "parser.tab.c"
     break;
 
   case 134: /* arglist: arglist_dash  */
-#line 1321 "parser.y"
+#line 1427 "parser.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 2991 "parser.tab.c"
+#line 3097 "parser.tab.c"
     break;
 
   case 135: /* arglist: %empty  */
-#line 1325 "parser.y"
+#line 1431 "parser.y"
     {
         (yyval.node) = NULL;
     }
-#line 2999 "parser.tab.c"
+#line 3105 "parser.tab.c"
     break;
 
   case 136: /* arglist_dash: arglist_dash "," test  */
-#line 1331 "parser.y"
+#line 1437 "parser.y"
     {
         appendChild((yyvsp[-2].node), (yyvsp[0].node));
         (yyval.node) = (yyvsp[-2].node);
@@ -3009,21 +3115,21 @@ yyreduce:
             (yyval.node)->type = (yyvsp[-2].node)->type;
         }
     }
-#line 3013 "parser.tab.c"
+#line 3119 "parser.tab.c"
     break;
 
   case 137: /* arglist_dash: test  */
-#line 1341 "parser.y"
+#line 1447 "parser.y"
     {
         (yyval.node) = makeNode("",MISC_TYPE);
         appendChild((yyval.node), (yyvsp[0].node));
         (yyval.node)->type = (yyvsp[0].node)->type;
     }
-#line 3023 "parser.tab.c"
+#line 3129 "parser.tab.c"
     break;
 
 
-#line 3027 "parser.tab.c"
+#line 3133 "parser.tab.c"
 
       default: break;
     }
@@ -3216,7 +3322,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1349 "parser.y"
+#line 1455 "parser.y"
 
 void printAST(char * filename){
     FILE * file = fopen(filename, "w");
@@ -3262,6 +3368,7 @@ int main(int argc, char ** argv){
     int print_help = 0;
     int inputfilearg = -1;
     int outputfilearg = -1; 
+    int tac_file_arg = -1;
     char default_output_name[] = "ast.dot";
     indent_stack.push(0);
 
@@ -3274,7 +3381,15 @@ int main(int argc, char ** argv){
             }else{
                 print_help = 1;
             }
-        }else if (arg == "-output"){
+        }else if (arg == "-tac"){
+            if (i+1 < argc){
+                tac_file_arg = i+1;
+                i++;
+            }else{
+                print_help = 1;
+            }
+        }
+        else if (arg == "-output"){
             if (i+1 < argc){
                 outputfilearg = i+1;
                 i++;
@@ -3304,6 +3419,7 @@ int main(int argc, char ** argv){
             yyin = file;
         }
     }
+
     if (verbose){
         cout << "Started parsing" <<endl;
     }
@@ -3318,13 +3434,28 @@ int main(int argc, char ** argv){
     str_node.t = "str";
     void_node.t = "void";
 
-
-
     global_symtable = new symtable_global();
     curr_symtable_global = global_symtable;
+    curr_symtable_global->add_range_func();
+    
+    declared_types.insert("int");
+    declared_types.insert("float");
+    declared_types.insert("bool");
+    declared_types.insert("str");
+    declared_types.insert("void");
+    declared_types.insert("list");
+    
     yyparse();
     DEBUG("Reached before csv creation");
     curr_symtable_global->create_csv("sample.csv");
+    
+
+    if (tac_file_arg != -1){
+        three_ac::export_txt(argv[tac_file_arg]);
+    }else{
+        three_ac::export_txt("tac.txt");
+    }
+
     printTree(root);
     if (verbose){
         if (terminated){

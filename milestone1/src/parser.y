@@ -18,6 +18,8 @@ map<string, vector<string> > edges;
 symtable_func* curr_symtable_func = NULL;
 symtable_class* curr_symtable_class = NULL;
 symtable_global* curr_symtable_global;
+unordered_set<string> declared_types;
+ofstream threeac_file;
 
 struct type int_node;
 struct type float_node;
@@ -25,6 +27,9 @@ struct type bool_node;
 struct type str_node;
 struct type void_node;
 
+int is_declared_type(string t){
+    return declared_types.find(t) != declared_types.end();
+}
 
 void checker_traverse(struct TreeNode* node){
     if(node == NULL){
@@ -33,14 +38,19 @@ void checker_traverse(struct TreeNode* node){
 
     for(auto child : node->children){
         if(child->node_type == NAME_TYPE){
-            if(curr_symtable_func!=NULL){
-                curr_symtable_func->check_declaration_var(child->lexeme,yylineno-1);
-            }
-            else{
-                curr_symtable_global->check_declaration_var(child->lexeme,yylineno-1);
-            }
+            //auto temp = global_symtable->functions.find(child->lexeme);
+            //if(temp==global_symtable->functions.end()){
+                if(curr_symtable_func!=NULL){
+                    curr_symtable_func->check_declaration_var(child->lexeme,yylineno);
+                }
+                else{
+                    curr_symtable_global->check_declaration_var(child->lexeme,yylineno);
+                }
+            //}
         }
-
+        if(child->children.size()>1){
+            if(child->children[1]->node_type!=TRAILER_TYPE) checker_traverse(child);
+        }
         checker_traverse(child);
     }
     return;
@@ -273,7 +283,6 @@ simple_stmt : small_stmt_dash NEWLINE
 
 small_stmt_dash : small_stmt_dash ";" small_stmt 
     {
-        
         if ($1->node_type == STATEMENT_GROUP_TYPE){
             $$ = $1;
             appendChild($$, $3);
@@ -310,6 +319,7 @@ expr_stmt : test expr_stmt_dash
         $$ = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
         struct type t;
         t.t = "void";
+
         $$->type = t;
         if ($2 == NULL){
             appendChild($$, $1);
@@ -317,18 +327,15 @@ expr_stmt : test expr_stmt_dash
             appendChild($$, $2);
             insert_to_front($2, $1);
         }
-        if ($2 == NULL){
-            return 0;
-        }
 
         symtable_entry* entry=NULL; 
 
-        if($2->lexeme == ":" || $2->lexeme == ":="){
-            DEBUG("here");
+        if($2 != NULL && ($2->lexeme == ":" || $2->lexeme == ":=")){
+            //DEBUG("here");
             if(curr_symtable_func!=NULL){
-                DEBUG("Entered Add Function Entry" << curr_symtable_func);
+                //DEBUG("Entered Add Function Entry" << curr_symtable_func);
                 entry = curr_symtable_func->add_entry($2,yylineno);
-                DEBUG("Exited Add Function Entry");
+                //DEBUG("Exited Add Function Entry");
                 $1->type = entry->type;
             }else if(curr_symtable_class!=NULL){
                 entry = curr_symtable_class->add_attribute($2,yylineno);        
@@ -348,6 +355,8 @@ expr_stmt : test expr_stmt_dash
                         $1->type.elems = $2->children[2]->type.elems;
                     }
                 }
+                three_ac::dereference($2->children[2]);
+                three_ac::gen("unary", "=", $2->children[2]->addr, "", $2->children[0]->addr);
             } 
         }
         else if ($2 != NULL){
@@ -357,6 +366,30 @@ expr_stmt : test expr_stmt_dash
             }else{
                 Error::type_mismatch(yylineno, $1->type, $2->children[0]->type, "assignment");
             }
+            three_ac::dereference($2->children[2]);
+            string op = $2->children[1]->lexeme;
+            if (op == "="){
+                if ($2->children[0]->to_dereference){
+                    three_ac::gen("address_assign", "=", $2->children[2]->addr, "", $2->children[0]->addr);
+                }else{
+                    three_ac::gen("unary", "=", $2->children[2]->addr, "", $2->children[0]->addr);
+                }
+            }else{
+                if ($2->children[0]->to_dereference){
+                    string temp = three_ac::new_temp();
+                    three_ac::gen("DEREF", "*", $2->children[0]->addr, "", temp);
+                    string op = $2->children[1]->lexeme.substr(0, $2->children[1]->lexeme.size()-1);
+                    string temp2 = three_ac::new_temp();
+                    three_ac::gen("quad", op, temp, $2->children[2]->addr, temp2);
+                    three_ac::gen("address_assign", "=", temp2, "", $2->children[0]->addr);
+                }else{
+                    string op = $2->children[1]->lexeme.substr(0, $2->children[1]->lexeme.size()-1);
+                    string temp2 = three_ac::new_temp();
+                    three_ac::gen("quad", op, $2->children[0]->addr, $2->children[2]->addr, temp2);
+                    three_ac::gen("address_assign", "=", temp2, "", $2->children[0]->addr);
+                }
+            }
+
         }
         checker_traverse($1);
     }
@@ -386,11 +419,20 @@ assign_dash: ASSIGN_EQUAL test assign_dash
         $$ = makeNode("=",EXPR_TYPE);
         appendChild($$, $3);
         insert_to_front($3, $2);
+        $$->addr = $3->addr;
+        if ($2->to_dereference){
+            three_ac::gen("address_assign", "=", $3->addr, "", $2->addr);
+        }else{
+            three_ac::gen("unary", "=", $3->addr, "", $2->addr);
+        }
     }
     | ASSIGN_EQUAL test
     {
         $$ = makeNode("=",EXPR_TYPE);
         appendChild($$, $2);
+     
+        three_ac::dereference($2);
+        $$->addr = $2->addr;
     }
     ;
 
@@ -487,6 +529,9 @@ return_stmt : KEY_RETURN test
     {
         $$ = makeNode("return",STATEMENT_TYPE);
         appendChild($$, $2);
+        checker_traverse($2);
+        //DEBUG($2->type.t);
+        curr_symtable_func->check_returntype($2, yylineno);
     }
     ;
 
@@ -603,9 +648,11 @@ else_stmt : KEY_ELSE OPER_COLON suite
 classdef: "class" NAME inheritlist {
         curr_symtable_class = new symtable_class($2,$3);
         curr_symtable_global->add_class(curr_symtable_class);
+        declared_types.insert($2->lexeme);
     } ":" suite
     {
         $$ = makeNode("",CLASS_TYPE);
+        $$->type.t = "void";
         appendChild($$, $2);
         if ($3 != NULL){
             appendChild($$, $3);
@@ -635,6 +682,12 @@ inheritlist: "(" NAME ")"
 
 for_stmt: "for" test "in" test ":" suite
     {   
+       /* struct TreeNode* temp1 = makeNode($2->lexeme,NAME_TYPE);
+        struct TreeNode* temp2 = makeNode("int",NAME_TYPE);
+        struct TreeNode* temp = makeNode("",EXPR_TYPE);
+        appendChild(temp,temp1);
+        appendChild(temp,temp2);
+        curr_symtable_func->add_entry(temp,yylineno); */
         $$ = $1;
         appendChild($$, $2);
         appendChild($$, $4);
@@ -659,15 +712,14 @@ while_stmt: KEY_WHILE test OPER_COLON suite
     ;
 
 funcdef : "def" NAME parameters funcdef_dash {
-    curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
-    if(curr_symtable_class != NULL){
-        curr_symtable_class->add_func(curr_symtable_func);
-    }else{
-        DEBUG("Adding function to global sym tab");
-        curr_symtable_global->add_func(curr_symtable_func);
-        DEBUG("Added function to global sym tab");
-    }
-} ":" suite {
+        curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
+        if(curr_symtable_class != NULL){
+            curr_symtable_class->add_func(curr_symtable_func);
+        }else{
+            curr_symtable_global->add_func(curr_symtable_func);
+        }
+        three_ac::gen("beginfunc", "beginfunc", curr_symtable_func->name);
+    } ":" suite {
         $$ = makeNode("def",FUNCTION_TYPE);
         appendChild($$,$2);
         appendChild($$,$3);
@@ -677,14 +729,15 @@ funcdef : "def" NAME parameters funcdef_dash {
 
         appendChild($$, $7);
 
-        $$->type.t = "void";        
+        $$->type.t = "void";
         curr_symtable_func = NULL;
+        three_ac::gen("endfunc");
     }
     ;
 
 funcdef_dash : "->" test 
     {
-        DEBUG($2->lexeme);
+        //DEBUG($2->lexeme);
         $$ = $2;
     }
     | /*Empty*/
@@ -695,8 +748,8 @@ funcdef_dash : "->" test
 
 parameters : "(" parameters_dash ")" 
     {
-        DEBUG($2);
-        DEBUG("parameters" << $2->children.size());
+        //DEBUG($2);
+        //DEBUG("parameters" << $2->children.size());
         $$ = $2;
     }
     ;
@@ -735,7 +788,7 @@ typedargslist : typedargslist "," tfpdef
 
 tfpdef : NAME ":" test
     {
-        DEBUG("tfpdef" << $1->lexeme << " " << $3->lexeme);
+        //DEBUG("tfpdef" << $1->lexeme << " " << $3->lexeme);
         $$ = makeNode(":",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
@@ -746,6 +799,8 @@ tfpdef : NAME ":" test
         if (curr_symtable_class != NULL){
             if ($1->lexeme == "self"){
                 $$ = NULL;
+            }else{
+                Error::other_semantic_error("TYPE_ERROR: Expected variable type for "+$1->lexeme, yylineno);
             }
         }
     }
@@ -807,8 +862,10 @@ or_test : and_test
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = bool_node;
-
-    
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "or", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -827,8 +884,10 @@ and_test : not_test
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = bool_node;
-
-    
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "and", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -843,12 +902,13 @@ not_test : "not" not_test
         }        
 
         $$->type = bool_node;
-
+        three_ac::dereference($2);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("unary", "not", $2->addr, $$->addr);
     }
     | comparison
     {
         $$ = $1;
-
     }
     ;
 
@@ -863,7 +923,10 @@ comparison : expr comp_op expr
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = bool_node;
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", $2->lexeme, $1->addr, $3->addr, $$->addr);
     }
     | expr
     {
@@ -917,7 +980,10 @@ expr : xor_expr
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "|", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -936,8 +1002,10 @@ xor_expr : and_expr
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
-
-    
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "^", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -956,8 +1024,10 @@ and_expr: shift_expr
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
-
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "&", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -976,7 +1046,10 @@ shift_expr : arith_expr
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "<<", $1->addr, $3->addr, $$->addr);
     }
     | shift_expr ">>" arith_expr
     {
@@ -989,9 +1062,10 @@ shift_expr : arith_expr
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = int_node;
-
-
-    
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", ">>", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -1010,7 +1084,10 @@ arith_expr : term
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = get_max_type($1->type,$3->type);
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "+", $1->addr, $3->addr, $$->addr);
     }
     | arith_expr "-" term
     {
@@ -1023,8 +1100,10 @@ arith_expr : term
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
         }
         $$->type = get_max_type($1->type,$3->type);
-
-    
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "-", $1->addr, $3->addr, $$->addr);    
     }
     ;
 
@@ -1043,8 +1122,10 @@ term: factor
                 Error::type_mismatch(yylineno,$1->type,$3->type,"*");
         }
         $$->type = get_max_type($1->type,$3->type);
-
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "*", $1->addr, $3->addr, $$->addr);
     }
     | term "/" factor
     {   
@@ -1057,8 +1138,10 @@ term: factor
                 Error::type_mismatch(yylineno,$1->type,$3->type,"/");
         }
         $$->type = get_max_type($1->type,$3->type);
-
-    
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "/", $1->addr, $3->addr, $$->addr);    
     }
     | term "%" factor
     {
@@ -1071,6 +1154,10 @@ term: factor
                 Error::type_mismatch(yylineno,$1->type,$3->type,"%");
         }
         $$->type = get_max_type($1->type,$3->type);
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "%", $1->addr, $3->addr, $$->addr);
     }
     | term "//" factor
     {
@@ -1083,8 +1170,10 @@ term: factor
                 Error::type_mismatch(yylineno,$1->type,$3->type,"//");
         }
         $$->type = get_max_type($1->type,$3->type);
-
-
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "//", $1->addr, $3->addr, $$->addr);
     }
     ;
 
@@ -1098,7 +1187,9 @@ factor : "+" factor
                 Error::invalid_unary_operation(yylineno,$2->type,"+");
         }
         $$->type = $2->type;
-
+        three_ac::dereference($2);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("unary", "+", $2->addr, "", $$->addr);        
     }
     | "-" factor
     {
@@ -1110,6 +1201,9 @@ factor : "+" factor
                 Error::invalid_unary_operation(yylineno,$2->type,"-");
         }
         $$->type = $2->type;
+        three_ac::dereference($2);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("unary", "-", $2->addr, "", $$->addr);        
     }
     | "~" factor
     {
@@ -1122,8 +1216,9 @@ factor : "+" factor
         }        
 
         $$->type = int_node;
-
-        
+        three_ac::dereference($2);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("unary", "~", $2->addr, "", $$->addr);        
     }
     | power
     {
@@ -1145,8 +1240,11 @@ power : atom_expr
             if ($1->type.t != "-1" && $3->type.t != "-1")
                 Error::type_mismatch(yylineno,$1->type,$3->type,"**");
         }
-        
         $$->type = get_max_type($1->type,$3->type);
+        three_ac::dereference($1);
+        three_ac::dereference($3);
+        $$->addr = three_ac::new_temp();
+        three_ac::gen("quad", "**", $1->addr, $3->addr, $$->addr);
     }   
     ;
 
@@ -1159,6 +1257,7 @@ atom_expr : atom trailerlist
             appendChild($$, $1);
             appendChild($$, $2);
             struct type temp = $1->type;
+            if(is_declared_type($1->lexeme))
             for (int i = 0; i < $2->children.size(); i++){
                 if ($2->node_type == TRAILER_TYPE){
                     if ($2->children[i]->lexeme == "()" && i == 0){
@@ -1172,21 +1271,27 @@ atom_expr : atom trailerlist
                             }
                             struct type ret = string_to_type(func_id);
                             if (ret.t == "-1"){
-                                Error::other_semantic_error("TYPE_ERROR: No declaration of function " + $1->lexeme+ " with these parameter types, called ", yylineno);
+                                if(func_id!="main") Error::other_semantic_error("TYPE_ERROR: No declaration of function " + $1->lexeme+ " with these parameter types, called ", yylineno);
                             }else{
                                 temp = ret;
-                            }   
+                            }
+                          
                     }
                     }else if ($2->children[i]->lexeme == "[]"){
                         // list indexing
-                        if (temp.elems != -1){
-                            if (!type_equal($2->children[i]->children[0]->type, int_node)){
-                                temp.elems = -1;
+                        if($2->children[i]->children[0]->type.t!="-1"){ // taking care of list parameters, oye rukja 2 min, try kar rha
+                            if (temp.elems != -1){
+                                if (type_equal($2->children[i]->children[0]->type, int_node)){
+                                    temp.elems = -1;
+                                }else{
+                                    Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
+                                }
                             }else{
-                                Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
+                                Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
                             }
-                        }else{
-                            Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
+                        }
+                        else{
+                            
                         }
                     }else if ($2->children[i]->lexeme == "."){
                         if (i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "()"){
@@ -1225,7 +1330,7 @@ atom_expr : atom trailerlist
 
 trailerlist : trailerlist trailer
     {
-        if ($$ == NULL){
+        if ($1 == NULL){
             $$ = makeNode("trailer",TRAILER_TYPE);
             appendChild($$, $2);
         }else{
@@ -1263,6 +1368,7 @@ atom : NAME
     {
         $$ = makeNode($1->lexeme,NAME_TYPE);
         $$->type = string_to_type($1->lexeme);
+        //DEBUG("atom: " << $1->lexeme << ": " << $$->type.t);
     }
     | NUMBER
     {
@@ -1391,6 +1497,7 @@ int main(int argc, char ** argv){
     int print_help = 0;
     int inputfilearg = -1;
     int outputfilearg = -1; 
+    int tac_file_arg = -1;
     char default_output_name[] = "ast.dot";
     indent_stack.push(0);
 
@@ -1403,7 +1510,15 @@ int main(int argc, char ** argv){
             }else{
                 print_help = 1;
             }
-        }else if (arg == "-output"){
+        }else if (arg == "-tac"){
+            if (i+1 < argc){
+                tac_file_arg = i+1;
+                i++;
+            }else{
+                print_help = 1;
+            }
+        }
+        else if (arg == "-output"){
             if (i+1 < argc){
                 outputfilearg = i+1;
                 i++;
@@ -1433,6 +1548,7 @@ int main(int argc, char ** argv){
             yyin = file;
         }
     }
+
     if (verbose){
         cout << "Started parsing" <<endl;
     }
@@ -1447,13 +1563,28 @@ int main(int argc, char ** argv){
     str_node.t = "str";
     void_node.t = "void";
 
-
-
     global_symtable = new symtable_global();
     curr_symtable_global = global_symtable;
+    curr_symtable_global->add_range_func();
+    
+    declared_types.insert("int");
+    declared_types.insert("float");
+    declared_types.insert("bool");
+    declared_types.insert("str");
+    declared_types.insert("void");
+    declared_types.insert("list");
+    
     yyparse();
     DEBUG("Reached before csv creation");
     curr_symtable_global->create_csv("sample.csv");
+    
+
+    if (tac_file_arg != -1){
+        three_ac::export_txt(argv[tac_file_arg]);
+    }else{
+        three_ac::export_txt("tac.txt");
+    }
+
     printTree(root);
     if (verbose){
         if (terminated){

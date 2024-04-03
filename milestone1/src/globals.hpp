@@ -12,7 +12,7 @@ struct type{
 };
 
 #include"symtab.hpp"
-
+#include"threeAC.hpp"
 #define DEBUG(msg) \
     std::cerr << "Debug [" << __FILE__ << ":" << __LINE__ << "]: " << msg << std::endl;
 
@@ -26,9 +26,11 @@ struct type{
 
 class Error {
     public: 
+        static void clean_up();
         static void sem_var_redeclare(string varname,long long line_no, long long prev_line_no);
         static void sem_func_redeclare(string funcname,long long line_no, long long prev_line_no);
         static void sem_no_declaration_var(string name,long long line_no);
+        static void sem_returntype_error(string name,string type1,string type2, long long line_no);
         static void type_mismatch(int yylineno, struct type t1, struct type t2, string op);
         static void invalid_operation(int yylineno, string op, struct type t1);
         static void other_semantic_error(string msg, long long line_no);
@@ -69,6 +71,8 @@ struct TreeNode{
     string lexeme = "";
     string id;
     struct type type;
+    string addr = "NOT_ASSIGNED";
+    int to_dereference = 0;
     int node_type = -1;
     vector<struct TreeNode*> children;
 };

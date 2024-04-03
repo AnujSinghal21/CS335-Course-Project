@@ -63,7 +63,7 @@ string type_to_string(struct type t){
 }
 
 int type_equal(struct type t1, struct type t2){
-    if (t1.t == t2.t && t1.elems == t2.elems){
+    if (t1.t == t2.t && !((t1.elems==-1)^(t2.elems== -1))){
         return 1;
     }
     return 0;
@@ -89,6 +89,11 @@ void Error::sem_no_declaration_var(string name, long long line_no){
     cout << "variable " << name << " is not declared before use" << endl;
 }
 
+void Error::sem_returntype_error(string name,string type1,string type2, long long line_no){
+    cout << "Error at line no : " << line_no << endl;
+    cout << "Return type of function " << name << " is " << type1 << " but return type is " << type2 << endl;
+}
+
 void Error::invalid_unary_operation(int yylineno, struct type t1, string operation){
     cout<<"Error at line no : " << yylineno<<endl;
     cout<<"Invalid Unary Operation " <<operation<< " with type " <<type_to_string(t1);
@@ -97,4 +102,8 @@ void Error::invalid_unary_operation(int yylineno, struct type t1, string operati
 
 void Error::other_semantic_error(string msg, long long line_no){
     cout << msg << " at line no : " << line_no << endl;
+}
+
+void Error::clean_up(){
+    exit(0);
 }

@@ -1,42 +1,30 @@
-#include <bits/stdc++.h>
-using namespace std;
+#ifndef THREEAC_HPP
+#define THREEAC_HPP 
+#include "globals.hpp"
 
-class quad
-{
-public:
-    int op;
-    string arg1;
-    string arg2;
-    string result;
-    quad();
-    quad(int opcode, string arg1, string arg2, string result);
-    void append();
-    static vector<quad> three_ac; 
-    static void print(string filename);
-    enum opcode
-    {
-        ADD,
-        SUB,
-        MUL,
-        DIV,
-        MOD,
-        MOV,
-        LT,
-        GT,
-        LE,
-        GE,
-        EQ,
-        NE,
-        AND,
-        OR,
-        GOTO,
-        IFZ,
-        PARAM,
-        CALL,
-        RET,
-        FUNC,
-        END
-    };
-private: 
-    static string opcode_string(int opcode);
+class three_ac{
+    public:
+        string op;
+        string arg1;
+        string arg2;
+        string result;
+        string optype;
+        string comment;
+        three_ac();
+        three_ac(string optype, string op = "", string arg1 = "", string arg2 = "", string result = "", string comment = "");
+        void print(ofstream & out);
+        static vector<three_ac*> threeAC;
+        static int temp_counter;
+        static int label_counter;
+        static stack<int> label_stack;
+        static three_ac * gen(string optype, string op = "", string arg1 = "", string arg2 = "", string result = "", string comment = "");
+        static three_ac * append(three_ac * t);
+        static void export_txt(string filename);
+        static string new_temp();
+        static string new_label();
+        static string push_new_label();
+        static string pop_label();
+        static void dereference(struct TreeNode * node);
 };
+
+#endif
