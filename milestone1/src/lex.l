@@ -113,7 +113,6 @@ dunder "__main__"|"__name__"|"__init__"
 ">=" {last_token=">=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_GREATER_THAN_EQUAL;}
 "in" {last_token="in";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_IN;}
 "//" {last_token="//";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_INT_DIV;}
-"is" {last_token="is";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_IS;}
 "<<" {last_token="<<";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LEFT_SHIFT;}
 "<>" {last_token="<>";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LESS_GREATER;}
 "<" {last_token="<";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LESS_THAN;}

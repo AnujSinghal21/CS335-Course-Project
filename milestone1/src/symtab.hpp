@@ -13,7 +13,7 @@ typedef long long ll;
 class symtable_entry {
     public:
         string name;
-        string type;
+        struct type type;
         ll line_no;
         ll size;
         bool is_init;
@@ -38,6 +38,7 @@ class symtable_global{
         symtable_func* search_func(string &name, vector<string> &types);
         symtable_class* search_class(string &name);
         symtable_entry* search_global_var(string &name);
+        void check_declaration_var(string name, ll line_no);
         void delete_func(string name);
         void delete_class(string name);
         void delete_global_var(string name);
@@ -46,6 +47,8 @@ class symtable_global{
         void print_class(string name);
         void print_global_var(string name);
         void print_all();
+        void create_csv(string filename);
+
 };
 
 class symtable_func {
@@ -53,14 +56,17 @@ class symtable_func {
         map <string,symtable_entry*> entries;
         map <string,symtable_entry*> paramlist;
         string name;
-        string returntype;
+        struct type returntype;
+        ll line_no;
         symtable_global* parent_symtab = NULL;
         symtable_class* parent_class = NULL;
         symtable_func(struct TreeNode* function,struct TreeNode* params,struct TreeNode* returntype, ll line_no);
         symtable_entry * add_entry(struct TreeNode* new_entry, ll line_no);
+        void check_declaration_var(string name, ll line_no);
         void delete_entry(string name);
         int get_localspace_size();
         symtable_entry* find_entry(string name);
+        void create_csv(string filename);
         // void update_modifiers(const vector<symtable_entry*>& modifiers); ( any one any idea about this function)  
 };
 
@@ -78,8 +84,9 @@ class symtable_class {
         symtable_entry*  add_attribute(struct TreeNode* entry, ll line_no);
         symtable_func* search_func(string &name, vector<string> &types);
         symtable_entry* search_entry(string &name);
-
+        void create_csv(string filename);
 };
 
+struct type string_to_type(string temp); 
 
 #endif

@@ -19,6 +19,30 @@ symtable_func* curr_symtable_func = NULL;
 symtable_class* curr_symtable_class = NULL;
 symtable_global* curr_symtable_global;
 
+struct type int_node;
+struct type float_node;
+
+
+
+void checker_traverse(struct TreeNode* node){
+    if(node == NULL){
+        return;
+    }
+
+    for(auto child : node->children){
+        if(child->node_type == NAME_TYPE){
+            if(curr_symtable_func!=NULL){
+                curr_symtable_func->check_declaration_var(child->lexeme,yylineno-1);
+            }
+            else{
+                curr_symtable_global->check_declaration_var(child->lexeme,yylineno-1);
+            }
+        }
+
+        checker_traverse(child);
+    }
+    return;
+}
 void printTree(struct TreeNode * node){
     if (node == NULL){
         return;
@@ -85,7 +109,6 @@ TreeNode * root = NULL;
 %token <node> OPER_GREATER_THAN_EQUAL ">="
 %token <node> OPER_IN "in"
 %token <node> OPER_INT_DIV "//"
-%token <node> OPER_IS "is"
 %token <node> OPER_LEFT_SHIFT "<<"
 %token <node> OPER_LESS_GREATER "<>"
 %token <node> OPER_LESS_THAN "<"
@@ -259,12 +282,19 @@ small_stmt : expr_stmt
 expr_stmt : test expr_stmt_dash
     { 
         $$ = makeNode("EXPR_STATEMENT",STATEMENT_TYPE);
+        struct type t;
+        t.t = "void";
+        $$->type = t;
         if ($2 == NULL){
             appendChild($$, $1);
         }else{
             appendChild($$, $2);
             insert_to_front($2, $1);
         }
+        if ($2 == NULL){
+            return 0;
+        }
+
         symtable_entry* entry=NULL; 
 
         if($2->lexeme == ":" || $2->lexeme == ":="){
@@ -279,6 +309,16 @@ expr_stmt : test expr_stmt_dash
                 cout << "add global" << endl;
                 entry = curr_symtable_global->add_global_var($2,yylineno);        
             }
+
+            if($2->children.size()>2){
+                for(int i = 2;i<$2->children.size();i++){
+                checker_traverse($2->children[i]);
+                }
+            } 
+        }
+        else{
+            checker_traverse($1);
+            checker_traverse($2);
         }
     }
     ;
@@ -525,8 +565,6 @@ classdef: "class" NAME inheritlist {
         curr_symtable_global->add_class(curr_symtable_class);
     } ":" suite
     {
-            
-        
         $$ = makeNode("",CLASS_TYPE);
         appendChild($$, $2);
         if ($3 != NULL){
@@ -779,14 +817,6 @@ comp_op: "<"
     {
         $$ = $1;
     }
-    |"is"
-    {
-        $$ = $1;
-    }
-    |"is" "not"
-    {
-        $$ = makeNode("is not", OPERATOR_TYPE);
-    }
     ;
 
 expr : xor_expr
@@ -872,7 +902,7 @@ term: factor
         appendChild($$, $3);
     }
     | term "/" factor
-    {
+    {   
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
@@ -895,6 +925,7 @@ factor : "+" factor
     {
         $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
+           
     }
     | "-" factor
     {
@@ -905,10 +936,12 @@ factor : "+" factor
     {
         $$ = makeNode($1->lexeme,EXPR_TYPE);
         appendChild($$, $2);
+        
     }
     | power
     {
         $$ = $1;
+        
     }
     ;
 
@@ -921,6 +954,9 @@ power : atom_expr
         $$ = makeNode($2->lexeme,EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
+        if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            Error::type_mismatch(yylineno,$1->type,$3->type,"**");
+        }
     }
     ;
 
@@ -932,6 +968,40 @@ atom_expr : atom trailerlist
             $$ = makeNode("atom_expr", EXPR_TYPE);
             appendChild($$, $1);
             appendChild($$, $2);
+            struct type temp = $1->type;
+            for (int i = 0; i < $2->children.size(); i++){
+                if ($2->node_type == TRAILER_TYPE){
+                    if ($2->children[i]->lexeme == "()" && i == 0){
+                        // function call
+                        if ($1->node_type != NAME_TYPE){
+                            Error::other_semantic_error("TYPE_ERROR: Invalid operation ()", yylineno);
+                        }else{
+                            string func_id = $1->lexeme;
+                            for (auto x: $2->children[i]->children){
+                                func_id += "@" + type_to_string(x->type);
+                            }
+                            struct type ret = string_to_type(func_id);
+                            if (ret.t == "-1"){
+                                Error::other_semantic_error("TYPE_ERROR: No declaration of function " + $1->lexeme+ " with these parameter types, called ", yylineno);
+                            }else{
+                                temp = ret;
+                            }   
+                    }
+                    }else if ($2->children[i]->lexeme == "[]"){
+                        // list indexing
+                        
+                    }else if ($2->children[i]->lexeme == "."){
+                        if (i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "()"){
+                            // method call
+                        }else{
+                            // attribute access
+                        }
+                    }else{
+                        Error::other_semantic_error("TYPE_ERROR: Invalid operation near " + $2->children[i]->lexeme[0], yylineno);   
+                    }
+                }
+            }
+            $$->type = temp;
         }
     }
     ;
@@ -975,26 +1045,43 @@ trailer : "(" arglist ")"
 atom : NAME
     {
         $$ = makeNode($1->lexeme,NAME_TYPE);
+        $$->type = string_to_type($1->lexeme);
     }
     | NUMBER
     {
         $$ = makeNode($1->lexeme,NUMBER_TYPE);
+        int isnot_int = 0;
+        for (auto c: $1->lexeme){
+            if (!isdigit(c)){
+                isnot_int = 1;
+                break;
+            }
+        }
+        if (isnot_int){
+            $$->type.t = "float";
+        }else{
+            $$->type.t = "int";
+        }
     }
     | STRING
     {
         $$ = makeNode($1->lexeme,STRING_TYPE);
+        $$->type.t = "str";
     }
     | "None"
     {
         $$ = $1;
+        $$->type.t = "void";
     }
     | "True"
     {
         $$ = makeNode($1->lexeme,BOOLEAN_TYPE);
+        $$->type.t = "bool";
     }
     | "False"
     {
         $$ = makeNode($1->lexeme,BOOLEAN_TYPE);
+        $$->type.t = "bool";
     }
     | "(" test ")"
     {
@@ -1003,6 +1090,8 @@ atom : NAME
     | "[" arglist "]" 
     {
         $$ = makeNode("[]", LIST_TYPE);
+        $$->type.t = $2 == NULL? "void": $2->type.t;
+        $$->type.elems = $2 == NULL? 0: $2->children.size();
         if ($2 != NULL){
             for (auto x: $2->children){
                 appendChild($$, x);
@@ -1025,11 +1114,17 @@ arglist_dash : arglist_dash "," test
     {
         appendChild($1, $3);
         $$ = $1;
+        if (!type_equal($1->type,$3->type)){
+            Error::type_mismatch(yylineno, $1->type, $3->type, ",");
+        }else{
+            $$->type = $1->type;
+        }
     }
     | test
     {
         $$ = makeNode("",MISC_TYPE);
         appendChild($$, $1);
+        $$->type = $1->type;
     }
 
 ////// Anuj's reviewed ends here
@@ -1108,6 +1203,8 @@ int main(int argc, char ** argv){
         help_printer();
         return 0;
     }
+
+    
     if (inputfilearg == -1){
         yyin = stdin;
     }else{
@@ -1127,9 +1224,16 @@ int main(int argc, char ** argv){
     // vector<symtable_entry *> temp_params;
     // current_func = new symtable_func(temp_name, temp_params);
 
+    int_node.t = "int";
+    float_node.t = "float";
+
+
+
     global_symtable = new symtable_global();
     curr_symtable_global = global_symtable;
     yyparse();
+    DEBUG("Reached before csv creation");
+    curr_symtable_global->create_csv("sample.csv");
     printTree(root);
     if (verbose){
         if (terminated){

@@ -101,27 +101,26 @@ extern int yydebug;
     OPER_GREATER_THAN_EQUAL = 302, /* ">="  */
     OPER_IN = 303,                 /* "in"  */
     OPER_INT_DIV = 304,            /* "//"  */
-    OPER_IS = 305,                 /* "is"  */
-    OPER_LEFT_SHIFT = 306,         /* "<<"  */
-    OPER_LESS_GREATER = 307,       /* "<>"  */
-    OPER_LESS_THAN = 308,          /* "<"  */
-    OPER_LESS_THAN_EQUAL = 309,    /* "<="  */
-    OPER_MINUS = 310,              /* "-"  */
-    OPER_MOD = 311,                /* "%"  */
-    OPER_MULTIPLY = 312,           /* "*"  */
-    OPER_NEGATIVE = 313,           /* "~"  */
-    OPER_NOT = 314,                /* "not"  */
-    OPER_NOT_EQUAL = 315,          /* "!="  */
-    OPER_OPEN_BRACKET = 316,       /* "("  */
-    OPER_OR = 317,                 /* "or"  */
-    OPER_OR_BITWISE = 318,         /* "|"  */
-    OPER_PLUS = 319,               /* "+"  */
-    OPER_POWER = 320,              /* "**"  */
-    OPER_REFERENCE = 321,          /* "->"  */
-    OPER_RIGHT_SHIFT = 322,        /* ">>"  */
-    OPER_SEMICOLON = 323,          /* ";"  */
-    OPER_XOR_BITWISE = 324,        /* "^"  */
-    STRING = 325                   /* STRING  */
+    OPER_LEFT_SHIFT = 305,         /* "<<"  */
+    OPER_LESS_GREATER = 306,       /* "<>"  */
+    OPER_LESS_THAN = 307,          /* "<"  */
+    OPER_LESS_THAN_EQUAL = 308,    /* "<="  */
+    OPER_MINUS = 309,              /* "-"  */
+    OPER_MOD = 310,                /* "%"  */
+    OPER_MULTIPLY = 311,           /* "*"  */
+    OPER_NEGATIVE = 312,           /* "~"  */
+    OPER_NOT = 313,                /* "not"  */
+    OPER_NOT_EQUAL = 314,          /* "!="  */
+    OPER_OPEN_BRACKET = 315,       /* "("  */
+    OPER_OR = 316,                 /* "or"  */
+    OPER_OR_BITWISE = 317,         /* "|"  */
+    OPER_PLUS = 318,               /* "+"  */
+    OPER_POWER = 319,              /* "**"  */
+    OPER_REFERENCE = 320,          /* "->"  */
+    OPER_RIGHT_SHIFT = 321,        /* ">>"  */
+    OPER_SEMICOLON = 322,          /* ";"  */
+    OPER_XOR_BITWISE = 323,        /* "^"  */
+    STRING = 324                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -130,11 +129,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 37 "parser.y"
+#line 61 "parser.y"
 
     struct TreeNode * node;
 
-#line 138 "parser.tab.h"
+#line 137 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

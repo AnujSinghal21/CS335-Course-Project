@@ -2,8 +2,16 @@
 #define GLOBALS
 
 #include <bits/stdc++.h>
-#include"symtab.hpp"
 using namespace std;
+
+struct type{
+    string t = "-1";
+    int size = 8;
+    int elems = -1;
+    //bool is_list = false;
+};
+
+#include"symtab.hpp"
 
 #define DEBUG(msg) \
     std::cerr << "Debug [" << __FILE__ << ":" << __LINE__ << "]: " << msg << std::endl;
@@ -15,6 +23,16 @@ using namespace std;
 
 // symtable_global symtab;
 // symtable_func* current_func = NULL;
+
+class Error {
+    public: 
+        static void sem_var_redeclare(string varname,long long line_no, long long prev_line_no);
+        static void sem_func_redeclare(string funcname,long long line_no, long long prev_line_no);
+        static void sem_no_declaration_var(string name,long long line_no);
+        static void type_mismatch(int yylineno, struct type t1, struct type t2, string op);
+        static void invalid_operation(int yylineno, string op, struct type t1);
+        static void other_semantic_error(string msg, long long line_no);
+};
 
 enum NODE_TYPES {
     EXPR_TYPE,
@@ -41,9 +59,14 @@ enum NODE_TYPES {
     MISC_TYPE
 };
 
+
+int get_size(string type);
+string type_to_string(struct type t);
+
 struct TreeNode{
     string lexeme = "";
     string id;
+    struct type type;
     int node_type = -1;
     vector<struct TreeNode*> children;
 };
@@ -52,4 +75,6 @@ struct TreeNode * makeNode(string lexeme, int node_type);
 void appendChild(struct TreeNode* parent, struct TreeNode* child);
 void insert_to_front(struct TreeNode* parent, struct TreeNode* child);
 
+struct type infer_type(struct type t1, struct type t2);
+int type_equal(struct type t1, struct type t2);
 #endif
