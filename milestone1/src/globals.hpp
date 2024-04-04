@@ -35,7 +35,7 @@ class Error {
         static void invalid_operation(int yylineno, string op, struct type t1);
         static void other_semantic_error(string msg, long long line_no);
         static void invalid_unary_operation(int yylineno, struct type t1, string operation);
-
+        
 };
 
 enum NODE_TYPES {

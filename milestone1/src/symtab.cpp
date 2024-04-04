@@ -69,7 +69,7 @@ extern struct type string_to_type(string temp){
 }
 
  
-extern symtable_entry* look_up(string temp){
+extern symtable_entry* symtable_look_up(string temp){
    // DEBUG("Finding z" << temp);
    int is_func = 0;
    int is_class_attr = 0;
@@ -495,22 +495,18 @@ symtable_entry* symtable_class::add_attribute(TreeNode* entry, ll line_no){
      return NULL;
 }
 
-symtable_func* symtable_class:: search_func(string &name, vector<string> &types){
+symtable_func* symtable_class:: search_func(string &name){
     // string funcname = this->name;
     // funcname.push_back('.');
-    string funcname = name;
-    for(auto type : types){
-        funcname.push_back('@');
-        funcname = funcname + type;
-    }
+
     for(auto func : this->methods){
-        if(func.second->name == funcname){
+        if(func.second->name == name){
                 return func.second;
         }
     }
     
     if(this->parentclass_symtab!=NULL){
-        return this->parentclass_symtab->search_func(name,types);
+        return this->parentclass_symtab->search_func(name);
     }
 
     return NULL;

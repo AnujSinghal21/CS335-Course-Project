@@ -1,5 +1,6 @@
 Functions Definition
-Function: global.add@int@int
+Class: A
+ global.add@int@int
 Lexeme, Type, Token, LineNo, Size
 p, int, NAME, 3, 0
 x, int, NAME, 1, 0
@@ -31,6 +32,15 @@ Lexeme, Type, Token, LineNo, Size
 
 Function: range
 Lexeme, Type, Token, LineNo, Size
+
+
+
+
+
+
+Function: A.A.hello@A
+Lexeme, Type, Token, LineNo, Size
+z, int, NAME, 18, 0
 
 
 

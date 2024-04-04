@@ -88,7 +88,7 @@ class symtable_class {
         symtable_class(struct TreeNode* class_,struct TreeNode* parentclass);
         void add_func(symtable_func* function);
         symtable_entry*  add_attribute(struct TreeNode* entry, ll line_no);
-        symtable_func* search_func(string &name, vector<string> &types);
+        symtable_func* search_func(string &name);
         symtable_entry* search_entry(string &name);
         void create_csv(string filename);
 };
