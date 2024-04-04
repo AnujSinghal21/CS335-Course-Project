@@ -1,3 +1,8 @@
+class CLRParser(ShiftReduceParser):
+
+  def __init__(self, myname_: str):
+    self.clrname: str = myname_
+
 def binarySearch(array: list[int], x: int, low: int, high: int) -> int:
   while low <= high:
     mid: int = low + (high - low) // 2
@@ -23,3 +28,6 @@ def main():
 
 if __name__ == "__main__":
   main()
+
+
+

@@ -98,5 +98,6 @@ class symtable_class {
 
 struct type string_to_type(string temp); 
 symtable_entry* symtable_look_up(string temp);
+struct type create_string_type(TreeNode* type);
 
 #endif

@@ -30,8 +30,6 @@ extern struct type string_to_type(string temp){
     }
     }
     if(is_func){
-        DEBUG(temp);
-        DEBUG("entered in is_func");
         if(global_symtable->functions.find(temp)!=global_symtable->functions.end()){
             return global_symtable->functions.find(temp)->second->returntype;
         }
@@ -47,7 +45,6 @@ extern struct type string_to_type(string temp){
             for(int i = ind+1;i<temp.size();i++){
                 ss.push_back(temp[i]);
             }
-            
 
             if(curr_class->attributes.find(ss)!=curr_class->attributes.end()){
                 symtable_entry* curr_ent =  curr_class->attributes[ss];
@@ -69,8 +66,11 @@ extern struct type string_to_type(string temp){
                 return curr_ent->type;
             }
             else if(global_symtable->functions.find(temp)!=global_symtable->functions.end()){
-                 DEBUG("void function handle");
                  return global_symtable->functions.find(temp)->second->returntype;
+            }else if (global_symtable->global_vars.find(temp)!=global_symtable->global_vars.end()) 
+            {                
+                symtable_entry* curr_ent = global_symtable->global_vars[temp];
+                return curr_ent->type;
             }
         }
         else{
@@ -80,7 +80,6 @@ extern struct type string_to_type(string temp){
                 return curr_ent->type;
             }
             else if(global_symtable->functions.find(temp)!=global_symtable->functions.end()){
-                 DEBUG("void function handle");
                  return global_symtable->functions.find(temp)->second->returntype;
             }
         }
@@ -90,7 +89,6 @@ extern struct type string_to_type(string temp){
 
  
 symtable_entry* symtable_look_up(string temp){
-   // DEBUG("Finding z" << temp);
    int is_func = 0;
    int is_class_attr = 0;
    int ind;
@@ -130,13 +128,16 @@ symtable_entry* symtable_look_up(string temp){
         }
     }
     else{
-        //DEBUG("Finding z" << temp);
         if(curr_symtable_func!=NULL){
             if (curr_symtable_func->entries.find(temp)!=curr_symtable_func->entries.end()) 
             {
                 symtable_entry* curr_ent = curr_symtable_func->entries[temp];
-                //DEBUG("Found z" << temp << " " << type_to_string(curr_ent->type));
 
+                return curr_ent;
+            }
+            else if (global_symtable->global_vars.find(temp)!=global_symtable->global_vars.end()) 
+            {                
+                symtable_entry* curr_ent = global_symtable->global_vars[temp];
                 return curr_ent;
             }
         }
@@ -186,7 +187,6 @@ struct type create_string_type(TreeNode* type){
                 return t;
             }
             else{
-                DEBUG("INVALID TYPE");
                 return t;
             }
         default:
@@ -195,22 +195,26 @@ struct type create_string_type(TreeNode* type){
     }
 }
 
+int type_to_size(struct type t){
+    int fund_type_size = t.size;
+    if(t.elems ==-1){
+        return fund_type_size;
+    }else{
+        return 8;
+    } 
+    return 0;
+}
+
 symtable_entry :: symtable_entry(TreeNode* entry, ll line_no)
 {
-    //DEBUG("Entered Sym Table Entry method");
     TreeNode* var_name = entry->children[0];
     TreeNode* type_name = entry->children[1];
-    //DEBUG("Exited Sym Table Entry method");
     
     string temp_str = "";
     this->name = var_name->lexeme;
-    //cout << var_name->lexeme << endl;
-    //cout << "entry" << endl;
     this->type = create_string_type(type_name);
+    this->size = type_to_size(type); 
     this->line_no = line_no;
-    // cout << "NEW SYMTAB ENTRY CREATED" << endl;
-    // cout << "Name : " << this->name << endl;
-    // cout << "Type : " << type_to_string(this->type) << endl;
     
 }
 
@@ -287,7 +291,6 @@ void symtable_global:: add_len_func(string temp){
     tem+=temp;
     tem.push_back(']');
     func->returntype = int_node;
-    DEBUG(tem);
     global_symtable->functions[tem]=func;
 }
 
@@ -313,16 +316,12 @@ void symtable_global :: add_func(symtable_func* function){
         funcname.push_back('@');
         funcname = funcname+ type_to_string(param.second->type);
     }
-    // funcname.push_back('-');
-    // funcname.push_back('>');
-    // funcname = funcname + function->returntype;
     if(functions.find(funcname)!=functions.end()) {
         Error::sem_func_redeclare(function->name,function->line_no,functions[funcname]->line_no);
     }
     else functions[funcname] = function;
     function->name = "global." + funcname;
     function->parent_symtab = this;
-    //DEBUG("function added in global symbol table" << funcname);
 }
 
 void symtable_global :: add_class(symtable_class* class_){
@@ -330,15 +329,12 @@ void symtable_global :: add_class(symtable_class* class_){
     if(classes.find(classname)!=classes.end()) cout << "Not a valid function, already present";
     else classes[classname] = class_;
     class_->parent_symtab = this;
-     //DEBUG("class added in global symbol table" << classname);
 }
 
 symtable_entry* symtable_global::add_global_var(TreeNode* global_var,ll line_no){
     symtable_entry* temp = new symtable_entry(global_var,line_no);
     string varname = temp->name;
-    //DEBUG("global var added in global symbol table" << varname);
     if(this->global_vars.find(varname)!=this->global_vars.end()){
-        // cout << "Not a valid variable, already present";
         Error::sem_var_redeclare(varname,line_no,this->global_vars[varname]->line_no);
         return NULL;
     }
@@ -381,7 +377,6 @@ symtable_entry* symtable_global :: search_global_var(string &name){
 }
 
 void symtable_global :: check_declaration_var(string name, ll line_no){
-    DEBUG(name);
     if(global_vars.find(name)==global_vars.end()){
         Error::sem_no_declaration_var(name,line_no);
     }
@@ -400,10 +395,8 @@ symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* re
     this->returntype = create_string_type(returntype);
     
     for(int i =0;i<params->children.size();i++){
-        //DEBUG(i);
         symtable_entry* temp = new symtable_entry(params->children[i], line_no);
         this->paramlist[temp->name] = temp;
-        //DEBUG(temp->name);
         this->entries[temp->name] = temp;
     }
 
@@ -415,16 +408,12 @@ symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* re
 
 symtable_entry* symtable_func::add_entry(TreeNode* new_entry,ll line_no){
     symtable_entry* temp = new symtable_entry(new_entry, line_no);
-    //DEBUG(temp);
     string entryname = temp->name;
-    //DEBUG("Adding Symbol Table Entry to Function" << entryname);
     if(entries.find(entryname)!=entries.end() || paramlist.find(entryname)!=paramlist.end()){
         Error::sem_var_redeclare(entryname,line_no,this->entries[entryname]->line_no);
         return NULL;
     }
     else{
-        // cout << "Adding entry" << endl;
-        // cout << "Entry name: " << temp->name << endl;
         entries[entryname]=temp;
         return temp;
     }
@@ -472,14 +461,12 @@ symtable_entry* symtable_func::find_entry(string name){
 }
 
 void symtable_func :: check_declaration_var(string name, ll line_no){
-    DEBUG(name);
     if(entries.find(name)==entries.end() && paramlist.find(name)==paramlist.end()){
         Error::sem_no_declaration_var(name,line_no);
     }
 }
 
 void symtable_func::check_returntype(struct TreeNode* node, ll line_no){
-    DEBUG(name);
     if(!((type_equal(this->returntype,float_node) || type_equal(this->returntype,bool_node)) && type_equal(node->type,int_node))){
         if(type_equal(this->returntype,node->type)==0){
             if(node->type.t == "-1"){
@@ -501,10 +488,6 @@ symtable_class::symtable_class(TreeNode* class_, TreeNode* parentclass){
         parent_class = global_symtable->search_class(parentclassname);
     }
     this->parentclass_symtab = parent_class;
-
-    //DEBUG("NEW CLASS SYMTAB CREATED" << this->name);
-    //cout << "Name : " << this->name << endl;
-    //cout << "Return type : " << this->returntype << endl;
 }
 
 void symtable_class :: add_func(symtable_func* function){
@@ -514,15 +497,16 @@ void symtable_class :: add_func(symtable_func* function){
     t.t = this->name;
     temp->type = t;
 
-    function->paramlist["self"] = temp;
-    
     string funcname = this->name;
     funcname.push_back('.');
     funcname += function->name;
+    funcname.push_back('@');
+    funcname+=type_to_string(temp->type);
     for(auto param : function->paramlist){
         funcname.push_back('@');
         funcname = funcname+type_to_string(param.second->type);
     }
+    function->paramlist["self"] = temp;
     // funcname.push_back('-');
     // funcname.push_back('>');
     // funcname = funcname + function->returntype;
@@ -533,7 +517,6 @@ void symtable_class :: add_func(symtable_func* function){
         methods[funcname] = function;
         function->parent_class = this;
         function->name = funcname;
-        //DEBUG("function added in class symbol table" << funcname);
     }
 }
 
@@ -542,7 +525,6 @@ symtable_entry* symtable_class::add_attribute(TreeNode* entry, ll line_no){
     string varname = this->name;
     varname.push_back('.');
     varname += temp->name;
-    //DEBUG("attribute added in global symbol table" << varname);
     if(attributes.find(varname)!=attributes.end()) {
         Error::sem_var_redeclare(varname,line_no,this->attributes[varname]->line_no);
         return NULL;
@@ -551,7 +533,7 @@ symtable_entry* symtable_class::add_attribute(TreeNode* entry, ll line_no){
         attributes[varname] = temp;
         return temp;
     }
-     return NULL;
+    return NULL;
 }
 
 symtable_func* symtable_class:: search_func(string &name){
@@ -625,7 +607,7 @@ void symtable_global::create_csv(string filename){
                 
                 out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->size<<endl;
             }
-            out<<"\n\n\n\n\n\n";
+            out<<"\n\n\n";
             }
         //func.second->create_csv(filename);
     }
@@ -643,7 +625,7 @@ void symtable_global::create_csv(string filename){
                 
                 out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->size<<endl;
             }
-            out<<"\n\n\n\n\n\n";
+            out<<"\n\n\n";
             }
         }
     }

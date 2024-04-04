@@ -50,16 +50,6 @@ void checker_traverse(struct TreeNode* node){
     }
     return;
 }
-void printTree(struct TreeNode * node){
-    if (node == NULL){
-        return;
-    }
-    // cout << node->id << " " << node->lexeme << " has type: " << node->node_type << endl;
-    for (auto child: node->children){
-        printTree(child);
-    }   
-    return;
-} 
 
 struct type get_max_type(struct type t1, struct type t2){
 
@@ -221,7 +211,6 @@ TreeNode * root = NULL;
 
 %%
 
-////// Anuj's reviewed starts here
 
 input_file : input_file_dash ENDMARKER{
     if ($1 != NULL){
@@ -291,7 +280,6 @@ small_stmt_dash : small_stmt_dash ";" small_stmt
     {
         $$ = $1;
     }
-
     ;
 
 small_stmt : expr_stmt 
@@ -324,58 +312,81 @@ expr_stmt : test expr_stmt_dash
         }
 
         symtable_entry* entry=NULL; 
-
+        symtable_entry* class_entry = NULL;
         if($2 != NULL && ($2->lexeme == ":" || $2->lexeme == ":=")){
-            //
-            if(curr_symtable_func!=NULL){
-                //DEBUG("Entered Add Function Entry" << curr_symtable_func);
-                entry = curr_symtable_func->add_entry($2,yylineno);
-                //DEBUG("Exited Add Function Entry");
-                $1->type = entry->type;
-            }else if(curr_symtable_class!=NULL){
-                entry = curr_symtable_class->add_attribute($2,yylineno);        
-                $1->type = entry->type;
-            }else{
-                //cout << "add global" << endl;
-                entry = curr_symtable_global->add_global_var($2,yylineno);        
-                $1->type = entry->type;
-            }
             
             if ($2->children[0]->node_type == NAME_TYPE){
+                if(curr_symtable_func!=NULL){
+                    entry = curr_symtable_func->add_entry($2,yylineno);
+                    $1->type = entry->type;
+                }else{
+                    entry = curr_symtable_global->add_global_var($2,yylineno);        
+                    $1->type = entry->type;
+                }
                 $2->children[0]->addr = $2->children[0]->lexeme;
                 entry->addr = $2->children[0]->lexeme;
-            }else{
+            }else if ($2->children[0]->lexeme == "atom_expr"
+                && $2->children[0]->children.size() == 2
+                && $2->children[0]->children[0]->node_type == NAME_TYPE
+                && $2->children[0]->children[1]->node_type == TRAILER_TYPE
+                && $2->children[0]->children[0]->lexeme == "self"
+                && $2->children[0]->children[1]->children.size() == 1
+                && $2->children[0]->children[1]->children[0]->lexeme == "."
+                && $2->children[0]->children[1]->children[0]->children.size() == 1
+                && $2->children[0]->children[1]->children[0]->children[0]->node_type == NAME_TYPE
+                && curr_symtable_class != NULL
+            ){
+                class_entry = new symtable_entry();
+                string classname = curr_symtable_class->name;
+                classname += ".";
+                classname += $2->children[0]->children[1]->children[0]->children[0]->lexeme;
+                class_entry->name = classname;
+                class_entry->type = create_string_type($2->children[1]);
+                $1->type = class_entry->type;
+                curr_symtable_class->attributes[classname] = class_entry;
+                class_entry->offset = curr_symtable_class->size;
+                curr_symtable_class->size += class_entry->type.size;
+            } else{
                 Error::other_semantic_error("SYNTAX_ERROR: Expected Identifier in declaration", yylineno);
             }
+            
             if($2->children.size() == 3){
                 if (!type_equal($1->type, $2->children[2]->type)){
                     Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
                 }else{
+                    if (class_entry != NULL){
+                        string t_off = three_ac::new_temp();
+                        three_ac::gen("class_get", "symtable", curr_symtable_class->name, $2->children[0]->children[1]->children[0]->children[0]->lexeme , t_off);
+                        class_entry->addr = t_off;
+                    }
                     if ($1->type.elems != -1){
                         // list declaration
-                        $1->type.elems = $2->children[2]->type.elems;
-                        string t = three_ac::new_temp();
-                        three_ac::gen("symtable_get", "symtable.get", $2->children[0]->lexeme, "", t);
-                        entry->addr = t;                        
+                        if (entry != NULL){
+                            $1->type.elems = $2->children[2]->type.elems;
+                            string t = three_ac::new_temp();
+                            three_ac::gen("symtable_get", "symtable.get", $2->children[0]->lexeme, "", t);
+                            entry->addr = t;
+                        }else{
+                            string t = three_ac::new_temp();
+                        }
                     }else{
                         // normal var (name declaration)
                         string drt = three_ac::dereference($2->children[2]);
-                        entry->addr = $2->children[0]->lexeme;
-                        three_ac::gen("assign", "=", drt, "", $2->children[0]->lexeme);
+                        if (entry != NULL){
+                            entry->addr = entry->name;
+                            three_ac::gen("assign", "=", drt, "", entry->name);
+                        }else{
+                            string t = three_ac::new_temp();
+                            three_ac::gen("address_assign", "=", drt, "", t);
+                        }
                     }
                 }
             } 
         }
         else if ($2 != NULL){
-            if (type_equal($1->type, $2->children[0]->type)){
-                $$->type = $1->type;
-            }else{
-                Error::type_mismatch(yylineno, $1->type, $2->children[0]->type, "assignment");
-            }
             string drt = three_ac::dereference($2->children[1]);
             string op = $2->lexeme;
             if (op == "="){
-
                 if ($2->children[0]->to_dereference){
                     three_ac::gen("address_assign", "=", drt, "", $2->children[0]->addr);
                 }else{
@@ -397,8 +408,6 @@ expr_stmt : test expr_stmt_dash
                 }
             }
         }
-        //checker_traverse($1);
-        //
     }
     ;
 
@@ -523,12 +532,31 @@ flow_stmt : break_stmt
 break_stmt : KEY_BREAK
     {
         $$ = makeNode("break",STATEMENT_TYPE);
+        for (int i = three_ac::label_stack.size()-1; i >= 0; i--){
+            if (three_ac::label_stack[i] % 10 == 2 ){
+                three_ac::gen("goto", "goto", three_ac::get_label("while_end", three_ac::label_stack[i]));
+                break;
+            }else if (three_ac::label_stack[i] % 10 == 3){
+                three_ac::gen("goto", "goto", three_ac::get_label("for_end", three_ac::label_stack[i]));
+                break;
+            }
+        }
     }
     ;
 
 continue_stmt : KEY_CONTINUE
     {
         $$ = makeNode("continue",STATEMENT_TYPE);
+        for (int i = three_ac::label_stack.size()-1; i >= 0; i--){
+            if (three_ac::label_stack[i] % 10 == 2 ){
+                three_ac::gen("goto", "goto", three_ac::get_label("while_start", three_ac::label_stack[i]));
+                break;
+            }else if (three_ac::label_stack[i] % 10 == 3){
+                three_ac::gen("goto", "goto", three_ac::get_label("for_start", three_ac::label_stack[i]));
+                break;
+            }
+        }
+
     }
     ;
 
@@ -832,7 +860,6 @@ funcdef : "def" NAME parameters funcdef_dash {
         three_ac::gen("beginfunc", "beginfunc", curr_symtable_func->name);
         for (auto x: curr_symtable_func->paramlist){
             x.second->addr = three_ac::new_temp();
-            DEBUG((x.first));
             three_ac::gen("assign", "=", "popparam", "", x.second->addr);
         }
     } ":" suite {
@@ -852,7 +879,6 @@ funcdef : "def" NAME parameters funcdef_dash {
 
 funcdef_dash : "->" test 
     {
-        //DEBUG($2->lexeme);
         $$ = $2;
     }
     | /*Empty*/
@@ -863,8 +889,6 @@ funcdef_dash : "->" test
 
 parameters : "(" parameters_dash ")" 
     {
-        //DEBUG($2);
-        //DEBUG("parameters" << $2->children.size());
         $$ = $2;
     }
     ;
@@ -903,7 +927,6 @@ typedargslist : typedargslist "," tfpdef
 
 tfpdef : NAME ":" test
     {
-        //DEBUG("tfpdef" << $1->lexeme << " " << $3->lexeme);
         $$ = makeNode(":",EXPR_TYPE);
         appendChild($$, $1);
         appendChild($$, $3);
@@ -1034,8 +1057,10 @@ comparison : expr comp_op expr
         appendChild($$, $3);
 
         if(!(((type_equal($1->type,int_node)||type_equal($1->type,float_node)) && (type_equal($3->type,float_node)||type_equal($3->type,int_node)) ))){
+            if(!(type_equal($1->type,$3->type) && (type_equal($1->type,bool_node) || type_equal($1->type,str_node)))){
             if($1->type.t!="-1" && $3->type.t!="-1" )
             Error::type_mismatch(yylineno,$1->type,$3->type,$2->lexeme);
+            }
         }
         $$->type = bool_node;
         string drt1 = three_ac::dereference($1);
@@ -1403,7 +1428,6 @@ atom_expr : atom trailerlist
                                 temp = ret;
                             }
                             if ($1->lexeme != "range"){
-                                DEBUG("Entered 3AC Function Call");
                                 int stack_shift = 0;
                                 symtable_func* funct = global_symtable->search_func(func_id);
 
@@ -1492,7 +1516,6 @@ atom_expr : atom trailerlist
                             for (auto x: $2->children[i+1]->children){
                                 class_id += "@" + type_to_string(x->type);
                             }
-                            DEBUG(class_id);
                             struct type ret = string_to_type(class_id);
                             
                             if (ret.t == "-1"){
@@ -1526,64 +1549,55 @@ atom_expr : atom trailerlist
                             string temp_reg = three_ac::new_temp();
                             three_ac::gen("popparam","","","",temp_reg);
                             $$->addr = temp_reg;
-                            DEBUG("Exited 3AC Method Call");
                         }
-
                         else{
                             // attribute access
                             string class_id = type_to_string(temp);
                             string class_name = class_id;
                             class_id += "." + $2->children[i]->children[0]->lexeme;
                             struct type ret = string_to_type(class_id);
-                            if (ret.t == "-1"){
-                                Error::other_semantic_error("TYPE_ERROR: No declaration of attribute " + $2->children[i]->children[0]->lexeme + " in class " + type_to_string(temp), yylineno);
-                            }else{
-                                temp = ret;
-                            }
+                            if (ret.t != "-1"){
 
-                            int stack_shift = 0;
-                            symtable_class* object_class = global_symtable->search_class(class_name);
-                            symtable_entry* class_attr = object_class->search_entry(class_id); 
+                                int stack_shift = 0;
+                                symtable_class* object_class = global_symtable->search_class(class_name);
+                                symtable_entry* class_attr = object_class->search_entry(class_id); 
+                                
+                                class_attr = symtable_look_up($1->lexeme);
+                                if(class_attr == NULL){
+                                    Error::sem_no_declaration_var($1->lexeme,yylineno);
+                                }
+                                string t_off = three_ac::new_temp();
+                                three_ac::gen("class_get", "symtable", object_class->name, $2->children[i]->children[0]->lexeme , t_off);
 
-                            class_attr = symtable_look_up($1->lexeme);
-                            
-                            if(class_attr == NULL){
-                                Error::sem_no_declaration_var($1->lexeme,yylineno);
-                            }
-                            
-                            
-                            string temp1 = three_ac::new_temp();
-                            three_ac("lookup","",type_to_string(temp),class_id,temp1);
-                            string temp2 = three_ac::new_temp();
-                            three_ac("quad","+",class_attr->addr,temp1,temp2);
-                            
-                            if(i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "[]"){
-                                if($2->children[i+1]->children[0]->type.t!="-1"){ 
-                                    if (temp.elems != -1){
-                                        if (type_equal($2->children[i+1]->children[0]->type, int_node)){
-                                            temp.elems = -1;
-                                            
-                                            symtable_entry* index  = symtable_look_up($2->children[i+1]->children[0]->lexeme);
-                                            if(index ==NULL ){
-                                                Error::sem_no_declaration_var($2->children[i+1]->children[0]->lexeme,yylineno);
-                                            }
-                                            string temp3 = three_ac::new_temp();
-                                            three_ac::gen("quad","*",index->addr,to_string(index->type.size),temp3);
-                                            string temp4 = three_ac::new_temp();
-                                            three_ac::gen("quad","+",temp3,temp2,temp4);
-                                            $$->to_dereference = 1;
-                                            $$->addr = temp4;
-                                        }else{
-                                            Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
-                                        }
-                                    }else{
-                                        Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
-                                    }
-                                }                                
-                            }else{
-                                string temp3 = three_ac::new_temp();
-                                three_ac("DEREF","*",temp2,"",temp3);
-                                $$->addr = temp3;
+                                string temp1 = three_ac::new_temp();
+                                three_ac("quad","+",temp_addr,t_off,temp1);
+                                if(i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "[]"){
+                                    // if($2->children[i+1]->children[0]->type.t!="-1"){ 
+                                    //     if (temp.elems != -1){
+                                    //         if (type_equal($2->children[i+1]->children[0]->type, int_node)){
+                                    //             temp.elems = -1;
+                                                
+                                    //             symtable_entry* index  = symtable_look_up($2->children[i+1]->children[0]->lexeme);
+                                    //             if(index ==NULL ){
+                                    //                 Error::sem_no_declaration_var($2->children[i+1]->children[0]->lexeme,yylineno);
+                                    //             }
+                                    //             string temp3 = three_ac::new_temp();
+                                    //             three_ac::gen("quad","*",index->addr,to_string(index->type.size),temp3);
+                                    //             string temp4 = three_ac::new_temp();
+                                    //             three_ac::gen("quad","+",temp3,temp2,temp4);
+                                    //             $$->to_dereference = 1;
+                                    //             $$->addr = temp4;
+                                    //         }else{
+                                    //             Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
+                                    //         }
+                                    //     }else{
+                                    //         Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
+                                    //     }
+                                    // }                                
+                                }else{
+                                    $$->addr = temp1;
+                                    $$->to_dereference = 1;
+                                }
                             }
                         }
                     }else{
@@ -1637,7 +1651,6 @@ atom : NAME
         $$ = makeNode($1->lexeme,NAME_TYPE);
         symtable_entry * entry = symtable_look_up($1->lexeme);
         $$->type = string_to_type($1->lexeme);
-        //DEBUG($1->lexeme << " " << string_to_type($1->lexeme).t);
         if (entry != NULL){
             $$->addr = entry->addr;
         }
@@ -1722,8 +1735,6 @@ arglist_dash : arglist_dash "," test
         $$->type = $1->type;
     }
 
-////// Anuj's reviewed ends here
-
 %%
 void printAST(char * filename){
     FILE * file = fopen(filename, "w");
@@ -1770,9 +1781,10 @@ int main(int argc, char ** argv){
     int inputfilearg = -1;
     int outputfilearg = -1; 
     int tac_file_arg = -1;
+    int csv_file_arg = -1;
     char default_output_name[] = "ast.dot";
     indent_stack.push(0);
-
+    
     for (int i = 1; i < argc; i++){
         string arg = argv[i];
         if (arg == "-input"){
@@ -1797,9 +1809,17 @@ int main(int argc, char ** argv){
             }else{
                 print_help = 1;
             }
+        }else if (arg == "-csv"){
+            if (i+1 < argc){
+                csv_file_arg = i+1;
+                i++;
+            }else{
+                print_help = 1;
+            }
         }else if (arg == "-verbose"){
             verbose = 1;
-        }else {
+        }
+        else {
             print_help = 1;
         }
     }
@@ -1807,7 +1827,6 @@ int main(int argc, char ** argv){
         help_printer();
         return 0;
     }
-
     
     if (inputfilearg == -1){
         yyin = stdin;
@@ -1824,10 +1843,6 @@ int main(int argc, char ** argv){
     if (verbose){
         cout << "Started parsing" <<endl;
     }
-
-    // string temp_name = "Hello";
-    // vector<symtable_entry *> temp_params;
-    // current_func = new symtable_func(temp_name, temp_params);
 
     int_node.t = "int";
     float_node.t = "float";
@@ -1852,17 +1867,17 @@ int main(int argc, char ** argv){
     curr_symtable_global->add_print_func(bool_node);
     curr_symtable_global->add_print_func(str_node);
     yyparse();
-    DEBUG("Reached before csv creation");
-    curr_symtable_global->create_csv("sample.csv");
-    
-
+    if(csv_file_arg!=-1){
+        curr_symtable_global->create_csv(argv[csv_file_arg]);
+    }else{
+        curr_symtable_global->create_csv("symtab.csv");
+    }    
     if (tac_file_arg != -1){
         three_ac::export_txt(argv[tac_file_arg]);
     }else{
-        three_ac::export_txt("tac.txt");
+        three_ac::export_txt("3AC.txt");
     }
 
-    printTree(root);
     if (verbose){
         if (terminated){
             cout << "Error in parsing, AST generated might be incomplete/erroneous" << endl;

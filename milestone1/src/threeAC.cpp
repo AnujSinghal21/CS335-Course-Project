@@ -1,5 +1,6 @@
 #include "threeAC.hpp"
 extern symtable_func* curr_symtable_func; 
+extern int yylineno;
 
 int three_ac::temp_counter = 0;
 int three_ac::label_counter = 0;
@@ -58,6 +59,8 @@ void three_ac::print(ofstream & out){
         out << this->op << ":" << this->arg1;
     }else if (this->optype == "shiftpointer"){
         out << "\t" << "shiftpointer "<< this->op;
+    }else if (this->optype == "class_get"){
+        out << "\t" << this->result << " = " << this->optype << "(" << this->arg1 << ", " << this->arg2 << ")";
     }
     else{
         out << "\t" << this->optype << " " << this->op << " " << this->arg1 << " " << this->arg2 << " " << this->result;
@@ -75,7 +78,6 @@ three_ac * three_ac::gen(string optype, string op, string arg1, string arg2, str
         return NULL;
     }
     three_ac * t = new three_ac(optype, op, arg1, arg2, result, comment);
-    DEBUG("Generated 3AC: " << optype << " " << op << " " << arg1 << " " << arg2 << " " << result << " " << comment);
     threeAC.push_back(t);
     return t;
 }
@@ -137,7 +139,6 @@ void three_ac::export_txt(string filename){
     for (auto tac: threeAC){
         tac->print(out);
     }
-    DEBUG("Exported 3AC to " << filename);
     out.close();
 }
 
@@ -207,6 +208,14 @@ string three_ac::pop_label(){
 }
 
 string three_ac::dereference(struct TreeNode * node){
+    if (node->node_type == NAME_TYPE){
+        if (node->type.t == "-1"){
+            if (node->lexeme != "__name__"){
+                Error::use_before_declaration(node->lexeme, yylineno);
+                return "";
+            }
+        }
+    }
     if (node->to_dereference == 1){
         string temp = three_ac::new_temp();
         three_ac::gen("DEREF", "*", node->addr, "", temp);
