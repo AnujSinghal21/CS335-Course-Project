@@ -2,33 +2,11 @@ Functions Definition
 Class: A
  global.add@int@int
 Lexeme, Type, Token, LineNo, Size
-p, int, NAME, 3, 0
-x, int, NAME, 1, 0
-y, int, NAME, 1, 0
-
-
-
-
-
-
-Function: len
-Lexeme, Type, Token, LineNo, Size
-
-
-
-
-
-
-Function: len
-Lexeme, Type, Token, LineNo, Size
-
-
-
-
-
-
-Function: len
-Lexeme, Type, Token, LineNo, Size
+p, int, NAME, 4, 0
+q, int, NAME, 7, 0
+x, int, NAME, 2, 0
+y, int, NAME, 2, 0
+z, int, NAME, 4, 0
 
 
 
@@ -37,33 +15,17 @@ Lexeme, Type, Token, LineNo, Size
 
 Function: global.main
 Lexeme, Type, Token, LineNo, Size
-q, int, NAME, 7, 0
-s, int, NAME, 8, 0
+p, int, NAME, 25, 0
+s, int, NAME, 26, 0
 
 
 
 
 
 
-Function: range
+Function: A.hello@A
 Lexeme, Type, Token, LineNo, Size
-
-
-
-
-
-
-Function: range
-Lexeme, Type, Token, LineNo, Size
-
-
-
-
-
-
-Function: A.A.hello@A
-Lexeme, Type, Token, LineNo, Size
-z, int, NAME, 17, 0
+z, int, NAME, 34, 0
 
 
 

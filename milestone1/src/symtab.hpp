@@ -27,6 +27,7 @@ class symtable_entry {
         symtable_entry();
         symtable_entry(struct TreeNode* entry, ll line_no);
         symtable_entry(string name, const symtable_entry& other); // may be for a=b type
+        void create_csv(string temp);
         void update_type(TreeNode* type);
 };
 class symtable_global{
@@ -36,7 +37,8 @@ class symtable_global{
         map<string,symtable_entry*> global_vars;
         symtable_global();
         void add_range_func();
-        void add_len_func();
+        void add_len_func(string s);
+        void add_print_func(struct type type);
         void add_func(symtable_func* function);
         void add_class(symtable_class* class_);
         symtable_entry* add_global_var(struct TreeNode* global_var, ll line_no);
@@ -83,7 +85,7 @@ class symtable_class {
         string name;
         map<string,symtable_func*> methods;
         map<string,symtable_entry*> attributes;
-        //int size;
+        int size;
         symtable_global* parent_symtab = NULL;
         symtable_class* parentclass_symtab = NULL;
         symtable_class(struct TreeNode* class_,struct TreeNode* parentclass);
@@ -95,5 +97,6 @@ class symtable_class {
 };
 
 struct type string_to_type(string temp); 
+symtable_entry* symtable_look_up(string temp);
 
 #endif

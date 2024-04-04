@@ -23,9 +23,7 @@ def main():
   # while x:
   #   y:int = 0
   for i in range(n):
-    print(data[i]) #YE KYA ERROR HE, LAST ME PURA AA RHA HE NA ERROR, LIKE NO DECARATION OF FUNCTION WITH THESE PARAMETERS, YE TYPE ERROR KYON AAA RHA
-  # jb tk koi func call na kro tb tk theek h, wrna end_func nhi aa rha
-  # nhi samjha doubt, aake bata dena THEEK HE
+    print(data[i]) 
 
 if __name__ == "__main__":
   main()

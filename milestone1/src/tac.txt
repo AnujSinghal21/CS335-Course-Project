@@ -1,29 +1,52 @@
-beginfunc global.add@int@int   //  beginfunc
-+ NOT_ASSIGNED NOT_ASSIGNED #t_0 //  quad
-= #t_0  NOT_ASSIGNED //  unary
-NOT_ASSIGNED    //  param
-4    //  stackpointer+
-print@int 1   //  call
--4    //  stackpointer-
-   #t_1 //  popparam
-    //  endfunc
-beginfunc global.main   //  beginfunc
-= NOT_ASSIGNED  NOT_ASSIGNED //  unary
-= NOT_ASSIGNED  NOT_ASSIGNED //  unary
-NOT_ASSIGNED    //  param
-NOT_ASSIGNED    //  param
-12    //  stackpointer+
-add@-1@int 2   //  call
-4    //  stackpointer-
-   #t_2 //  popparam
-    //  endfunc
-= NOT_ASSIGNED  NOT_ASSIGNED //  unary
-= NOT_ASSIGNED  NOT_ASSIGNED //  unary
-beginfunc A.A.hello@A   //  beginfunc
-= NOT_ASSIGNED  NOT_ASSIGNED //  unary
-    //  endfunc
-== NOT_ASSIGNED NOT_ASSIGNED #t_3 //  quad
-0    //  stackpointer+
-main 0   //  call
--8    //  stackpointer-
-   #t_4 //  popparam
+	d = 5
+	beginfunc global.add@int@int
+	#t_0 = popparam
+	#t_1 = popparam
+	#t_2 = #t_0 + #t_1
+	p = #t_2
+	z = 10
+	#t_3 = z + 1
+	z = #t_3
+	#t_4 = p * z
+	p = #t_4
+	#t_5 = z + p
+	q = #t_5
+	#t_6 = p < q
+	if_false #t_6 goto @Label_1_else_start
+	#t_7 = p + 1
+	p = #t_7
+	goto @Label_1_if_end
+label:@Label_1_else_start
+	#t_8 = p - 1
+	p = #t_8
+label:@Label_1_if_end
+	#t_9 = p < q
+	if_false #t_9 goto @Label_11_else_start
+	#t_10 = p + 1
+	p = #t_10
+	goto @Label_11_if_end
+label:@Label_11_else_start
+	#t_11 = q == p
+	if_false #t_11 goto @Label_21_else_start
+	#t_12 = p - 1
+	p = #t_12
+	goto @Label_21_if_end
+label:@Label_21_else_start
+	#t_13 = p * 2
+	p = #t_13
+label:@Label_21_if_end
+label:@Label_11_if_end
+	return p
+	endfunc 
+	beginfunc global.main
+	p = 2
+	s = 3
+	endfunc 
+	x = 5
+	y = 10
+	beginfunc A.hello@A
+	#t_14 = popparam
+	z = 100
+	endfunc 
+	#t_15 = symtable_get(l)
+	i = 5
