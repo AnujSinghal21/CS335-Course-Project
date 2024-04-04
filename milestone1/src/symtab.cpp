@@ -30,6 +30,8 @@ extern struct type string_to_type(string temp){
     }
     }
     if(is_func){
+        DEBUG(temp);
+        DEBUG("entered in is_func");
         if(global_symtable->functions.find(temp)!=global_symtable->functions.end()){
             return global_symtable->functions.find(temp)->second->returntype;
         }
@@ -66,12 +68,20 @@ extern struct type string_to_type(string temp){
                 symtable_entry* curr_ent = curr_symtable_func->entries[temp];
                 return curr_ent->type;
             }
+            else if(global_symtable->functions.find(temp)!=global_symtable->functions.end()){
+                 DEBUG("void function handle");
+                 return global_symtable->functions.find(temp)->second->returntype;
+            }
         }
         else{
             if (global_symtable->global_vars.find(temp)!=global_symtable->global_vars.end()) 
             {                
                 symtable_entry* curr_ent = global_symtable->global_vars[temp];
                 return curr_ent->type;
+            }
+            else if(global_symtable->functions.find(temp)!=global_symtable->functions.end()){
+                 DEBUG("void function handle");
+                 return global_symtable->functions.find(temp)->second->returntype;
             }
         }
     }
@@ -262,44 +272,23 @@ void symtable_global :: add_range_func(){
     //len_attr->type = 
 }
 
-void symtable_global:: add_len_func(string s){
-    // for(auto s:declared_types){
-    //     symtable_func* func1 = new symtable_func();
-    // }
+void symtable_global:: add_len_func(string temp){
     symtable_func* func = new symtable_func();
-    // symtable_func* func2 = new symtable_func();
-    // symtable_func* func3 = new symtable_func();
     func->name = "len";
-    // func2->name = "len";
-    // func3->name = "len";
     symtable_entry* attr = new symtable_entry();
-    // symtable_entry* attr2 = new symtable_entry();
-    // symtable_entry* attr3 = new symtable_entry();
     struct type typ;
-    typ.t = s;
-    // typ2.t = "float";
-    // typ3.t = "str";
+    typ.t = temp;
     attr->name = "a";
     attr->type = typ;
-    // attr2->name = "a";
-    // attr2->type = typ2;
-    // attr3->name = "a";
-    // attr3->type = typ3;
     func->paramlist[attr->name]=attr;
-    // func2->paramlist[attr2->name]=attr2;
-    // func3->paramlist[attr3->name]=attr3;
-    string temp=func->name;
-    temp+="@list[";
-    temp+=s;
-    temp.push_back(']');
-    // temp2+="@list[float]";
-    // temp3+="@list[str]";
+    string tem=func->name;
+    tem+="@list";
+    tem.push_back('[');
+    tem+=temp;
+    tem.push_back(']');
     func->returntype = int_node;
-    // func2->returntype = int_node;
-    // func3->returntype = int_node;
-    global_symtable->functions[temp]=func;
-    // global_symtable->functions[temp2]=func2;
-    // global_symtable->functions[temp3]=func3;
+    DEBUG(tem);
+    global_symtable->functions[tem]=func;
 }
 
 void symtable_global:: add_print_func(struct type type){
@@ -491,11 +480,12 @@ void symtable_func :: check_declaration_var(string name, ll line_no){
 
 void symtable_func::check_returntype(struct TreeNode* node, ll line_no){
     DEBUG(name);
-    if(type_equal(this->returntype,node->type)==0){
-        if(node->type.t == "-1"){
-            Error::sem_no_declaration_var(node->lexeme,line_no);
+    if(!((type_equal(this->returntype,float_node) || type_equal(this->returntype,bool_node)) && type_equal(node->type,int_node))){
+        if(type_equal(this->returntype,node->type)==0){
+            if(node->type.t == "-1"){
+                Error::sem_no_declaration_var(node->lexeme,line_no);
+            }
         }
-        else Error::sem_returntype_error(this->name,this->returntype.t,node->type.t,line_no);
     }
 }
 ////////// FUNCTION ENDS ///////////
@@ -625,12 +615,36 @@ void symtable_global::create_csv(string filename){
     ofstream out(filename, ios::out);
     out<<"Functions Definition"<<endl;
     for(auto func: this->functions){
-        func.second->create_csv(filename);
+            ofstream out(filename, ios::app);
+            if(func.second->name!="len"&&func.second->name!="range"&&func.second->name!="print"){
+            out<<"Function: "<<func.second->name<<endl;
+            
+            out<<"Lexeme, Type, Token, LineNo, Size"<<endl;
+            
+            for(auto entry: func.second->entries){
+                
+                out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->size<<endl;
+            }
+            out<<"\n\n\n\n\n\n";
+            }
+        //func.second->create_csv(filename);
     }
+
     for(auto cl : this->classes){
         out << "Class: " <<cl.first<<endl;
         for(auto method: cl.second->methods){
-            method.second->create_csv(filename);
+           ofstream out(filename, ios::app);
+            if(method.second->name!="len"&& method.second->name!="range"&& method.second->name!="print"){
+            out<<"Function: "<<method.second->name<<endl;
+            
+            out<<"Lexeme, Type, Token, LineNo, Size"<<endl;
+            
+            for(auto entry: method.second->entries){
+                
+                out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->size<<endl;
+            }
+            out<<"\n\n\n\n\n\n";
+            }
         }
     }
 }

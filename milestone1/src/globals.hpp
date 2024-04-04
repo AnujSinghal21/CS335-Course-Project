@@ -35,7 +35,8 @@ class Error {
         static void invalid_operation(int yylineno, string op, struct type t1);
         static void other_semantic_error(string msg, long long line_no);
         static void invalid_unary_operation(int yylineno, struct type t1, string operation);
-        
+        static void use_before_declaration(string name, long long line_no);
+        static void member_not_found(string name, string member, long long line_no);
 };
 
 enum NODE_TYPES {
@@ -83,4 +84,5 @@ void insert_to_front(struct TreeNode* parent, struct TreeNode* child);
 
 struct type infer_type(struct type t1, struct type t2);
 int type_equal(struct type t1, struct type t2);
+
 #endif

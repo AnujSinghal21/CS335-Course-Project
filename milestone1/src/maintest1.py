@@ -1,10 +1,12 @@
-def bubbleSort(array: list[int]) -> None: # KOI PROBLEM??
+def bubbleSort(array: list[int], x:int) -> None: # KOI PROBLEM??
   i: int = 0
-  j: int 
+  j: int
   n: int = len(array)
   for i in range(n):
     swapped: bool = False
     for j in range(0, n - i - 1): 
+      if x < i:
+        break
       if array[j] > array[j + 1]:
         temp: int = array[j]
         array[j] = array[j + 1]
@@ -19,9 +21,6 @@ def main():
   print('Sorted Array in Ascending Order:')
   i: int = 0
   n: int = len(data)
-  # x:int = 0
-  # while x:
-  #   y:int = 0
   for i in range(n):
     print(data[i]) 
 

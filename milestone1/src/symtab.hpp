@@ -37,7 +37,7 @@ class symtable_global{
         map<string,symtable_entry*> global_vars;
         symtable_global();
         void add_range_func();
-        void add_len_func(string s);
+        void add_len_func(string temp);
         void add_print_func(struct type type);
         void add_func(symtable_func* function);
         void add_class(symtable_class* class_);

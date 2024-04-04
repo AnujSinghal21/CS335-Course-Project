@@ -340,13 +340,14 @@ expr_stmt : test expr_stmt_dash
                 entry = curr_symtable_global->add_global_var($2,yylineno);        
                 $1->type = entry->type;
             }
-
+            
+            if ($2->children[0]->node_type == NAME_TYPE){
+                $2->children[0]->addr = $2->children[0]->lexeme;
+                entry->addr = $2->children[0]->lexeme;
+            }else{
+                Error::other_semantic_error("SYNTAX_ERROR: Expected Identifier in declaration", yylineno);
+            }
             if($2->children.size() == 3){
-                if ($2->children[0]->node_type == NAME_TYPE){
-                    $2->children[0]->addr = $2->children[0]->lexeme;
-                }else{
-                    Error::other_semantic_error("SYNTAX_ERROR: Expected Identifier in declaration", yylineno);
-                }
                 if (!type_equal($1->type, $2->children[2]->type)){
                     Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
                 }else{
@@ -727,34 +728,96 @@ inheritlist: "(" NAME ")"
     ;
 
 
-for_stmt: "for" test "in" test ":" suite
-    {   
-       /* struct TreeNode* temp1 = makeNode($2->lexeme,NAME_TYPE);
-        struct TreeNode* temp2 = makeNode("int",NAME_TYPE);
-        struct TreeNode* temp = makeNode("",EXPR_TYPE);
-        appendChild(temp,temp1);
-        appendChild(temp,temp2);
-        curr_symtable_func->add_entry(temp,yylineno); */
-        $$ = $1;
-        appendChild($$, $2);
-        appendChild($$, $4);
-        appendChild($$, $6);
-        $$->type.t = "void";
-        if (!type_equal($2->type, int_node)){
+for_stmt: "for" atom "in"
+    {
+        three_ac::push_new_label("for");
+        three_ac::gen("label", "label", three_ac::get_label("for_init"));
+        if ($2->node_type != NAME_TYPE
+        || !(type_equal($2->type, int_node))
+        ){
             Error::other_semantic_error("TYPE_ERROR: Expected type int for iterator variable in for loop, got " + type_to_string($2->type), yylineno);
         }
-    }
-    ;
+    } test ":" 
+    {
+        if ($5->children.size() == 2 
+            && $5->children[0]->lexeme == "range" 
+            && $5->children[1]->node_type == TRAILER_TYPE
+            && $5->children[1]->children.size() == 1 
+            && $5->children[1]->children[0]->lexeme == "()"
+            && $5->children[1]->children[0]->children.size() >= 1
+        ){
+            string loop_start, loop_end;
+            struct TreeNode * params = $5->children[1]->children[0]; 
+            if (params->children.size() == 2){
+                loop_start = params->children[0]->addr;
+                loop_end = params->children[1]->addr;
+            }else{
+                loop_start = "0";
+                loop_end = params->children[0]->addr;
+            }
+            int ins = -1, ins2 = -1;
+            for (int i = three_ac::threeAC.size()-1; i >= 0; i--){
+                if (three_ac::threeAC[i]->op == "label" && three_ac::threeAC[i]->arg1 == three_ac::get_label("for_init")){
+                    ins = i;
+                    break;
+                }
+                if (three_ac::threeAC[i]->result == loop_start){
+                    ins2 = i;
+                    break;
+                }
+            }
+            if (ins2  == -1){
+                ins2 = ins;
+            }
+            three_ac * tac = new three_ac("assign", "=", loop_start, "", $2->lexeme, "");
+            three_ac::threeAC.insert(three_ac::threeAC.begin()+ins2+1, tac);
+            ins2++;
+            three_ac * tac2 = new three_ac("label", "label", three_ac::get_label("for_start"), "", "", "");
+            three_ac::threeAC.insert(three_ac::threeAC.begin()+ins2+1, tac2);
 
-while_stmt: KEY_WHILE test OPER_COLON suite
+            string t = three_ac::new_temp();
+            three_ac::gen("quad", "<", $2->lexeme, loop_end, t);
+            three_ac::gen("if_goto", "if_false", t, three_ac::get_label("for_end"));
+        }else{
+            Error::other_semantic_error("SYNTAX_ERROR: Expected range object in for loop", yylineno);
+        }
+    } suite
     {
         $$ = $1;
         appendChild($$, $2);
-        appendChild($$, $4);
+        appendChild($$, $5);
+        appendChild($$, $8);
         $$->type.t = "void";
-        if (!type_equal($2->type, bool_node) && !type_equal($2->type, int_node)){
-            Error::type_mismatch(yylineno, $2->type, bool_node, "while loop condition");
+        string t = three_ac::new_temp();
+        three_ac::gen("quad", "+", $2->lexeme, "1", t);
+        three_ac::gen("assign", "=", t, "", $2->lexeme);
+        three_ac::gen("goto", "goto", three_ac::get_label("for_start"));
+        string l = three_ac::get_label("for_end");
+        three_ac::gen("label", "label", l);
+        three_ac::pop_label();
+    }
+    ;
+
+while_stmt: KEY_WHILE 
+    {
+        three_ac::push_new_label("while");
+        three_ac::gen("label", "label", three_ac::get_label("while_start"));
+    } test OPER_COLON
+    {
+        string l = three_ac::get_label("while_end");
+        three_ac::gen("if_goto", "if_false", $3->addr, l);
+    } suite
+    {
+        $$ = $1;
+        appendChild($$, $3);
+        appendChild($$, $6);
+        $$->type.t = "void";
+        if (!type_equal($3->type, bool_node) && !type_equal($3->type, int_node)){
+            Error::type_mismatch(yylineno, $3->type, bool_node, "while loop condition");
         }
+        three_ac::gen("goto", "goto", three_ac::get_label("while_start"));
+        string l2 = three_ac::get_label("while_end");
+        three_ac::gen("label", "label", l2);
     }
     ;
 
@@ -769,9 +832,9 @@ funcdef : "def" NAME parameters funcdef_dash {
         three_ac::gen("beginfunc", "beginfunc", curr_symtable_func->name);
         for (auto x: curr_symtable_func->paramlist){
             x.second->addr = three_ac::new_temp();
+            DEBUG((x.first));
             three_ac::gen("assign", "=", "popparam", "", x.second->addr);
         }
-        
     } ":" suite {
         $$ = makeNode("def",FUNCTION_TYPE);
         appendChild($$,$2);
@@ -1304,17 +1367,17 @@ atom_expr : atom trailerlist
     {
         if ($2 == NULL){
             $$ = $1;
-            checker_traverse($1);
+            // checker_traverse($1);
         }else{
-            //DEBUG("entered function for " << $1->lexeme)
             $$ = makeNode("atom_expr", EXPR_TYPE);
             appendChild($$, $1);
             appendChild($$, $2);
             struct type temp = $1->type;
+            string temp_addr = $1->addr;
+            string temp_name = $1->lexeme;
             
             if(!is_declared_type($1->lexeme)){
-            for (int i = 0; i < $2->children.size(); i++){
-                if ($2->node_type == TRAILER_TYPE){
+                for (int i = 0; i < $2->children.size(); i++){
                     if ($2->children[i]->lexeme == "()" && i == 0){
                         // function call
                         if ($1->node_type != NAME_TYPE){
@@ -1323,58 +1386,84 @@ atom_expr : atom trailerlist
                             string func_id = $1->lexeme;
                             for (auto x: $2->children[i]->children){
                                 func_id += "@" + type_to_string(x->type);
-                                
                             }
                             struct type ret = string_to_type(func_id);
                             if (ret.t == "-1"){
-                                if(func_id!="main") Error::other_semantic_error("TYPE_ERROR: No declaration of function " + $1->lexeme+ " with these parameter types, called ", yylineno);
+                                int error = 1;
+                                if ($1->lexeme == "len"){
+                                    if (temp.elems != -1){
+                                        ret = int_node;
+                                        error = 0;
+                                    }
+                                }
+                                if (error){
+                                    Error::other_semantic_error("TYPE_ERROR: No declaration of function " + $1->lexeme+ " with these parameter types", yylineno);
+                                }
                             }else{
                                 temp = ret;
                             }
+                            if ($1->lexeme != "range"){
+                                DEBUG("Entered 3AC Function Call");
+                                int stack_shift = 0;
+                                symtable_func* funct = global_symtable->search_func(func_id);
 
-                            DEBUG("Entered 3AC Function Call");
-                            int stack_shift = 0;
-                            symtable_func* funct = global_symtable->search_func(func_id);
-
-                            for (int j=$2->children[i]->children.size()-1; j>=0;j--){
-                                auto x = $2->children[i]->children[j];
-
-                                string drt = three_ac::dereference(x);
-                                three_ac::gen("param",drt);
-                                stack_shift += x->type.size;
+                                for (int j=$2->children[i]->children.size()-1; j>=0;j--){
+                                    struct TreeNode * x = $2->children[i]->children[j];
+                                    string drt = three_ac::dereference(x);
+                                    three_ac::gen("param",drt);
+                                    if (x->type.elems != -1){
+                                        stack_shift += 8;
+                                    }else{
+                                        stack_shift += x->type.size;
+                                    }
+                                }
+                                
+                                three_ac::gen("shiftpointer",to_string(stack_shift));
+                                three_ac::gen("call",func_id,to_string($2->children[i]->children.size()));
+                                stack_shift -= ret.size;
+                                stack_shift = -stack_shift;
+                                three_ac::gen("shiftpointer",to_string(stack_shift));
+                                string temp_reg = three_ac::new_temp();
+                                three_ac::gen("assign","=","popparam","",temp_reg);
+                                $$->addr = temp_reg;
+                                if (ret.elems != -1){
+                                    $$->to_dereference = 1;
+                                }
                             }
-        
-                            three_ac::gen("stackpointer+",to_string(stack_shift));
-                            three_ac::gen("call",func_id,to_string($2->children[i]->children.size()));
-                            stack_shift -= ret.size;
-                            three_ac::gen("stackpointer-",to_string(stack_shift));
-                            string temp_reg = three_ac::new_temp();
-                            three_ac::gen("popparam","","","",temp_reg);
-                            $$->addr = temp_reg;
-                            DEBUG("Exited 3AC Function Call");
-                            
-                    }
+                        }
                     }else if ($2->children[i]->lexeme == "[]"){
                         // list indexing
-                        
-
-                        if($2->children[i]->children[0]->type.t!="-1"){ // taking care of list parameters
+                        if (
+                            $2->children[i]->children.size() == 1 && 
+                            $2->children[i]->children[0]->type.t != "-1"
+                        )
+                        {
+                            struct TreeNode * index_node = $2->children[i]->children[0];
                             if (temp.elems != -1){
-                        
                                 if (type_equal($2->children[i]->children[0]->type, int_node)){
-                        DEBUG("In List Indexing: 1")
                                     temp.elems = -1;
-                                    symtable_entry* index  = symtable_look_up($2->children[i]->children[0]->lexeme);
-                                    symtable_entry* list_name = symtable_look_up($1->lexeme);
-                                    if(index ==NULL ){
-                                        Error::sem_no_declaration_var($2->children[i]->children[0]->lexeme,yylineno);
+                                    symtable_entry* list_name = symtable_look_up(temp_name);
+                                    string address;
+                                    if (index_node->node_type == NAME_TYPE){
+                                        symtable_entry * index = symtable_look_up(index_node->lexeme);
+                                        if (index == NULL){
+                                            Error::use_before_declaration(index_node->lexeme, yylineno);
+                                        }else{
+                                            address = index_node->addr;
+                                        }
+                                    }else{
+                                        address = three_ac::dereference(index_node);
                                     }
-                                    if(list_name == NULL){                                        
-                                        Error::sem_no_declaration_var($1->lexeme,yylineno);
+                                    if(list_name == NULL){
+                                        if (i == 0){
+                                            Error::use_before_declaration(temp_name,yylineno);
+                                        }else{
+                                            Error::member_not_found(temp.t, temp_name, yylineno);
+                                        }
                                     }
                                     
                                     string temp1 = three_ac::new_temp();
-                                    three_ac::gen("quad","*",index->addr,to_string(index->type.size),temp1);
+                                    three_ac::gen("quad","*",address,to_string(temp.size),temp1);
                                     string temp2 = three_ac::new_temp();
                                     three_ac::gen("quad","+",temp1,list_name->addr,temp2);
                                     $$->to_dereference = 1;
@@ -1383,7 +1472,11 @@ atom_expr : atom trailerlist
                                     Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
                                 }
                             }else{
-                                Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
+                                if (temp.t == "-1" && i == 0){
+                                    Error::use_before_declaration($1->lexeme, yylineno);
+                                }else{
+                                    Error::other_semantic_error("TYPE_ERROR: Invalid operation [] performed on type " + type_to_string(temp), yylineno);
+                                }
                             }
                         }
                         else{
@@ -1465,7 +1558,7 @@ atom_expr : atom trailerlist
                             three_ac("quad","+",class_attr->addr,temp1,temp2);
                             
                             if(i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "[]"){
-                                if($2->children[i+1]->children[0]->type.t!="-1"){ // taking care of list parameters
+                                if($2->children[i+1]->children[0]->type.t!="-1"){ 
                                     if (temp.elems != -1){
                                         if (type_equal($2->children[i+1]->children[0]->type, int_node)){
                                             temp.elems = -1;
@@ -1497,17 +1590,9 @@ atom_expr : atom trailerlist
                         Error::other_semantic_error("TYPE_ERROR: Invalid operation near " + $2->children[i]->lexeme[0], yylineno);   
                     }
                 }
-                else{
-                    checker_traverse($1);
-                    
-                    checker_traverse($2);
-                    
-                }
             }
-            }
-            
             $$->type = temp;
-    } 
+        } 
     }
     ;
 
@@ -1550,8 +1635,9 @@ trailer : "(" arglist ")"
 atom : NAME
     {
         $$ = makeNode($1->lexeme,NAME_TYPE);
-        $$->type = string_to_type($1->lexeme);
         symtable_entry * entry = symtable_look_up($1->lexeme);
+        $$->type = string_to_type($1->lexeme);
+        //DEBUG($1->lexeme << " " << string_to_type($1->lexeme).t);
         if (entry != NULL){
             $$->addr = entry->addr;
         }
@@ -1628,11 +1714,6 @@ arglist_dash : arglist_dash "," test
     {
         appendChild($1, $3);
         $$ = $1;
-        if (!type_equal($1->type,$3->type)){
-            Error::type_mismatch(yylineno, $1->type, $3->type, ",");
-        }else{
-            $$->type = $1->type;
-        }
     }
     | test
     {

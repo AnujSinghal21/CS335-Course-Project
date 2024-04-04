@@ -1,4 +1,5 @@
 #include "threeAC.hpp"
+extern symtable_func* curr_symtable_func; 
 
 int three_ac::temp_counter = 0;
 int three_ac::label_counter = 0;
@@ -24,6 +25,9 @@ three_ac::three_ac(string optype, string op, string arg1, string arg2, string re
 }
 
 void three_ac::print(ofstream & out){
+    if (this->comment == "Unused"){
+        return;
+    }
     if (this->optype == "symtable_get"){
         out << "\t" << this->result << " = " << this->optype << "(" << this->arg1 << ")";
     }else if (this->optype == "assign"){
@@ -52,6 +56,8 @@ void three_ac::print(ofstream & out){
         out << "\t" << this->op << " " << this->arg1;
     }else if (this->optype == "label"){
         out << this->op << ":" << this->arg1;
+    }else if (this->optype == "shiftpointer"){
+        out << "\t" << "shiftpointer "<< this->op;
     }
     else{
         out << "\t" << this->optype << " " << this->op << " " << this->arg1 << " " << this->arg2 << " " << this->result;
@@ -65,6 +71,9 @@ void three_ac::print(ofstream & out){
 }
 
 three_ac * three_ac::gen(string optype, string op, string arg1, string arg2, string result, string comment){
+    if (curr_symtable_func == NULL){
+        return NULL;
+    }
     three_ac * t = new three_ac(optype, op, arg1, arg2, result, comment);
     DEBUG("Generated 3AC: " << optype << " " << op << " " << arg1 << " " << arg2 << " " << result << " " << comment);
     threeAC.push_back(t);
@@ -75,10 +84,56 @@ three_ac * three_ac::append(three_ac * t){
     threeAC.push_back(t);
     return t;
 }
-
+void three_ac::threeac_relabel(){
+    int lbl = 0;
+    map<string, string> unused_map;
+    map<string, string> label_map;
+    for (int i = 0; i < threeAC.size(); i++){
+        if (threeAC[i]->optype == "label"){
+            if (i+1< threeAC.size() && threeAC[i+1]->optype == "label"){
+                unused_map[threeAC[i+1]->arg1] = threeAC[i]->arg1;
+                threeAC[i+1]->comment = "Unused";
+            }else{
+                unused_map[threeAC[i]->arg1] = threeAC[i]->arg1;
+            }
+        }
+    }
+    for (auto tac: threeAC){
+        if (tac->optype == "goto"){
+            string old_lbl = unused_map[tac->arg1];
+            if (label_map.find(old_lbl) != label_map.end()){
+                tac->arg1 = label_map[old_lbl];
+            }else{
+                lbl++;
+                label_map[old_lbl] = "@Label_" + to_string(lbl);
+                tac->arg1 = label_map[old_lbl];
+            }
+        }else if (tac->optype == "if_goto"){
+            string old_lbl = unused_map[tac->arg2];
+            if (label_map.find(old_lbl) != label_map.end()){
+                tac->arg2 = label_map[old_lbl];
+            }else{
+                lbl++;
+                label_map[old_lbl] = "@Label_" + to_string(lbl);
+                tac->arg2 = label_map[old_lbl];
+            }
+        }else if (tac->optype == "label"){
+            string old_lbl = unused_map[tac->arg1];
+            if (label_map.find(old_lbl) != label_map.end()){
+                tac->arg1 = label_map[old_lbl];
+            }else{
+                lbl++;
+                label_map[old_lbl] = "@Label_" + to_string(lbl);
+                tac->arg1 = label_map[old_lbl];
+            }
+        }
+    }
+    return;
+}
 void three_ac::export_txt(string filename){
     ofstream out;
     out.open(filename);
+    threeac_relabel();
     for (auto tac: threeAC){
         tac->print(out);
     }
@@ -124,7 +179,18 @@ string three_ac::get_label(string command, int label){
         return "@Label_" + to_string(label) + "_else_start";
     }else if (command == "if_end"){
         return "@Label_" + to_string(label) + "_if_end";
-    }else{
+    }else if (command == "while_start"){
+        return "@Label_" + to_string(label) + "_while_start";
+    }else if (command == "while_end"){
+        return "@Label_" + to_string(label) + "_while_end";
+    }else if (command == "for_start"){
+        return "@Label_" + to_string(label) + "_for_start";
+    }else if (command == "for_end"){
+        return "@Label_" + to_string(label) + "_for_end";
+    }else if (command == "for_init"){
+        return "@Label_" + to_string(label) + "_for_init";
+    }
+    else{
         return "@Label_" + to_string(label);
     }
 

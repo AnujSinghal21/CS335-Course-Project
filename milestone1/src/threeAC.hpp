@@ -27,6 +27,7 @@ class three_ac{
         static string get_label(string command, int label = -1);
         static string pop_label();
         static string dereference(struct TreeNode * node);
+        static void threeac_relabel();
 };
 
 #endif

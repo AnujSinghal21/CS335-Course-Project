@@ -1,52 +1,74 @@
-	d = 5
-	beginfunc global.add@int@int
+	beginfunc global.binarySearch@list[int]@int@int@int
 	#t_0 = popparam
 	#t_1 = popparam
-	#t_2 = #t_0 + #t_1
-	p = #t_2
-	z = 10
-	#t_3 = z + 1
-	z = #t_3
-	#t_4 = p * z
-	p = #t_4
-	#t_5 = z + p
-	q = #t_5
-	#t_6 = p < q
-	if_false #t_6 goto @Label_1_else_start
-	#t_7 = p + 1
-	p = #t_7
-	goto @Label_1_if_end
-label:@Label_1_else_start
-	#t_8 = p - 1
-	p = #t_8
-label:@Label_1_if_end
-	#t_9 = p < q
-	if_false #t_9 goto @Label_11_else_start
-	#t_10 = p + 1
-	p = #t_10
-	goto @Label_11_if_end
-label:@Label_11_else_start
-	#t_11 = q == p
-	if_false #t_11 goto @Label_21_else_start
-	#t_12 = p - 1
-	p = #t_12
-	goto @Label_21_if_end
-label:@Label_21_else_start
-	#t_13 = p * 2
-	p = #t_13
-label:@Label_21_if_end
-label:@Label_11_if_end
-	return p
-	endfunc 
+	#t_2 = popparam
+	#t_3 = popparam
+label:@Label_1
+	#t_4 = #t_2 <= #t_1
+	if_false #t_4 goto @Label_2
+	#t_5 = #t_1 - #t_2
+	#t_6 = #t_5 // 2
+	#t_7 = #t_2 + #t_6
+	mid = #t_7
+	#t_8 = mid * 4
+	#t_9 = #t_8 + #t_0
+	#t_10 = *(#t_9)
+	#t_11 = #t_10 == #t_3
+	if_false #t_11 goto @Label_3
+	return mid
+	goto @Label_4
+label:@Label_3
+	#t_12 = mid * 4
+	#t_13 = #t_12 + #t_0
+	#t_14 = *(#t_13)
+	#t_15 = #t_14 < #t_3
+	if_false #t_15 goto @Label_5
+	#t_16 = mid + 1
+	#t_2 = #t_16
+	goto @Label_6
+label:@Label_5
+	#t_17 = mid - 1
+	#t_1 = #t_17
+label:@Label_6
+	goto @Label_1
+label:@Label_2
+	#t_18 = -1
+	return #t_18
 	beginfunc global.main
-	p = 2
-	s = 3
-	endfunc 
-	x = 5
-	y = 10
-	beginfunc A.hello@A
-	#t_14 = popparam
-	z = 100
-	endfunc 
-	#t_15 = symtable_get(l)
-	i = 5
+	#t_19 = symtable_get(array)
+	param #t_19
+	shiftpointer 8
+	call len@list[int] 1
+	shiftpointer 0
+	#t_20 = popparam
+	#t_21 = #t_20 - 1
+	param #t_21
+	param 0
+	param 4
+	param #t_19
+	shiftpointer 32
+	call binarySearch@list[int]@int@int@int 4
+	shiftpointer -28
+	#t_22 = popparam
+	result = #t_22
+	#t_23 = -1
+	#t_24 = result != #t_23
+	if_false #t_24 goto @Label_7
+	param "Element is present at index:"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	#t_25 = popparam
+	param result
+	shiftpointer 4
+	call print@int 1
+	shiftpointer 4
+	#t_26 = popparam
+	goto @Label_8
+label:@Label_7
+	param "Element is not present"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	#t_27 = popparam
+label:@Label_8

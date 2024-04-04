@@ -69,7 +69,6 @@ int type_equal(struct type t1, struct type t2){
     return 0;
 }
 
-
 void Error::sem_var_redeclare(string varname,long long line_no, long long prev_line_no){
     cout << "Error at line_no : " << line_no << " can't declare variable in this scope again" << endl;
     cout << "variable " << varname << " already declared at line no " << prev_line_no << endl;
@@ -102,6 +101,13 @@ void Error::invalid_unary_operation(int yylineno, struct type t1, string operati
 
 void Error::other_semantic_error(string msg, long long line_no){
     cout << msg << " at line no : " << line_no << endl;
+}
+
+void Error::use_before_declaration(string name, long long line_no){
+    cerr << "SEMANTIC ERROR: Use of undeclared variable " << name << " at line no " << line_no << endl;
+}
+void Error::member_not_found(string name, string member, long long line_no){
+    cerr << "SEMANTIC ERROR: Member " << member << " not found in class " << name << " at line no " << line_no << endl;
 }
 
 void Error::clean_up(){
