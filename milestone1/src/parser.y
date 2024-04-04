@@ -9,6 +9,7 @@ extern string last_token;
 extern string last_token_value;
 extern int terminated;
 extern symtable_global* global_symtable;
+extern symtable_entry* symtable_look_up(string temp);
 int yylex();
 int yyerror(const char * msg);
 
@@ -325,7 +326,7 @@ expr_stmt : test expr_stmt_dash
         symtable_entry* entry=NULL; 
 
         if($2 != NULL && ($2->lexeme == ":" || $2->lexeme == ":=")){
-            //DEBUG("here");
+            //
             if(curr_symtable_func!=NULL){
                 //DEBUG("Entered Add Function Entry" << curr_symtable_func);
                 entry = curr_symtable_func->add_entry($2,yylineno);
@@ -341,7 +342,6 @@ expr_stmt : test expr_stmt_dash
             }
 
             if($2->children.size() == 3){
-                checker_traverse($2->children[2]);
                 if (!type_equal($1->type, $2->children[2]->type)){
                     Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
                 }else{
@@ -354,7 +354,6 @@ expr_stmt : test expr_stmt_dash
             } 
         }
         else if ($2 != NULL){
-            checker_traverse($2);
             if (type_equal($1->type, $2->children[0]->type)){
                 $$->type = $1->type;
             }else{
@@ -384,7 +383,8 @@ expr_stmt : test expr_stmt_dash
                 }
             }
         }
-        checker_traverse($1);
+        //checker_traverse($1);
+        //
     }
     ;
 
@@ -523,6 +523,7 @@ return_stmt : KEY_RETURN test
         $$ = makeNode("return",STATEMENT_TYPE);
         appendChild($$, $2);
         checker_traverse($2);
+        //
         //DEBUG($2->type.t);
         curr_symtable_func->check_returntype($2, yylineno);
     }
@@ -1248,16 +1249,22 @@ atom_expr : atom trailerlist
             if($1->addr == "not assigned"){
                 $1->addr = $1->lexeme;
             }
+            checker_traverse($1);
+            
         }else{
+            //DEBUG("entered function for " << $1->lexeme)
             $$ = makeNode("atom_expr", EXPR_TYPE);
             appendChild($$, $1);
             appendChild($$, $2);
             struct type temp = $1->type;
             
-            if(is_declared_type($1->lexeme))
+            //if(is_declared_type($1->lexeme))
             for (int i = 0; i < $2->children.size(); i++){
+                //DEBUG($2->node_type);
                 if ($2->node_type == TRAILER_TYPE){
+                    DEBUG("entered function for " << $1->lexeme)
                     if ($2->children[i]->lexeme == "()" && i == 0){
+                        //DEBUG("entered function for" << $1->lexeme)
                         // function call
                         if ($1->node_type != NAME_TYPE){
                             Error::other_semantic_error("TYPE_ERROR: Invalid operation ()", yylineno);
@@ -1399,11 +1406,16 @@ atom_expr : atom trailerlist
                         Error::other_semantic_error("TYPE_ERROR: Invalid operation near " + $2->children[i]->lexeme[0], yylineno);   
                     }
                 }
+                else{
+                    checker_traverse($1);
+                    
+                    checker_traverse($2);
+                    
+                }
             }
             
             $$->type = temp;
-            
-        }
+    } 
     }
     ;
 
@@ -1645,7 +1657,7 @@ int main(int argc, char ** argv){
     global_symtable = new symtable_global();
     curr_symtable_global = global_symtable;
     curr_symtable_global->add_range_func();
-    
+    curr_symtable_global->add_len_func();
     declared_types.insert("int");
     declared_types.insert("float");
     declared_types.insert("bool");

@@ -1,15 +1,29 @@
 beginfunc global.add@int@int   //  beginfunc
 + NOT_ASSIGNED NOT_ASSIGNED #t_0 //  quad
 = #t_0  NOT_ASSIGNED //  unary
+NOT_ASSIGNED    //  param
+4    //  stackpointer+
+print@int 1   //  call
+-4    //  stackpointer-
+   #t_1 //  popparam
     //  endfunc
 beginfunc global.main   //  beginfunc
 = NOT_ASSIGNED  NOT_ASSIGNED //  unary
 = NOT_ASSIGNED  NOT_ASSIGNED //  unary
-= NOT_ASSIGNED  NOT_ASSIGNED //  unary
+NOT_ASSIGNED    //  param
+NOT_ASSIGNED    //  param
+12    //  stackpointer+
+add@-1@int 2   //  call
+4    //  stackpointer-
+   #t_2 //  popparam
     //  endfunc
 = NOT_ASSIGNED  NOT_ASSIGNED //  unary
 = NOT_ASSIGNED  NOT_ASSIGNED //  unary
 beginfunc A.A.hello@A   //  beginfunc
 = NOT_ASSIGNED  NOT_ASSIGNED //  unary
     //  endfunc
-== NOT_ASSIGNED NOT_ASSIGNED #t_1 //  quad
+== NOT_ASSIGNED NOT_ASSIGNED #t_3 //  quad
+0    //  stackpointer+
+main 0   //  call
+-8    //  stackpointer-
+   #t_4 //  popparam

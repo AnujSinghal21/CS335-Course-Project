@@ -11,11 +11,34 @@ y, int, NAME, 1, 0
 
 
 
+Function: len
+Lexeme, Type, Token, LineNo, Size
+
+
+
+
+
+
+Function: len
+Lexeme, Type, Token, LineNo, Size
+
+
+
+
+
+
+Function: len
+Lexeme, Type, Token, LineNo, Size
+
+
+
+
+
+
 Function: global.main
 Lexeme, Type, Token, LineNo, Size
 q, int, NAME, 7, 0
 s, int, NAME, 8, 0
-z, int, NAME, 10, 0
 
 
 
@@ -40,7 +63,7 @@ Lexeme, Type, Token, LineNo, Size
 
 Function: A.A.hello@A
 Lexeme, Type, Token, LineNo, Size
-z, int, NAME, 18, 0
+z, int, NAME, 17, 0
 
 
 

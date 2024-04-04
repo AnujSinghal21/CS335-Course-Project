@@ -1,12 +1,11 @@
 def add(x: int,y: int) -> int:
     p:int = x+y
-    return p
+    print(p)
 
 def main():
-    q:int = 2
+    p:int = 2
     s:int = 3
-    z:int = add(q,s)
-
+    add(p,s)
 class A():
     x:int = 5
     y:int =10

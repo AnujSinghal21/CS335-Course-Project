@@ -36,6 +36,7 @@ class symtable_global{
         map<string,symtable_entry*> global_vars;
         symtable_global();
         void add_range_func();
+        void add_len_func();
         void add_func(symtable_func* function);
         void add_class(symtable_class* class_);
         symtable_entry* add_global_var(struct TreeNode* global_var, ll line_no);

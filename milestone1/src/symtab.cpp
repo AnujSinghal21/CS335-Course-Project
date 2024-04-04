@@ -8,6 +8,7 @@ extern struct type float_node;
 extern struct type bool_node;
 extern struct type str_node;
 extern struct type void_node;
+extern unordered_set<string> declared_types;
 extern struct type string_to_type(string temp){
    // DEBUG("Finding z" << temp);
    int is_func = 0;
@@ -250,6 +251,44 @@ void symtable_global :: add_range_func(){
     global_symtable->functions[temp]=func_range2;
 
     //len_attr->type = 
+}
+
+void symtable_global:: add_len_func(){
+    // for(auto s:declared_types){
+    //     symtable_func* func1 = new symtable_func();
+    // }
+    symtable_func* func1 = new symtable_func();
+    symtable_func* func2 = new symtable_func();
+    symtable_func* func3 = new symtable_func();
+    func1->name = "len";
+    func2->name = "len";
+    func3->name = "len";
+    symtable_entry* attr1 = new symtable_entry();
+    symtable_entry* attr2 = new symtable_entry();
+    symtable_entry* attr3 = new symtable_entry();
+    struct type typ1,typ2,typ3;
+    typ1.t = "int";
+    typ2.t = "float";
+    typ3.t = "str";
+    attr1->name = "a";
+    attr1->type = typ1;
+    attr2->name = "a";
+    attr2->type = typ2;
+    attr3->name = "a";
+    attr3->type = typ3;
+    func1->paramlist[attr1->name]=attr1;
+    func2->paramlist[attr2->name]=attr2;
+    func3->paramlist[attr3->name]=attr3;
+    string temp1=func1->name,temp2=func2->name,temp3=func3->name;
+    temp1+="@list[int]";
+    temp2+="@list[float]";
+    temp3+="@list[str]";
+    func1->returntype = int_node;
+    func2->returntype = int_node;
+    func3->returntype = int_node;
+    global_symtable->functions[temp1]=func1;
+    global_symtable->functions[temp2]=func2;
+    global_symtable->functions[temp3]=func3;
 }
 
 void symtable_global :: add_func(symtable_func* function){ 
