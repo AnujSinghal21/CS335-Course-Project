@@ -1,0 +1,40 @@
+	beginfunc global.main
+	#t_0 = -2
+	#t_1 = -9
+	#t_2 = symtable_get(array)
+	param #t_2
+	shiftpointer 8
+	call len@list[int] 1
+	shiftpointer 0
+	#t_3 = popparam
+	n = #t_3
+	j = 0
+	p = 1
+label:@Label_1
+	#t_4 = n - 1
+	#t_5 = j < #t_4
+	if_false #t_5 goto @Label_2
+	#t_6 = j * 4
+	#t_7 = #t_6 + #t_2
+	#t_8 = j + 1
+	#t_9 = #t_8 * 4
+	#t_10 = #t_9 + #t_2
+	#t_11 = *(#t_7)
+	#t_12 = *(#t_10)
+	#t_13 = #t_11 + #t_12
+	#t_14 = p  #t_13
+	*(p) = #t_14
+	#t_15 = j  1
+	*(j) = #t_15
+	goto @Label_1
+label:@Label_2
+	j = 0
+label:@Label_4
+	#t_16 = j < n
+	if_false #t_16 goto @Label_5
+	#t_17 = p  1
+	*(p) = #t_17
+	#t_18 = j + 1
+	j = #t_18
+	goto @Label_4
+label:@Label_5
