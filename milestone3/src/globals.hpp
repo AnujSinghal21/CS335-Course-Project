@@ -13,6 +13,8 @@ struct type{
 
 #include"symtab.hpp"
 #include"threeAC.hpp"
+
+#include"x86.hpp"
 #define DEBUG(msg) \
     std::cerr << "Debug [" << __FILE__ << ":" << __LINE__ << "]: " << msg << std::endl;
 

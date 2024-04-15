@@ -336,6 +336,7 @@ expr_stmt : test expr_stmt_dash
                 && $2->children[0]->children[1]->children[0]->children[0]->node_type == NAME_TYPE
                 && curr_symtable_class != NULL
             ){
+                DEBUG("CLASS ATTRIBUTE DECLARATION");
                 class_entry = new symtable_entry();
                 string classname = curr_symtable_class->name;
                 classname += ".";
@@ -346,6 +347,7 @@ expr_stmt : test expr_stmt_dash
                 curr_symtable_class->attributes[classname] = class_entry;
                 class_entry->offset = curr_symtable_class->size;
                 curr_symtable_class->size += class_entry->type.size;
+                DEBUG("CLASS ATTRIBUTE ADDED");
             } else{
                 Error::other_semantic_error("SYNTAX_ERROR: Expected Identifier in declaration", yylineno);
             }
@@ -357,17 +359,16 @@ expr_stmt : test expr_stmt_dash
                     if (class_entry != NULL){
                         string t_off = three_ac::new_temp();
                         three_ac::gen("class_get", "symtable", curr_symtable_class->name, $2->children[0]->children[1]->children[0]->children[0]->lexeme , t_off);
-                        class_entry->addr = t_off;
+                        string t = three_ac::new_temp();
+                        three_ac::gen("quad", "+", $2->children[0]->addr, "", t);
                     }
-                    if ($1->type.elems != -1){
-                        // list declaration
+                    if ($1->type.elems != -1 || $1->type.t == "string"){
+                        // list or string declaration
                         if (entry != NULL){
                             $1->type.elems = $2->children[2]->type.elems;
                             string t = three_ac::new_temp();
                             three_ac::gen("symtable_get", "symtable.get", $2->children[0]->lexeme, "", t);
                             entry->addr = t;
-                        }else{
-                            string t = three_ac::new_temp();
                         }
                     }else{
                         // normal var (name declaration)
@@ -377,7 +378,7 @@ expr_stmt : test expr_stmt_dash
                             three_ac::gen("assign", "=", drt, "", entry->name);
                         }else{
                             string t = three_ac::new_temp();
-                            three_ac::gen("address_assign", "=", drt, "", t);
+                            three_ac::gen("address_assign", "=", drt, "", class_entry->addr);
                         }
                     }
                 }
@@ -736,7 +737,6 @@ classdef: "class" NAME inheritlist {
         appendChild($$, $6);
 
         curr_symtable_class = NULL;
-
     }
     ;
 
@@ -872,8 +872,8 @@ funcdef : "def" NAME parameters funcdef_dash {
 
         appendChild($$, $7);
         $$->type.t = "void";
-        curr_symtable_func = NULL;
         three_ac::gen("endfunc");
+        curr_symtable_func = NULL;
     }
     ;
 
@@ -1409,6 +1409,12 @@ atom_expr : atom trailerlist
                             Error::other_semantic_error("TYPE_ERROR: Invalid operation ()", yylineno);
                         }else{
                             string func_id = $1->lexeme;
+
+                            // if(global_symtable->search_class(func_id)){
+                            //     func_id = func_id + "." + "__init__" + "@" + func_id;
+                            // }
+
+
                             for (auto x: $2->children[i]->children){
                                 func_id += "@" + type_to_string(x->type);
                             }
@@ -1429,8 +1435,27 @@ atom_expr : atom trailerlist
                             }
                             if ($1->lexeme != "range"){
                                 int stack_shift = 0;
-                                symtable_func* funct = global_symtable->search_func(func_id);
+                                
+                                
+                                
+                                symtable_func* funct = NULL;
+                                
+                                // symtable_class* constructor_class = global_symtable->search_class($1->lexeme);
+                                // if(constructor_class!=NULL){
+                                //     funct = constructor_class->search_func(func_id);
+                                //     if(funct == NULL){
+                                //         Error::other_semantic_error("ERROR: Class does not have a constructor of type "+ func_id + " at line number", yylineno);
+                                //     }
+                                // }
+                                // if(funct!=NULL){
+                                //     funct = global_symtable->search_func(func_id);
+                                // }
+                                
 
+
+                                funct = global_symtable->search_func(func_id);
+
+                                
                                 for (int j=$2->children[i]->children.size()-1; j>=0;j--){
                                     struct TreeNode * x = $2->children[i]->children[j];
                                     string drt = three_ac::dereference(x);
@@ -1491,7 +1516,7 @@ atom_expr : atom trailerlist
                                     string temp2 = three_ac::new_temp();
                                     three_ac::gen("quad","+",temp1,list_name->addr,temp2);
                                     $$->to_dereference = 1;
-                                    $$->addr = temp2;
+                                    $$->addr = temp2;   
                                 }else{
                                     Error::other_semantic_error("TYPE_ERROR: Expression inside [] for indexing must have type int, got " + type_to_string($2->children[i]->children[0]->type), yylineno);
                                 }
@@ -1782,6 +1807,7 @@ int main(int argc, char ** argv){
     int outputfilearg = -1; 
     int tac_file_arg = -1;
     int csv_file_arg = -1;
+    int asm_file_arg = -1;
     char default_output_name[] = "ast.dot";
     indent_stack.push(0);
     
@@ -1816,7 +1842,15 @@ int main(int argc, char ** argv){
             }else{
                 print_help = 1;
             }
-        }else if (arg == "-verbose"){
+        }else if (arg == "-asm"){
+            if (i+1 < argc){
+                asm_file_arg = i+1;
+                i++;
+            }else{
+                print_help = 1;
+            }
+        }
+        else if (arg == "-verbose"){
             verbose = 1;
         }
         else {
@@ -1875,6 +1909,13 @@ int main(int argc, char ** argv){
     if (tac_file_arg != -1){
         three_ac::export_txt(argv[tac_file_arg]);
     }else{
+        cout << "3AC written in file: 3AC.txt" << endl;
+        three_ac::export_txt("3AC.txt");
+    }
+    if (asm_file_arg != -1){
+        X86_generator::generate_code(argv[asm_file_arg]);
+    }else{
+        cout << "3AC written in file: 3AC.txt" << endl;
         three_ac::export_txt("3AC.txt");
     }
 

@@ -1,9 +1,7 @@
 #ifndef SYMBOL_TABLE_HPP
 #define SYMBOL_TABLE_HPP
 
-#include <bits/stdc++.h>
 #include "globals.hpp"
-using namespace std;
 
 class symtable_func;
 class symtable_class;

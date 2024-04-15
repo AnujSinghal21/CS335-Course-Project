@@ -1,25 +1,9 @@
 Functions Definition
-Class: CLRParser
-binarySearch@list[int]@int@int@int
-Lexeme, Type, Token, LineNo, Size
-array, list[int], NAME, 6, 8
-high, int, NAME, 6, 4
-low, int, NAME, 6, 4
-mid, int, NAME, 9, 4
-x, int, NAME, 6, 4
-
-
-
 Function: global.main
 Lexeme, Type, Token, LineNo, Size
-array, list[int], NAME, 20, 8
-result, int, NAME, 22, 4
-
-
-
-Function: CLRParser.__init__@CLRParser@str
-Lexeme, Type, Token, LineNo, Size
-myname_, str, NAME, 3, 8
+x, int, NAME, 3, 4
+y, int, NAME, 4, 4
+z, int, NAME, 5, 4
 
 
 

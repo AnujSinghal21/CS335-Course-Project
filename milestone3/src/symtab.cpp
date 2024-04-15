@@ -487,6 +487,15 @@ symtable_class::symtable_class(TreeNode* class_, TreeNode* parentclass){
         string parentclassname = parentclass->lexeme;
         parent_class = global_symtable->search_class(parentclassname);
     }
+
+    symtable_entry* self_entry = new symtable_entry;
+    self_entry->name = "self";
+    self_entry->type.size = 8;
+    self_entry->type.elems = -1; 
+    self_entry->type.t = class_->lexeme;
+    self_entry->size = 8;
+    self_entry->addr = "self";
+    this->attributes["self"] = self_entry;
     this->parentclass_symtab = parent_class;
 }
 
@@ -597,38 +606,39 @@ void symtable_global::create_csv(string filename){
     ofstream out(filename, ios::out);
     out<<"Functions Definition"<<endl;
     for(auto func: this->functions){
-            ofstream out(filename, ios::app);
             if(func.second->name!="len"&&func.second->name!="range"&&func.second->name!="print"){
             out<<"Function: "<<func.second->name<<endl;
-            
+            out.flush();
             out<<"Lexeme, Type, Token, LineNo, Size"<<endl;
-            
+            out.flush();
             for(auto entry: func.second->entries){
-                
-                out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->size<<endl;
+                out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->type.size<<endl<<flush;
             }
-            out<<"\n\n\n";
+            out<<"\n\n\n"<<flush;
             }
         //func.second->create_csv(filename);
     }
 
     for(auto cl : this->classes){
-        out << "Class: " <<cl.first<<endl;
+        out << "Class: " <<cl.first<<endl<<flush;
         for(auto method: cl.second->methods){
-           ofstream out(filename, ios::app);
             if(method.second->name!="len"&& method.second->name!="range"&& method.second->name!="print"){
-            out<<"Function: "<<method.second->name<<endl;
+            out<<"Function: "<<method.second->name<<endl<<flush;
             
-            out<<"Lexeme, Type, Token, LineNo, Size"<<endl;
+            out<<"Lexeme, Type, Token, LineNo, Size"<<endl<<flush;
             
             for(auto entry: method.second->entries){
                 
-                out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->size<<endl;
+                out<<entry.second->name<<", "<<type_to_string(entry.second->type)<<", "<<"NAME"<<", "<<entry.second->line_no<<", "<<entry.second->type.size<<endl<<flush;
             }
             out<<"\n\n\n";
             }
         }
+        // for(auto att: cl.second->attributes){
+        //     out<<att.second->name<<", "<<type_to_string(att.second->type)<<", "<<"NAME"<<", "<<att.second->line_no<<", "<<att.second->type.size<<endl<<flush;
+        // }
     }
+    out.close();
 }
 
 

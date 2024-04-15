@@ -66,7 +66,6 @@ void three_ac::print(ofstream & out){
         out << "\t" << this->optype << " " << this->op << " " << this->arg1 << " " << this->arg2 << " " << this->result;
     }
 
-    // shiftpointer remaining, call remaining
     if (this->comment != ""){
         out << " \t # " << this->comment;
     }

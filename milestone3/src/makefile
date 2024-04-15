@@ -10,7 +10,7 @@ BISON_FILE = parser.y
 FLEX_FILE = lex.l
 
 # Include files
-INCLUDES = symtab.hpp globals.hpp threeAC.hpp
+INCLUDES = symtab.hpp globals.hpp threeAC.hpp x86.hpp
 
 # Output file
 OUTPUT_FILE = parser
