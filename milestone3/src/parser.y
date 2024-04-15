@@ -1348,7 +1348,7 @@ atom_expr : atom trailerlist
             struct type temp = $1->type;
             string temp_addr = $1->addr;
             string temp_name = $1->lexeme;
-            
+            DEBUG(temp_addr<<temp_name)
             if(!is_declared_type($1->lexeme)){
                 for (int i = 0; i < $2->children.size(); i++){
                     if ($2->children[i]->lexeme == "()" && i == 0){
@@ -1357,16 +1357,19 @@ atom_expr : atom trailerlist
                             Error::other_semantic_error("TYPE_ERROR: Invalid operation ()", yylineno);
                         }else{
                             string func_id = $1->lexeme;
-
-                            // if(global_symtable->search_class(func_id)){
-                            //     func_id = func_id + "." + "__init__" + "@" + func_id;
-                            // }
+                            DEBUG(func_id);
+                            if(global_symtable->search_class(func_id)){
+                                DEBUG("Entered Func_id search")
+                                func_id = func_id + "." + "__init__" + "@" + func_id;
+                            }
 
 
                             for (auto x: $2->children[i]->children){
                                 func_id += "@" + type_to_string(x->type);
                             }
+
                             struct type ret = string_to_type(func_id);
+                            DEBUG(ret.t);
                             if (ret.t == "-1"){
                                 int error = 1;
                                 if ($1->lexeme == "len"){
@@ -1528,6 +1531,7 @@ atom_expr : atom trailerlist
                             string class_id = type_to_string(temp);
                             string class_name = class_id;
                             class_id += "." + $2->children[i]->children[0]->lexeme;
+                            DEBUG(class_id);
                             struct type ret = string_to_type(class_id);
                             if (ret.t != "-1"){
 
@@ -1535,12 +1539,13 @@ atom_expr : atom trailerlist
                                 symtable_class* object_class = global_symtable->search_class(class_name);
                                 symtable_entry* class_attr = object_class->search_entry(class_id); 
                                 
-                                class_attr = symtable_look_up($1->lexeme);
+                                // class_attr = symtable_look_up($1->lexeme);
                                 if(class_attr == NULL){
                                     Error::sem_no_declaration_var($1->lexeme,yylineno);
                                 }
                                 string t_off = three_ac::new_temp();
-                                three_ac::gen("class_get", "symtable", object_class->name, $2->children[i]->children[0]->lexeme , t_off);
+                                // three_ac::gen("class_get", "symtable", object_class->name, $2->children[i]->children[0]->lexeme , t_off);
+                                three_ac::gen("quad", "=",to_string(class_attr->offset),"",t_off);
 
                                 string temp1 = three_ac::new_temp();
                                 three_ac("quad","+",temp_addr,t_off,temp1);
@@ -1707,5 +1712,4 @@ arglist_dash : arglist_dash "," test
         appendChild($$, $1);
         $$->type = $1->type;
     }
-
 %%

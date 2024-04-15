@@ -635,9 +635,9 @@ void symtable_global::create_csv(string filename){
             out<<"\n\n\n";
             }
         }
-        // for(auto att: cl.second->attributes){
-        //     out<<att.second->name<<", "<<type_to_string(att.second->type)<<", "<<"NAME"<<", "<<att.second->line_no<<", "<<att.second->type.size<<endl<<flush;
-        // }
+        for(auto att: cl.second->attributes){
+            out<<att.second->name<<", "<<type_to_string(att.second->type)<<", "<<"NAME"<<", "<<att.second->line_no<<", "<<att.second->type.size<<endl<<flush;
+        }
     }
     out.close();
 }

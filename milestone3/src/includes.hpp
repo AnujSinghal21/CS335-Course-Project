@@ -202,6 +202,21 @@ class three_ac{
 };
 
 /* x86 */
+class instruction{
+    public:
+    instruction();
+    /*
+    instruction(string arg1="", string arg2="", string arg3="", string op="", string ins_t="ins", string comment="");
+    string arg1 = "";
+    string arg2 = "";
+    string arg3 = "";
+    string op = "";
+    string code = "";
+    string ins_t = "";
+    string comment = "";
+    */
+};
+
 class x86_generator{
     public: 
     static void generate_code(string filename, vector<three_ac*> & threeAC);
