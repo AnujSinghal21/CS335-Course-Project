@@ -1,4 +1,4 @@
-#include "symtab.hpp"
+#include "includes.hpp"
 
 extern symtable_global* global_symtable;
 extern symtable_func* curr_symtable_func;
@@ -9,6 +9,7 @@ extern struct type bool_node;
 extern struct type str_node;
 extern struct type void_node;
 extern unordered_set<string> declared_types;
+
 extern struct type string_to_type(string temp){
    int is_func = 0;
    int is_class_attr = 0;

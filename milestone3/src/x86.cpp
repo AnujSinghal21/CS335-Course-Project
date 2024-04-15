@@ -1,4 +1,4 @@
-#include "x86.hpp"
+#include "includes.hpp"
 void x86_generator::generate_code(string filename, vector<three_ac*> & threeAC){
     ofstream out;
     out.open(filename);

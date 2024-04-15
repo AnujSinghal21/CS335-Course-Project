@@ -1,17 +1,16 @@
 %{
 #include "parser.tab.h"
-#include "globals.hpp"
-// #include<bits/stdc++.h>
-stack<int> indent_stack;
-int global_indent = 0;
-int generated_EOF = 0;
-int ready_EOF = 0;
-int signal_EOF = 0;
-int entered_newline = 0;
-string last_token = "";
-string last_token_value = "";
-stack<char> brackets;
-int terminated = 0;
+#include "includes.hpp"
+extern stack<int> indent_stack;
+extern int global_indent;
+extern int generated_EOF;
+extern int ready_EOF;
+extern int signal_EOF;
+extern int entered_newline;
+extern string last_token;
+extern string last_token_value;
+extern stack<char> brackets;
+extern int terminated;
 
 %}
 

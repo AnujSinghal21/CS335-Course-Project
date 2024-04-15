@@ -1,7 +1,5 @@
 %{
-#include<bits/stdc++.h>
-#include "globals.hpp"
-using namespace std;
+#include "includes.hpp"
 extern stack<int> indent_stack;
 extern int yylineno;
 extern FILE* yyin;
@@ -10,72 +8,22 @@ extern string last_token_value;
 extern int terminated;
 extern symtable_global* global_symtable;
 extern symtable_entry* symtable_look_up(string temp);
+extern symtable_global* global_symtable;
+extern map<string, string> id_to_label;
+extern map<string, vector<string> > edges;
+extern symtable_func* curr_symtable_func;
+extern symtable_class* curr_symtable_class;
+extern symtable_global* curr_symtable_global;
+extern unordered_set<string> declared_types;
+extern ofstream threeac_file;
+extern struct type int_node;
+extern struct type float_node;
+extern struct type bool_node;
+extern struct type str_node;
+extern struct type void_node;
+extern TreeNode * root;
+
 int yylex();
-int yyerror(const char * msg);
-
-symtable_global* global_symtable;
-map<string, string> id_to_label;
-map<string, vector<string> > edges;
-symtable_func* curr_symtable_func = NULL;
-symtable_class* curr_symtable_class = NULL;
-symtable_global* curr_symtable_global;
-unordered_set<string> declared_types;
-ofstream threeac_file;
-
-struct type int_node;
-struct type float_node;
-struct type bool_node;
-struct type str_node;
-struct type void_node;
-
-int is_declared_type(string t){
-    return declared_types.find(t) != declared_types.end();
-}
-
-void checker_traverse(struct TreeNode* node){
-    if(node == NULL){
-        return;
-    }
-
-    for(auto child : node->children){
-        if(child->node_type == NAME_TYPE){
-            if(curr_symtable_func!=NULL){
-                curr_symtable_func->check_declaration_var(child->lexeme,yylineno);
-            }
-            else{
-                curr_symtable_global->check_declaration_var(child->lexeme,yylineno);
-            } 
-        }
-        checker_traverse(child);
-    }
-    return;
-}
-
-struct type get_max_type(struct type t1, struct type t2){
-
-    int val_t1= 0, val_t2 = 0;
-    if(type_equal(t1,float_node)) val_t1 = 5; 
-    else if(type_equal(t1,float_node)) val_t1 = 4; 
-    else if(type_equal(t1,float_node)) val_t1 = 3; 
-    else if(type_equal(t1,float_node)) val_t1 = 2; 
-    else if(type_equal(t1,float_node)) val_t1 = 1; 
-
-    if(type_equal(t2,float_node)) val_t2 = 5; 
-    else if(type_equal(t2,float_node)) val_t2 = 4; 
-    else if(type_equal(t2,float_node)) val_t2 = 3; 
-    else if(type_equal(t2,float_node)) val_t2 = 2; 
-    else if(type_equal(t2,float_node)) val_t2 = 1; 
-
-    if(val_t1 > val_t2){
-        return t1; 
-    }else{
-        return t2;
-    }
-
-
-}
-
-TreeNode * root = NULL;
 
 %}
 
@@ -1761,207 +1709,3 @@ arglist_dash : arglist_dash "," test
     }
 
 %%
-void printAST(char * filename){
-    FILE * file = fopen(filename, "w");
-    if (file == NULL) {
-        cerr << "Error opening file" << endl;
-        return;
-    }
-    fprintf(file, "digraph G {\n");
-    for (auto it = id_to_label.begin(); it != id_to_label.end(); it++){
-        string quoted = "";
-        for (auto c: it->second){
-            if (c == '\"'){
-                quoted += "\\\"";
-            }else if (c == '\\'){
-                quoted += "\\\\";
-            }else{
-                quoted += c;
-            }
-        }
-        fprintf(file, "%s [label=\"%s\"]\n", it->first.c_str(), quoted.c_str());
-    }
-    for (auto it = edges.begin(); it != edges.end(); it++){
-        for (auto jt = it->second.begin(); jt != it->second.end(); jt++){
-            fprintf(file, "%s -> %s\n", it->first.c_str(), jt->c_str());
-        }
-    }
-    fprintf(file, "}\n");
-    return;
-}
-void help_printer(){
-    cout << "USAGE: " << endl;
-    cout << "[-input <path-to-inputfile>]: specify the file path to parse, if not given, takes input from stdin" << endl;
-    cout << "[-output <path-to-outputfile>]: specify the file path to write the ast, if not given, defaults to ast.dot" << endl;
-    cout << "[-verbose]: prints verbose messages to stdout, error messages are anyways printed" << endl;
-    cout << "[-help]: print usage instructions" << endl;
-    cout << "For more help regarding how to use and output, refer to doc" << endl;
-    return;
-}
-
-int main(int argc, char ** argv){
-    FILE *file;
-    int verbose = 0;
-    int print_help = 0;
-    int inputfilearg = -1;
-    int outputfilearg = -1; 
-    int tac_file_arg = -1;
-    int csv_file_arg = -1;
-    int asm_file_arg = -1;
-    char default_output_name[] = "ast.dot";
-    indent_stack.push(0);
-    
-    for (int i = 1; i < argc; i++){
-        string arg = argv[i];
-        if (arg == "-input"){
-            if (i+1 < argc){
-                inputfilearg = i+1;
-                i++;
-            }else{
-                print_help = 1;
-            }
-        }else if (arg == "-tac"){
-            if (i+1 < argc){
-                tac_file_arg = i+1;
-                i++;
-            }else{
-                print_help = 1;
-            }
-        }
-        else if (arg == "-output"){
-            if (i+1 < argc){
-                outputfilearg = i+1;
-                i++;
-            }else{
-                print_help = 1;
-            }
-        }else if (arg == "-csv"){
-            if (i+1 < argc){
-                csv_file_arg = i+1;
-                i++;
-            }else{
-                print_help = 1;
-            }
-        }else if (arg == "-asm"){
-            if (i+1 < argc){
-                asm_file_arg = i+1;
-                i++;
-            }else{
-                print_help = 1;
-            }
-        }
-        else if (arg == "-verbose"){
-            verbose = 1;
-        }
-        else {
-            print_help = 1;
-        }
-    }
-    if (print_help){
-        help_printer();
-        return 0;
-    }
-    
-    if (inputfilearg == -1){
-        yyin = stdin;
-    }else{
-        file = fopen(argv[inputfilearg], "r");
-        if (file == NULL) {
-            cerr << "Error opening file" << endl;
-            return 0;
-        }else{
-            yyin = file;
-        }
-    }
-
-    if (verbose){
-        cout << "Started parsing" <<endl;
-    }
-
-    int_node.t = "int";
-    float_node.t = "float";
-    bool_node.t = "bool";
-    str_node.t = "str";
-    void_node.t = "void";
-
-    global_symtable = new symtable_global();
-    curr_symtable_global = global_symtable;
-    curr_symtable_global->add_range_func();
-    declared_types.insert("int");
-    declared_types.insert("float");
-    declared_types.insert("bool");
-    declared_types.insert("str");
-    declared_types.insert("void");
-    declared_types.insert("list");
-    for(auto s:declared_types){
-        if(s!="void" && s!="list") curr_symtable_global->add_len_func(s);
-    }
-    curr_symtable_global->add_print_func(int_node);
-    curr_symtable_global->add_print_func(float_node);
-    curr_symtable_global->add_print_func(bool_node);
-    curr_symtable_global->add_print_func(str_node);
-    yyparse();
-    if(csv_file_arg!=-1){
-        curr_symtable_global->create_csv(argv[csv_file_arg]);
-    }else{
-        curr_symtable_global->create_csv("symtab.csv");
-    }    
-    if (tac_file_arg != -1){
-        three_ac::export_txt(argv[tac_file_arg]);
-    }else{
-        cout << "3AC written in file: 3AC.txt" << endl;
-        three_ac::export_txt("3AC.txt");
-    }
-    if (asm_file_arg != -1){
-        X86_generator::generate_code(argv[asm_file_arg]);
-    }else{
-        cout << "3AC written in file: 3AC.txt" << endl;
-        three_ac::export_txt("3AC.txt");
-    }
-
-    if (verbose){
-        if (terminated){
-            cout << "Error in parsing, AST generated might be incomplete/erroneous" << endl;
-        }else{
-            cout << "Parsing complete without errors, printing abstract syntax tree" << endl;
-        }
-    }
-    if (outputfilearg == -1){
-        printAST(default_output_name);
-        if (verbose){
-            cout << "AST written in file: " << default_output_name << endl;
-        }
-    }else{
-        printAST(argv[outputfilearg]);
-        if (verbose){
-            cout << "AST written in file: " << argv[outputfilearg] << endl;
-        }
-    }
-
-    fclose(yyin);
-
-    return 0;
-}
-
-int yyerror(const char* msg) {
-    if (terminated){
-        return 0;
-    }
-    terminated = 1;
-    if (last_token == "INDENT"){
-        cout << "SYNTAX ERROR: Unexpected indent at line " << yylineno << endl;
-    }else if (last_token == "DEDENT"){
-        cout << "SYNTAX ERROR: Unexpected dedent at line " << yylineno << endl;
-    }else if (last_token == "NEWLINE"){
-        cout << "SYNTAX ERROR: Unexpected line break at line " << yylineno << endl;
-    }else if (last_token == "NUMBER"){
-        cout << "SYNTAX ERROR: Unexpected number: " << last_token_value << " at line " << yylineno << endl;
-    }else if (last_token == "STRING"){
-        cout << "SYNTAX ERROR: Unexpected string literal: " << last_token_value << " at line " << yylineno << endl;
-    }else if (last_token == "NAME"){
-        cout << "SYNTAX ERROR: Unexpected identifier: " << last_token_value << " at line " << yylineno << endl;
-    }else{
-        cout << "SYNTAX ERROR: Unexpected token: " << last_token << " at line " << yylineno << endl;
-    }
-    return 0;
-}

@@ -10,15 +10,15 @@ BISON_FILE = parser.y
 FLEX_FILE = lex.l
 
 # Include files
-INCLUDES = symtab.hpp globals.hpp threeAC.hpp x86.hpp
+INCLUDES = types.cpp node.cpp error.cpp main.cpp symtab.cpp globals.cpp threeAC.cpp x86.cpp
 
 # Output file
 OUTPUT_FILE = parser
 
 all: $(OUTPUT_FILE)
 
-$(OUTPUT_FILE):: $(BISON_FILE:.y=.tab.c) $(FLEX_FILE:.l=.yy.c) $(INCLUDES) $(INCLUDES:.hpp=.cpp)
-	$(CC) $(BISON_FILE:.y=.tab.c) $(FLEX_FILE:.l=.yy.c) $(INCLUDES:.hpp=.cpp) -o parser 
+$(OUTPUT_FILE):: $(BISON_FILE:.y=.tab.c) $(FLEX_FILE:.l=.yy.c) includes.hpp $(INCLUDES)
+	$(CC) $(BISON_FILE:.y=.tab.c) $(FLEX_FILE:.l=.yy.c) $(INCLUDES) -o parser 
 
 $(BISON_FILE:.y=.tab.c) $(BISON_FILE:.y=.tab.h): $(BISON_FILE)
 	bison $(BISON_FLAGS) $(BISON_FILE)

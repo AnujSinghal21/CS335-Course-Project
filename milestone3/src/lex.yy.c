@@ -679,21 +679,20 @@ char *yytext;
 #line 1 "lex.l"
 #line 2 "lex.l"
 #include "parser.tab.h"
-#include "globals.hpp"
-// #include<bits/stdc++.h>
-stack<int> indent_stack;
-int global_indent = 0;
-int generated_EOF = 0;
-int ready_EOF = 0;
-int signal_EOF = 0;
-int entered_newline = 0;
-string last_token = "";
-string last_token_value = "";
-stack<char> brackets;
-int terminated = 0;
+#include "includes.hpp"
+extern stack<int> indent_stack;
+extern int global_indent;
+extern int generated_EOF;
+extern int ready_EOF;
+extern int signal_EOF;
+extern int entered_newline;
+extern string last_token;
+extern string last_token_value;
+extern stack<char> brackets;
+extern int terminated;
 
+#line 695 "lex.yy.c"
 #line 696 "lex.yy.c"
-#line 697 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -910,9 +909,9 @@ YY_DECL
 		}
 
 	{
-#line 63 "lex.l"
+#line 62 "lex.l"
 
-#line 65 "lex.l"
+#line 64 "lex.l"
  {
     if (global_indent > 0){
         global_indent--;
@@ -924,7 +923,7 @@ YY_DECL
         return DEDENT;
     }
  }
-#line 928 "lex.yy.c"
+#line 927 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -993,339 +992,339 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 76 "lex.l"
+#line 75 "lex.l"
 {last_token="&=";yylval.node = makeNode(yytext,OPERATOR_TYPE);return ASSIGN_AND;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 77 "lex.l"
+#line 76 "lex.l"
 {last_token="/=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_DIVIDE;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 78 "lex.l"
+#line 77 "lex.l"
 {last_token="//=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_DOUBLESLASH;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 79 "lex.l"
+#line 78 "lex.l"
 {last_token="=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_EQUAL;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 80 "lex.l"
+#line 79 "lex.l"
 {last_token="<<=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_LEFTSHIFT;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 81 "lex.l"
+#line 80 "lex.l"
 {last_token="-=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_MINUS;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 82 "lex.l"
+#line 81 "lex.l"
 {last_token="%=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_MOD;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 83 "lex.l"
+#line 82 "lex.l"
 {last_token="*=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_MULTIPLY;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 84 "lex.l"
+#line 83 "lex.l"
 {last_token="|=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_OR;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 85 "lex.l"
+#line 84 "lex.l"
 {last_token="+=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_PLUS;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 86 "lex.l"
+#line 85 "lex.l"
 {last_token="**=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_POWER;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 87 "lex.l"
+#line 86 "lex.l"
 {last_token=">>=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_RIGHTSHIFT;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 88 "lex.l"
+#line 87 "lex.l"
 {last_token="^=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return ASSIGN_XOR;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 89 "lex.l"
+#line 88 "lex.l"
 {last_token="]";if (brackets.size() > 0 && brackets.top() == '['){brackets.pop();};yylval.node = makeNode(yytext,OPERATOR_TYPE); return CLOSE_SQUARE_BRACKET;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 90 "lex.l"
+#line 89 "lex.l"
 {last_token="break";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_BREAK;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 91 "lex.l"
+#line 90 "lex.l"
 {last_token="class";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_CLASS;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 92 "lex.l"
+#line 91 "lex.l"
 {last_token="continue";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_CONTINUE;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 93 "lex.l"
+#line 92 "lex.l"
 {last_token="elif";yylval.node = makeNode(yytext,ELIF_STATEMENT_TYPE); return KEY_ELIF;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 94 "lex.l"
+#line 93 "lex.l"
 {last_token="else";yylval.node = makeNode(yytext,ELSE_STATEMENT_TYPE); return KEY_ELSE;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 95 "lex.l"
+#line 94 "lex.l"
 {last_token="False";yylval.node = makeNode(yytext,BOOLEAN_TYPE); return KEY_FALSE;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 96 "lex.l"
+#line 95 "lex.l"
 {last_token="for";yylval.node = makeNode(yytext,FOR_STATEMENT_TYPE); return KEY_FOR;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 97 "lex.l"
+#line 96 "lex.l"
 {last_token="def";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_FUNCTION_DEF;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 98 "lex.l"
+#line 97 "lex.l"
 {last_token="global";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_GLOBAL;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 99 "lex.l"
+#line 98 "lex.l"
 {last_token="if";yylval.node = makeNode(yytext,IF_STATEMENT_TYPE); return KEY_IF;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 100 "lex.l"
+#line 99 "lex.l"
 {last_token="None";yylval.node = makeNode(yytext,NAME_TYPE); return KEY_NONE;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 101 "lex.l"
+#line 100 "lex.l"
 {last_token="return";yylval.node = makeNode(yytext,KEYWORD_TYPE); return KEY_RETURN;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 102 "lex.l"
+#line 101 "lex.l"
 {last_token="True";yylval.node = makeNode(yytext,BOOLEAN_TYPE); return KEY_TRUE;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 103 "lex.l"
+#line 102 "lex.l"
 {last_token="while";yylval.node = makeNode(yytext,WHILE_STATEMENT_TYPE); return KEY_WHILE;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 104 "lex.l"
+#line 103 "lex.l"
 {last_token="[";brackets.push('[');yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPEN_SQUARE_BRACKET;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 105 "lex.l"
+#line 104 "lex.l"
 {last_token="and";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_AND;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 106 "lex.l"
+#line 105 "lex.l"
 {last_token="&";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_AND_BITWISE;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 107 "lex.l"
+#line 106 "lex.l"
 {last_token=")";if (brackets.size() > 0 && brackets.top() == '('){brackets.pop();};yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_CLOSE_BRACKET;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 108 "lex.l"
+#line 107 "lex.l"
 {last_token=":";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_COLON;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 109 "lex.l"
+#line 108 "lex.l"
 {last_token=",";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_COMMA;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 110 "lex.l"
+#line 109 "lex.l"
 {last_token="/";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_DIVIDE;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 111 "lex.l"
+#line 110 "lex.l"
 {last_token=".";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_DOT;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 112 "lex.l"
+#line 111 "lex.l"
 {last_token="==";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_EQUAL;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 113 "lex.l"
+#line 112 "lex.l"
 {last_token=">";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_GREATER_THAN;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 114 "lex.l"
+#line 113 "lex.l"
 {last_token=">=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_GREATER_THAN_EQUAL;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 115 "lex.l"
+#line 114 "lex.l"
 {last_token="in";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_IN;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 116 "lex.l"
+#line 115 "lex.l"
 {last_token="//";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_INT_DIV;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 117 "lex.l"
+#line 116 "lex.l"
 {last_token="<<";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LEFT_SHIFT;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 118 "lex.l"
+#line 117 "lex.l"
 {last_token="<>";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LESS_GREATER;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 119 "lex.l"
+#line 118 "lex.l"
 {last_token="<";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LESS_THAN;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 120 "lex.l"
+#line 119 "lex.l"
 {last_token="<=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_LESS_THAN_EQUAL;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 121 "lex.l"
+#line 120 "lex.l"
 {last_token="-";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_MINUS;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 122 "lex.l"
+#line 121 "lex.l"
 {last_token="%";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_MOD;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 123 "lex.l"
+#line 122 "lex.l"
 {last_token="*";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_MULTIPLY;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 124 "lex.l"
+#line 123 "lex.l"
 {last_token="~";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_NEGATIVE;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 125 "lex.l"
+#line 124 "lex.l"
 {last_token="not";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_NOT;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 126 "lex.l"
+#line 125 "lex.l"
 {last_token="!=";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_NOT_EQUAL;}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 127 "lex.l"
+#line 126 "lex.l"
 {last_token="("; brackets.push('(');yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_OPEN_BRACKET;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 128 "lex.l"
+#line 127 "lex.l"
 {last_token="or";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_OR;}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 129 "lex.l"
+#line 128 "lex.l"
 {last_token="|";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_OR_BITWISE;}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 130 "lex.l"
+#line 129 "lex.l"
 {last_token="+";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_PLUS;}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 131 "lex.l"
+#line 130 "lex.l"
 {last_token="**";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_POWER;}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 132 "lex.l"
+#line 131 "lex.l"
 {last_token="->";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_REFERENCE;}
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 133 "lex.l"
+#line 132 "lex.l"
 {last_token=">>";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_RIGHT_SHIFT;}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 134 "lex.l"
+#line 133 "lex.l"
 {last_token="^";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_XOR_BITWISE;}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 135 "lex.l"
+#line 134 "lex.l"
 {last_token=";";yylval.node = makeNode(yytext,OPERATOR_TYPE); return OPER_SEMICOLON;}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 136 "lex.l"
+#line 135 "lex.l"
 {last_token="NUMBER";last_token_value=yytext;yylval.node = makeNode(yytext,NUMBER_TYPE); return NUMBER;}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 137 "lex.l"
+#line 136 "lex.l"
 {last_token="NAME";last_token_value=yytext;yylval.node = makeNode(yytext,NAME_TYPE); return NAME;}
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 138 "lex.l"
+#line 137 "lex.l"
 {last_token="NAME";last_token_value=yytext;yylval.node = makeNode(yytext,NAME_TYPE); return NAME;}
 	YY_BREAK
 case 64:
 /* rule 64 can match eol */
 YY_RULE_SETUP
-#line 139 "lex.l"
+#line 138 "lex.l"
 {last_token="STRING";last_token_value=yytext;yylval.node = makeNode(yytext,STRING_TYPE); return STRING;}
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 140 "lex.l"
+#line 139 "lex.l"
 {}
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 141 "lex.l"
+#line 140 "lex.l"
 {last_token = "\\";}
 	YY_BREAK
 case 67:
 /* rule 67 can match eol */
 YY_RULE_SETUP
-#line 142 "lex.l"
+#line 141 "lex.l"
 {
     if (last_token != "\\" && brackets.size() == 0){
         string spaces = yytext;
@@ -1353,11 +1352,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 166 "lex.l"
+#line 165 "lex.l"
 {}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 168 "lex.l"
+#line 167 "lex.l"
 {
     if (!ready_EOF){
         if (!entered_newline && last_token != "DEDENT"){
@@ -1385,7 +1384,7 @@ case YY_STATE_EOF(INITIAL):
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 193 "lex.l"
+#line 192 "lex.l"
 {
     terminated = 1;
     cerr << "Error: Unrecognized token " << yytext << " at line " << yylineno << endl;
@@ -1395,10 +1394,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 200 "lex.l"
+#line 199 "lex.l"
 ECHO;
 	YY_BREAK
-#line 1402 "lex.yy.c"
+#line 1401 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2413,7 +2412,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 200 "lex.l"
+#line 199 "lex.l"
 
 
 int yywrap() {
