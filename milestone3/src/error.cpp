@@ -61,7 +61,7 @@ void Error::member_not_found(string name, string member, long long line_no){
 }
 
 void Error::clean_up(){
-    // exit(0);
+    exit(0);
 }
 
 int yyerror(const char* msg) {

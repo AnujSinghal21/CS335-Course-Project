@@ -40,15 +40,14 @@ extern struct type string_to_type(string temp){
         {
             
             symtable_class* curr_class = global_symtable->classes[s];
-
             if(curr_class==NULL) return t;
             string ss;
             for(int i = ind+1;i<temp.size();i++){
                 ss.push_back(temp[i]);
             }
-
-            if(curr_class->attributes.find(ss)!=curr_class->attributes.end()){
-                symtable_entry* curr_ent =  curr_class->attributes[ss];
+            if(curr_class->attributes.find(temp)!=curr_class->attributes.end()){
+                
+                symtable_entry* curr_ent =  curr_class->attributes[temp];
                 t = curr_ent->type;
             }
             else if(curr_class->methods.find(temp)!=curr_class->methods.end()){
@@ -488,15 +487,6 @@ symtable_class::symtable_class(TreeNode* class_, TreeNode* parentclass){
         string parentclassname = parentclass->lexeme;
         parent_class = global_symtable->search_class(parentclassname);
     }
-
-    symtable_entry* self_entry = new symtable_entry;
-    self_entry->name = "self";
-    self_entry->type.size = 8;
-    self_entry->type.elems = -1; 
-    self_entry->type.t = class_->lexeme;
-    self_entry->size = 8;
-    self_entry->addr = "self";
-    this->attributes["self"] = self_entry;
     this->parentclass_symtab = parent_class;
 }
 
@@ -517,6 +507,7 @@ void symtable_class :: add_func(symtable_func* function){
         funcname = funcname+type_to_string(param.second->type);
     }
     function->paramlist["self"] = temp;
+    function->entries["self"] = temp;
     // funcname.push_back('-');
     // funcname.push_back('>');
     // funcname = funcname + function->returntype;

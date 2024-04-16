@@ -1,3 +1,4 @@
+	.text
 	beginfunc ShiftReduceParser.__init__@ShiftReduceParser@str
 	#t_0 = popparam
 	#t_1 = popparam

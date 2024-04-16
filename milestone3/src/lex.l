@@ -23,8 +23,8 @@ KEYWORDS False|None|True|and|as|break|class|continue|def|elif|else|except|finall
 SPACES [ \t\r]*
 
 stringescapeseq  "\\".
-shortstringchar [^\\\n]
-longstringchar [^\\]
+shortstringchar [^\\\n\"\']
+longstringchar [^\\\"\']
 shortstringitem  {shortstringchar}|{stringescapeseq}
 longstringitem  {longstringchar}|{stringescapeseq}
 shortstring "'"(({shortstringitem}|"\"")*)"'"|"\""(({shortstringitem}|"\'")*)"\""

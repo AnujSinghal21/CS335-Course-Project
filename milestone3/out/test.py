@@ -8,12 +8,8 @@ def main() -> None :
     y:int = 5
     z: int = x + y
     a:A = A(5)
-    # a.x = 10
-    
+    a.x = 10  
     return
-
-
-
 
 
 if __name__ == "__main__":

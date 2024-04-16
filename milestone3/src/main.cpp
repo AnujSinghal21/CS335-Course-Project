@@ -122,6 +122,7 @@ int main(int argc, char ** argv){
     for(auto s:declared_types){
         if(s!="void" && s!="list") curr_symtable_global->add_len_func(s);
     }
+    struct type t;
     curr_symtable_global->add_print_func(int_node);
     curr_symtable_global->add_print_func(float_node);
     curr_symtable_global->add_print_func(bool_node);
