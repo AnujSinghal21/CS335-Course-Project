@@ -303,6 +303,8 @@ expr_stmt : test expr_stmt_dash
             if($2->children.size() == 3){
                 if (!type_equal($1->type, $2->children[2]->type)){
                     Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
+                    DEBUG($1->type.t);
+                    DEBUG($2->children[2]->type.t)
                 }else{
                     if (class_entry != NULL){
                         string t_off = three_ac::new_temp();

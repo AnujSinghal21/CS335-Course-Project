@@ -205,8 +205,7 @@ class three_ac{
 class instruction{
     public:
     instruction();
-    /*
-    instruction(string arg1="", string arg2="", string arg3="", string op="", string ins_t="ins", string comment="");
+    instruction(string arg1, string arg2="", string arg3="", string op="", string ins_t="", string comment="");
     string arg1 = "";
     string arg2 = "";
     string arg3 = "";
@@ -214,12 +213,15 @@ class instruction{
     string code = "";
     string ins_t = "";
     string comment = "";
-    */
+    void print(ofstream & out);
 };
 
 class x86_generator{
     public: 
-    static void generate_code(string filename, vector<three_ac*> & threeAC);
+    static vector<instruction*> data_segment;
+    static vector<instruction*> text_segment;
+    static void generate_code(vector<three_ac*> & threeAC);
+    static void export_asm(string filename);
 };
 
 #endif

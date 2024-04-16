@@ -461,7 +461,24 @@ symtable_entry* symtable_func::find_entry(string name){
 }
 
 void symtable_func :: check_declaration_var(string name, ll line_no){
-    if(entries.find(name)==entries.end() && paramlist.find(name)==paramlist.end()){
+    string temp;
+    int f = 0;
+    for(int i =0;i<this->name.size();i++){
+        if(this->name[i]=='.'){
+            f = 1;
+        }
+        else if(this->name[i]=='@'){
+            f = 2;
+        }
+
+        if(f == 1 && this->name[i]!='.'){
+            temp.push_back(this->name[i]);
+        }
+    }
+
+    if(entries.find(name)==entries.end() && paramlist.find(name)==paramlist.end() && name != temp){
+        // DEBUG(temp);
+        // DEBUG(name);
         Error::sem_no_declaration_var(name,line_no);
     }
 }

@@ -135,15 +135,19 @@ int main(int argc, char ** argv){
     }    
     if (tac_file_arg != -1){
         three_ac::export_txt(argv[tac_file_arg]);
+        cout << "3AC written in file: " << argv[tac_file_arg] << endl;
     }else{
-        cout << "3AC written in file: 3AC.txt" << endl;
         three_ac::export_txt("3AC.txt");
+        cout << "3AC written in file: 3AC.txt" << endl;
     }
     if (asm_file_arg != -1){
-        x86_generator::generate_code(argv[asm_file_arg], three_ac::threeAC);
+        x86_generator::generate_code(three_ac::threeAC);
+        x86_generator::export_asm(argv[asm_file_arg]);
+        cout << "x86 written in file: " << argv[asm_file_arg] << endl;
     }else{
+        x86_generator::generate_code(three_ac::threeAC);
+        x86_generator::export_asm("x86.s");
         cout << "x86 written in file: x86.s" << endl;
-        x86_generator::generate_code("x86.s", three_ac::threeAC);
     }
 
     if (verbose){
