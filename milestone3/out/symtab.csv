@@ -1,53 +1,26 @@
 Functions Definition
 Function: global.main
 Lexeme, Type, Token, LineNo, Size
-obj, LALRParser, NAME, 41, 0
+a, A, NAME, 18, 0
+x, int, NAME, 15, 4
+y, int, NAME, 16, 4
+z, int, NAME, 17, 4
 
 
 
-Class: CLRParser
-Function: CLRParser.__init__@CLRParser@str@str
+Class: A
+Function: A.__init__@A@int
 Lexeme, Type, Token, LineNo, Size
-myname_, str, NAME, 16, 8
-parentname_, str, NAME, 16, 8
-self, CLRParser, NAME, 0, 8
+new, int, NAME, 3, 4
+self, A, NAME, 0, 8
 
 
 
-CLRParser.clrname, str, NAME, 0, 8
-Class: LALRParser
-Function: LALRParser.__init__@LALRParser@str@str@str
+Function: A.fibo@A@int
 Lexeme, Type, Token, LineNo, Size
-clrname_, str, NAME, 23, 8
-myname_, str, NAME, 23, 8
-self, LALRParser, NAME, 0, 8
-srname_, str, NAME, 23, 8
+self, A, NAME, 0, 8
+x, int, NAME, 6, 4
 
 
 
-Function: LALRParser.print_name@LALRParser
-Lexeme, Type, Token, LineNo, Size
-self, LALRParser, NAME, 0, 8
-
-
-
-LALRParser.lalrname, str, NAME, 0, 8
-Class: LR0Parser
-Function: LR0Parser.__init__@LR0Parser@str@str
-Lexeme, Type, Token, LineNo, Size
-myname_, str, NAME, 9, 8
-parentname_, str, NAME, 9, 8
-self, LR0Parser, NAME, 0, 8
-
-
-
-LR0Parser.lr0name, str, NAME, 0, 8
-Class: ShiftReduceParser
-Function: ShiftReduceParser.__init__@ShiftReduceParser@str
-Lexeme, Type, Token, LineNo, Size
-name_, str, NAME, 3, 8
-self, ShiftReduceParser, NAME, 0, 8
-
-
-
-ShiftReduceParser.srname, str, NAME, 0, 8
+A.x, int, NAME, 0, 4

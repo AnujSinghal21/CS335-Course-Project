@@ -1,47 +1,45 @@
-	beginfunc ShiftReduceParser.__init__@ShiftReduceParser@str
+	beginfunc A.__init__@A@int
 	#t_0 = popparam
 	#t_1 = popparam
 	#t_2 = 0
 	#t_3 = #t_1 + #t_2
 	*(#t_3) = #t_0
 	endfunc 
-	beginfunc LR0Parser.__init__@LR0Parser@str@str
+	beginfunc A.fibo@A@int
 	#t_5 = popparam
 	#t_6 = popparam
-	#t_7 = popparam
-	#t_8 = 0
-	#t_9 = #t_7 + #t_8
-	*(#t_9) = #t_5
-	endfunc 
-	beginfunc CLRParser.__init__@CLRParser@str@str
-	#t_11 = popparam
-	#t_12 = popparam
-	#t_13 = popparam
-	#t_14 = 0
-	#t_15 = #t_13 + #t_14
-	*(#t_15) = #t_11
-	endfunc 
-	beginfunc LALRParser.__init__@LALRParser@str@str@str
-	#t_17 = popparam
-	#t_18 = popparam
-	#t_19 = popparam
-	#t_20 = popparam
-	#t_21 = 0
-	#t_22 = #t_19 + #t_21
-	*(#t_22) = #t_18
-	endfunc 
-	beginfunc LALRParser.print_name@LALRParser
-	#t_24 = popparam
-	param "SLR name:"
-	shiftpointer 8
-	call print 1
-	shiftpointer 0
+	#t_7 = #t_6 == 0
+	if_false #t_7 goto @Label_1
+	return 0
+	goto @Label_2
+label:@Label_1
+	#t_8 = #t_6 == 1
+	if_false #t_8 goto @Label_1
+	return 1
+	goto @Label_3
+label:@Label_1
 	endfunc 
 	beginfunc global.main
-	param "Shift-Reduce"
-	param "CLR"
-	param "LALR"
-	shiftpointer 24
-	call LALRParser.__init__@LALRParser@str@str@str 3
-	shiftpointer -24
+	x = 4
+	y = 5
+	#t_9 = x + y
+	z = #t_9
+	param 5
+	shiftpointer 8
+	call A.__init__@A@int 1
+	shiftpointer -8
+	#t_11 = 0
+	#t_12 = a + #t_11
+	*(#t_12) = 10
+	param 10
+	param a
+	shiftpointer 12
+	call A.fibo@A@int 2
+	shiftpointer -8
+	#t_13 = popparam
+	param #t_13
+	shiftpointer 4
+	call print 1
+	shiftpointer 4
+	return 
 	endfunc 
