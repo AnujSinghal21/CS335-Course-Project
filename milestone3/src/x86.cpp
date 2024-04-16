@@ -48,8 +48,20 @@ void x86_generator::export_asm(string filename){
 }
 
 instruction * gen_instruction(three_ac * t){
-    instruction * ins;
-
+    instruction * ins = new instruction();
+    if (t->optype == "assign"){
+        if (t->arg1 == "popparam"){
+            ins->op = "pop";
+            ins->arg1 = "qword";
+            ins->arg2 = "rbp-" + to_string(offsets[t->result]);
+            ins->ins_t = "ins";
+        }else{
+            ins->op = "mov";
+            ins->arg1 = "qword";
+            ins->arg2 = "rbp-" + to_string(offsets[t->result]);
+            ins->arg3 = t->arg1;
+            ins->ins_t = "ins";
+        }
     return ins;
 }
 

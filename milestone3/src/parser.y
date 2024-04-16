@@ -1373,7 +1373,7 @@ atom_expr : atom trailerlist
 
                             
                             for (auto x: $2->children[i]->children){
-                                DEBUG("params: "<< x->lexeme)
+                                //DEBUG("params: "<< x->lexeme)
                                 func_id += "@" + type_to_string(x->type);
                             }
 
