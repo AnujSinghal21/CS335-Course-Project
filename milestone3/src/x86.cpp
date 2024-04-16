@@ -21,14 +21,8 @@ void instruction::print(ofstream & out){
     if (this->comment == "Unused"){
         return;
     }
-    if (this->ins_t == "ins"){
+    if (this->ins_t == "oaa"){
         out << "\t" << this->op << " " << this->arg1 << ", " << this->arg2;
-    }else if (this->ins_t == "label"){
-        out << this->op << ":";
-    }else if (this->ins_t == "comment"){
-        out << "\t" << this->comment;
-    }else if (this->ins_t == "data"){
-        out << "\t" << this->op << " " << this->arg1 << " " << this->arg2;
     }
     out << endl;
     return;
@@ -37,32 +31,39 @@ void instruction::print(ofstream & out){
 void x86_generator::export_asm(string filename){
     ofstream out;
     out.open(filename);
-
-    // out << "\t.text\n";
-    // for (int i = 0; i < three_ac::threeAC.size(); i++){
-    //     three_ac::threeAC[i]->print(out);
-    // }
+    out << ".data" << endl;
+    for (auto ins : x86_generator::data_segment){
+        ins->print(out);
+    }
+    out << ".text" << endl;
+    for (auto ins : x86_generator::text_segment){
+        ins->print(out);
+    }
     out.close();
     return;
 
 }
 
 instruction * gen_instruction(three_ac * t){
-    instruction * ins = new instruction();
     if (t->optype == "assign"){
-        if (t->arg1 == "popparam"){
-            ins->op = "pop";
-            ins->arg1 = "qword";
-            ins->arg2 = "rbp-" + to_string(offsets[t->result]);
-            ins->ins_t = "ins";
-        }else{
-            ins->op = "mov";
-            ins->arg1 = "qword";
-            ins->arg2 = "rbp-" + to_string(offsets[t->result]);
-            ins->arg3 = t->arg1;
-            ins->ins_t = "ins";
+        if (t->arg1 != "popparam"){
+            if (t->arg1[0] >= '0' && t->arg1[0] <= '9'){
+                instruction * ins = new instruction();
+                ins->op = "movq";
+                ins->arg1 = "$" + t->arg1;
+                ins->arg2 = "%rbx";
+                ins->ins_t = "oaa";
+                x86_generator::text_segment.push_back(ins);
+                instruction * ins2 = new instruction();
+                ins2->op = "movq";
+                ins2->arg1 = "%rbx";
+                ins2->arg2 = to_string(offsets[t->result]) + "(%rbp)";
+                ins2->ins_t = "oaa";
+                x86_generator::text_segment.push_back(ins2);
+            }
         }
-    return ins;
+    }
+    return NULL;
 }
 
 void x86_generator::generate_code(vector<three_ac*> & threeAC){
@@ -80,7 +81,7 @@ void x86_generator::generate_code(vector<three_ac*> & threeAC){
         DEBUG(i);
         DEBUG(j);
         offsets.clear();
-        int curr_off = 0;
+        int curr_off = -8;
         int param_off = 16;
         for (int k = i+1; k < j; k++){
             if (threeAC[k]->optype == "assign"){
@@ -100,10 +101,7 @@ void x86_generator::generate_code(vector<three_ac*> & threeAC){
             DEBUG(it->second);
         }
         for (int k = i+1; k < j; k++){
-            instruction * ins = gen_instruction(threeAC[k]);
-            if (ins != NULL){
-                x86_generator::text_segment.push_back(ins);
-            }
+            gen_instruction(threeAC[k]);
         }
 
         i = j+1;

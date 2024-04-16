@@ -302,9 +302,11 @@ expr_stmt : test expr_stmt_dash
             
             if($2->children.size() == 3){
                 if (!type_equal($1->type, $2->children[2]->type)){
-                    Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
+                    //DEBUG("HERE");
                     DEBUG($1->type.t);
                     DEBUG($2->children[2]->type.t)
+                    Error::type_mismatch(yylineno, $1->type, $2->children[2]->type, "initialization");
+                    
                 }else{
                     if (class_entry != NULL){
                         string t_off = three_ac::new_temp();
@@ -331,7 +333,7 @@ expr_stmt : test expr_stmt_dash
                             three_ac::gen("assign", "=", drt, "", entry->name);
                         }else{
                             string t = three_ac::new_temp();
-                            DEBUG(drt)
+                            //DEBUG(drt)
                             three_ac::gen("address_assign", "=", drt, "", class_entry->addr);
                         }
                     }
@@ -815,7 +817,7 @@ funcdef : "def" NAME parameters funcdef_dash {
 
         three_ac::gen("beginfunc", "beginfunc", curr_symtable_func->name);
         for (auto x: curr_symtable_func->paramlist){
-            DEBUG(x.second->name)
+            //DEBUG(x.second->name)
             x.second->addr = three_ac::new_temp();
             three_ac::gen("assign", "=", "popparam", "", x.second->addr);
         }
@@ -1358,7 +1360,7 @@ atom_expr : atom trailerlist
             string temp_addr = $1->addr;
             string temp_name = $1->lexeme;
             if((global_symtable->search_class(temp_name)!=NULL&&$2->children.size()>0&&$2->children[0]->lexeme == "()")||!is_declared_type($1->lexeme)){
-            DEBUG(temp_addr<<temp_name)
+            //DEBUG(temp_addr<<temp_name)
                 for (int i = 0; i < $2->children.size(); i++){
                     if ($2->children[i]->lexeme == "()" && i == 0){
                         // function call
@@ -1367,7 +1369,7 @@ atom_expr : atom trailerlist
                         }else{
                             string func_id = $1->lexeme;
                             if(global_symtable->search_class(func_id)){
-                                DEBUG("Entered Func_id search")
+                                //DEBUG("Entered Func_id search")
                                 func_id = func_id + "." + "__init__" + "@" + func_id;
                             }
 
@@ -1636,8 +1638,8 @@ atom : NAME
         
         symtable_entry * entry = symtable_look_up($1->lexeme);
         if (entry != NULL){
-            DEBUG("Self name : " << entry->name)
-            DEBUG("Self type : " << entry->type.t)
+            //DEBUG("Self name : " << entry->name)
+            //DEBUG("Self type : " << entry->type.t)
             
             $$->type = string_to_type($1->lexeme);
             $$->addr = entry->addr;
@@ -1663,7 +1665,7 @@ atom : NAME
     | STRING
     {
         $$ = makeNode($1->lexeme,STRING_TYPE);
-        DEBUG($$->lexeme);
+        //DEBUG($$->lexeme);
         $$->type.t = "str";
         $$->addr = $$->lexeme;
     }
