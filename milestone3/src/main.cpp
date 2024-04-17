@@ -134,9 +134,11 @@ int main(int argc, char ** argv){
         curr_symtable_global->create_csv("symtab.csv");
     }    
     if (tac_file_arg != -1){
+        DEBUG("Here")
         three_ac::export_txt(argv[tac_file_arg]);
         cout << "3AC written in file: " << argv[tac_file_arg] << endl;
     }else{
+        DEBUG("Here")
         three_ac::export_txt("3AC.txt");
         cout << "3AC written in file: 3AC.txt" << endl;
     }

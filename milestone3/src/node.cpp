@@ -3,6 +3,7 @@ extern int curr_id;
 extern int yylineno;
 extern symtable_func* curr_symtable_func;
 extern symtable_global* curr_symtable_global;
+extern symtable_class* curr_symtable_class;
 extern map<string, string> id_to_label;
 extern map<string, vector<string> > edges;
 
@@ -40,6 +41,17 @@ void checker_traverse(struct TreeNode* node){
             if(curr_symtable_func!=NULL){
                 curr_symtable_func->check_declaration_var(child->lexeme,yylineno);
             }
+            // else if(curr_symtable_class!=NULL){
+            //     string ss = curr_symtable_class->name;
+            //     ss.push_back('.');
+            //     ss+=child->lexeme;
+            //     DEBUG(ss);
+            //     if(curr_symtable_class->search_entry(ss)==NULL){
+            //         cout << "variable " << child->lexeme << " is not declared before use" << endl;
+            //         Error::clean_up();
+            //     }
+                
+            // }
             else{
                 curr_symtable_global->check_declaration_var(child->lexeme,yylineno);
             } 

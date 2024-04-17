@@ -38,7 +38,7 @@ extern struct type string_to_type(string temp){
     else if(is_class_attr){
         if (global_symtable->classes.find(s)!=global_symtable->classes.end())
         {
-            
+            // DEBUG("here");
             symtable_class* curr_class = global_symtable->classes[s];
             if(curr_class==NULL) return t;
             string ss;
@@ -52,8 +52,9 @@ extern struct type string_to_type(string temp){
             }
             else if(curr_class->methods.find(temp)!=curr_class->methods.end()){
                 symtable_func* curr_ent =  curr_class->methods[temp];
-                t = curr_ent->returntype;
-                
+                t = curr_ent->returntype;    
+                // DEBUG("I GOT HERE");
+                // DEBUG("t.t");
             }
             
         }
@@ -296,7 +297,10 @@ void symtable_global:: add_len_func(string temp){
 
 void symtable_global:: add_print_func(struct type type){
     symtable_func* func = new symtable_func();
-    func->name = "print";
+    string temp = "print";
+    temp.push_back('@');
+    temp+=type.t;
+    func->name = temp;
     symtable_entry* param = new symtable_entry();
     param->type = type;
     param->name = "a";
@@ -304,9 +308,6 @@ void symtable_global:: add_print_func(struct type type){
     // typ.t="void";
     func->returntype = void_node;
     func->paramlist[param->name]=param;
-    string temp = "print";
-    temp.push_back('@');
-    temp+=type.t;
     global_symtable->functions[temp]=func;
 }
 
@@ -513,8 +514,13 @@ void symtable_class :: add_func(symtable_func* function){
     type t;
     t.t = this->name;
     temp->type = t;
-
+    
     string funcname = this->name;
+    if(funcname == this->name){
+       type tt;
+       tt.t = funcname;
+       function->returntype = tt;
+    }
     funcname.push_back('.');
     funcname += function->name;
     funcname.push_back('@');
@@ -535,6 +541,7 @@ void symtable_class :: add_func(symtable_func* function){
         methods[funcname] = function;
         function->parent_class = this;
         function->name = funcname;
+        //function->returntype = 
     }
 }
 
@@ -572,8 +579,13 @@ symtable_func* symtable_class:: search_func(string &name){
 }
 
 symtable_entry* symtable_class::search_entry(string &name){
+    //DEBUG("AT SEARCHENT");
     for(auto var : this->attributes){
+        // DEBUG(name);
+        // DEBUG(var.second->name);
         if(var.second->name == name){
+            // DEBUG("ghusagaya");
+            // DEBUG(var.second->name);
             return var.second;
         }
     }

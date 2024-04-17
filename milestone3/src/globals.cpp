@@ -32,3 +32,4 @@ struct type bool_node;
 struct type str_node;
 struct type void_node;
 
+string asm_lib_file = "lib.s";

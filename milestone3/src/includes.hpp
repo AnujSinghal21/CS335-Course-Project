@@ -210,7 +210,6 @@ class instruction{
     string arg2 = "";
     string arg3 = "";
     string op = "";
-    string code = "";
     string ins_t = "";
     string comment = "";
     void print(ofstream & out);
