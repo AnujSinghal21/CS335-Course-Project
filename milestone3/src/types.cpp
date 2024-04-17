@@ -13,7 +13,7 @@ struct type infer_type(struct type op1, struct type op2){
 
 int get_size(string type){
     if (type == "int"){
-        return 4;
+        return 8;
     }
     else if(type=="str"){
         return 8;
@@ -25,7 +25,7 @@ int get_size(string type){
         return 1;
     }
     else if (type == "bool"){
-        return 1;
+        return 8;
     }
     else if (type == "void"){
         return 0;

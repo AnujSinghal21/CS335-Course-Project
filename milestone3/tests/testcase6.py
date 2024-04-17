@@ -1,4 +1,4 @@
-def bubbleSort(array: list[int], x:int) -> None: # KOI PROBLEM??
+def bubbleSort(array: list[int], x:int) -> None: 
   i: int = 0
   j: int
   n: int = len(array)
@@ -17,10 +17,10 @@ def bubbleSort(array: list[int], x:int) -> None: # KOI PROBLEM??
 
 def main():
   data: list[int] = [-2, 45, 0, 11, -9]
-  bubbleSort(data, 5) 
+  n:int = len(data)
+  bubbleSort(data, n) 
   print('Sorted Array in Ascending Order:')
   i: int = 0
-  n: int = len(data)
   for i in range(n):
     print(data[i]) 
 

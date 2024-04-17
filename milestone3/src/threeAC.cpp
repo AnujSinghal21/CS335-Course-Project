@@ -91,42 +91,20 @@ void three_ac::threeac_relabel(){
     map<string, string> label_map;
     for (int i = 0; i < threeAC.size(); i++){
         if (threeAC[i]->optype == "label"){
-            if (i+1< threeAC.size() && threeAC[i+1]->optype == "label"){
-
-                unused_map[threeAC[i+1]->arg1] = threeAC[i]->arg1;
-                threeAC[i+1]->comment = "Unused";
-            }
-            unused_map[threeAC[i]->arg1] = threeAC[i]->arg1;
+            label_map[threeAC[i]->arg1] = "@Label_" + to_string(++lbl);
+            // if (i+1< threeAC.size() && threeAC[i+1]->optype == "label"){
+            //     label_map[threeAC[i+1]->arg1] = label_map[threeAC[i]->arg1];
+            //     threeAC[i+1]->comment = "Unused";
+            // }
         }
     }
-    for (auto tac: threeAC){
+    for (auto &tac: threeAC){
         if (tac->optype == "goto"){
-            string old_lbl = unused_map[tac->arg1];
-            if (label_map.find(old_lbl) != label_map.end()){
-                tac->arg1 = label_map[old_lbl];
-            }else{
-                lbl++;
-                label_map[old_lbl] = "@Label_" + to_string(lbl);
-                tac->arg1 = label_map[old_lbl];
-            }
+            tac->arg1 = label_map[tac->arg1];
         }else if (tac->optype == "if_goto"){
-            string old_lbl = unused_map[tac->arg2];
-            if (label_map.find(old_lbl) != label_map.end()){
-                tac->arg2 = label_map[old_lbl];
-            }else{
-                lbl++;
-                label_map[old_lbl] = "@Label_" + to_string(lbl);
-                tac->arg2 = label_map[old_lbl];
-            }
+            tac->arg2 = label_map[tac->arg2];
         }else if (tac->optype == "label"){
-            string old_lbl = unused_map[tac->arg1];
-            if (label_map.find(old_lbl) != label_map.end()){
-                tac->arg1 = label_map[old_lbl];
-            }else{
-                lbl++;
-                label_map[old_lbl] = "@Label_" + to_string(lbl);
-                tac->arg1 = label_map[old_lbl];
-            }
+            tac->arg1 = label_map[tac->arg1];
         }
     }
     return;
@@ -135,7 +113,7 @@ void three_ac::export_txt(string filename){
     ofstream out;
     out.open(filename);
     threeac_relabel();
-    for (auto tac: threeAC){
+    for (auto &tac: threeAC){
         tac->print(out);
     }
     out.close();
@@ -153,6 +131,7 @@ string three_ac::new_label(){
 string three_ac::push_new_label(string s){
     // string s = new_label();
     int nl = 10*(label_counter++);
+    // DEBUG("Pushing label: " << nl);
     if (s == "if"){
         nl += 1;
     }else if (s == "while"){
@@ -201,7 +180,6 @@ string three_ac::pop_label(){
     if (label_stack.size() == 0){
         return "";
     }
-    label_counter = label_stack[label_stack.size()-1];
     label_stack.pop_back();
     return "@Label_" + to_string(label_counter);
 }

@@ -135,7 +135,7 @@ class symtable_global{
 class symtable_func {
     public :
         map <string,symtable_entry*> entries;
-        map <string,symtable_entry*> paramlist;
+        vector <symtable_entry*> paramlist;
         string name;
         struct type returntype;
         ll line_no;

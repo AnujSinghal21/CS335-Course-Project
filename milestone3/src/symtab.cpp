@@ -53,8 +53,8 @@ extern struct type string_to_type(string temp){
             else if(curr_class->methods.find(temp)!=curr_class->methods.end()){
                 symtable_func* curr_ent =  curr_class->methods[temp];
                 t = curr_ent->returntype;    
-                DEBUG("I GOT HERE");
-                DEBUG(t.t);
+                // DEBUG("I GOT HERE");
+                // DEBUG(t.t);
             }
             
         }
@@ -167,7 +167,7 @@ symtable_entry :: symtable_entry(){;}
 struct type create_string_type(TreeNode* type){
     struct type t;
     if (type == NULL){
-        DEBUG("Type is NULL");
+        // DEBUG("Type is NULL");
     }
     switch (type->node_type){
         case NAME_TYPE:
@@ -191,7 +191,7 @@ struct type create_string_type(TreeNode* type){
                 return t;
             }
         default:
-            DEBUG("Type is NULL");
+            // DEBUG("Type is NULL");
             return t;
     }
 }
@@ -254,8 +254,8 @@ void symtable_global :: add_range_func(){
     symtable_entry* range_attr2 = new symtable_entry();
     range_attr2->name = "b";
     range_attr2->type = int_node;
-    func_range->paramlist[range_attr1->name] = range_attr1;
-    func_range->paramlist[range_attr2->name] = range_attr2;
+    func_range->paramlist.push_back(range_attr1);
+    func_range->paramlist.push_back(range_attr2);
     func_range->returntype = int_node;
     string temp = func_range->name+"@int@int";
     global_symtable->functions[temp]=func_range;
@@ -268,7 +268,7 @@ void symtable_global :: add_range_func(){
     // symtable_entry* range_attr2 = new symtable_entry();
     // range_attr2->name = "b";
     // range_attr2->type = int_node;
-    func_range2->paramlist[range_attr->name] = range_attr;
+    func_range2->paramlist.push_back(range_attr);
     func_range2->returntype = int_node;
     temp = func_range2->name+"@int";
     //func_range->paramlist[range_attr2->name] = range_attr2;
@@ -285,7 +285,7 @@ void symtable_global:: add_len_func(string temp){
     typ.t = temp;
     attr->name = "a";
     attr->type = typ;
-    func->paramlist[attr->name]=attr;
+    func->paramlist.push_back(attr);
     string tem=func->name;
     tem+="@list";
     tem.push_back('[');
@@ -307,7 +307,7 @@ void symtable_global:: add_print_func(struct type type){
     // struct type typ;
     // typ.t="void";
     func->returntype = void_node;
-    func->paramlist[param->name]=param;
+    func->paramlist.push_back(param);
     global_symtable->functions[temp]=func;
 }
 
@@ -315,7 +315,7 @@ void symtable_global :: add_func(symtable_func* function){
     string funcname = function->name;
     for(auto param : function->paramlist){
         funcname.push_back('@');
-        funcname = funcname+ type_to_string(param.second->type);
+        funcname = funcname+ type_to_string(param->type);
     }
     if(functions.find(funcname)!=functions.end()) {
         Error::sem_func_redeclare(function->name,function->line_no,functions[funcname]->line_no);
@@ -399,10 +399,10 @@ symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* re
         tt.t = curr_symtable_class->name;
         this->returntype = tt;
     }
-    DEBUG(this->name << ' ' << this->returntype.t);
+    // DEBUG(this->name << ' ' << this->returntype.t);
     for(int i =0;i<params->children.size();i++){
         symtable_entry* temp = new symtable_entry(params->children[i], line_no);
-        this->paramlist[temp->name] = temp;
+        this->paramlist.push_back(temp);
         this->entries[temp->name] = temp;
     }
 
@@ -415,7 +415,7 @@ symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* re
 symtable_entry* symtable_func::add_entry(TreeNode* new_entry,ll line_no){
     symtable_entry* temp = new symtable_entry(new_entry, line_no);
     string entryname = temp->name;
-    if(entries.find(entryname)!=entries.end() || paramlist.find(entryname)!=paramlist.end()){
+    if(entries.find(entryname)!=entries.end() /*|| paramlist.find(entryname)!=paramlist.end()*/){
         Error::sem_var_redeclare(entryname,line_no,this->entries[entryname]->line_no);
         return NULL;
     }
@@ -444,8 +444,8 @@ int symtable_func::get_localspace_size(){
 
 symtable_entry* symtable_func::find_entry(string name){
     for(auto param : this->paramlist) {
-        if(param.second -> name == name) {
-            return param.second;
+        if(param-> name == name) {
+            return param;
         }
     }
 
@@ -482,7 +482,7 @@ void symtable_func :: check_declaration_var(string name, ll line_no){
         }
     }
 
-    if(entries.find(name)==entries.end() && paramlist.find(name)==paramlist.end() && name != temp){
+    if(entries.find(name)==entries.end() && /*paramlist.find(name)==paramlist.end() &&*/ name != temp){
         // DEBUG(temp);
         // DEBUG(name);
         Error::sem_no_declaration_var(name,line_no);
@@ -511,6 +511,10 @@ symtable_class::symtable_class(TreeNode* class_, TreeNode* parentclass){
         parent_class = global_symtable->search_class(parentclassname);
     }
     this->parentclass_symtab = parent_class;
+    // if(parent_class!=NULL) {
+        
+        // DEBUG(parent_class->name);
+    // }
 }
 
 void symtable_class :: add_func(symtable_func* function){
@@ -519,6 +523,7 @@ void symtable_class :: add_func(symtable_func* function){
     type t;
     t.t = this->name;
     temp->type = t;
+    function->paramlist.insert(function->paramlist.begin(),temp);
     
     string funcname = this->name;
     if(function->name == this->name){
@@ -526,20 +531,19 @@ void symtable_class :: add_func(symtable_func* function){
        tt.t = funcname;
        function->returntype = tt;
     }
+    function->entries["self"] = temp;
     funcname.push_back('.');
     funcname += function->name;
-    funcname.push_back('@');
-    funcname+=type_to_string(temp->type);
+    // funcname.push_back('@');
+    // funcname+=type_to_string(temp->type);
     for(auto param : function->paramlist){
         funcname.push_back('@');
-        funcname = funcname+type_to_string(param.second->type);
+        funcname = funcname+type_to_string(param->type);
     }
-    function->paramlist["self"] = temp;
-    function->entries["self"] = temp;
     // funcname.push_back('-');
     // funcname.push_back('>');
     // funcname = funcname + function->returntype;
-    DEBUG(function->returntype.t);
+    // DEBUG(function->returntype.t);
     if(methods.find(funcname)!=methods.end()){
          Error::sem_func_redeclare(function->name,function->line_no,methods[funcname]->line_no);
     }
@@ -585,10 +589,10 @@ symtable_func* symtable_class:: search_func(string &name){
 }
 
 symtable_entry* symtable_class::search_entry(string &name){
-    //DEBUG("AT SEARCHENT");
+    // DEBUG("AT SEARCHENT");
     for(auto var : this->attributes){
-        // DEBUG(name);
-        // DEBUG(var.second->name);
+        //  DEBUG(name);
+        //  DEBUG(var.second->name);
         if(var.second->name == name){
             // DEBUG("ghusagaya");
             // DEBUG(var.second->name);
@@ -597,6 +601,19 @@ symtable_entry* symtable_class::search_entry(string &name){
     }
 
     if(this->parentclass_symtab != NULL){
+        string tem1;
+        int fl = 0;
+        for(int i=0;i<name.size();i++){
+            if(name[i]=='.'){
+                fl=1;
+            }
+            if(fl==1){
+                tem1.push_back(name[i]);
+            }
+        }
+        string tem2 = this->parentclass_symtab->name;
+        tem2+=tem1;
+        // DEBUG("entered parent");
         return this->parentclass_symtab->search_entry(name);
     }
 

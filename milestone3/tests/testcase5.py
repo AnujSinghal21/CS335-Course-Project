@@ -1,8 +1,3 @@
-class CLRParser(ShiftReduceParser):
-
-  def __init__(self, myname_: str):
-    self.clrname: str = myname_
-
 def binarySearch(array: list[int], x: int, low: int, high: int) -> int:
   while low <= high:
     mid: int = low + (high - low) // 2
@@ -17,7 +12,7 @@ def binarySearch(array: list[int], x: int, low: int, high: int) -> int:
 
 def main():
   array: list[int] = [3, 4, 5, 6, 7, 8, 9]
-  result: int = binarySearch(array, 4, 0, len(array) - 1)
+  result: int = binarySearch(array, 7, 0, len(array) - 1)
 
   if result != -1:
     print("Element is present at index:")

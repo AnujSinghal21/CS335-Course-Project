@@ -1,0 +1,52 @@
+	beginfunc global.main
+	a1 = 4
+	a2 = 2
+	a3 = 5
+	a4 = 10
+	a5 = 9
+	a6 = 2
+	a7 = 8
+	a8 = 5
+	#t_0 = a3 + a4
+	a9 = #t_0
+	#t_1 = a9 - a1
+	param #t_1
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_3 = a9 + a7
+	#t_4 = #t_3 + a8
+	param #t_4
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_6 = a1 / a2
+	param #t_6
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_8 = a4 / a3
+	#t_9 = a5 * a6
+	#t_10 = #t_8 + #t_9
+	a10 = #t_10
+	param a10
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_12 = a1 < a2
+	param #t_12
+	shiftpointer 8
+	call print@bool 1
+	shiftpointer 0
+	#t_14 = a1 > a2
+	param #t_14
+	shiftpointer 8
+	call print@bool 1
+	shiftpointer 0
+	#t_16 = a1 ** a2
+	a8 = #t_16
+	param a8
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	endfunc 
