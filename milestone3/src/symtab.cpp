@@ -53,8 +53,8 @@ extern struct type string_to_type(string temp){
             else if(curr_class->methods.find(temp)!=curr_class->methods.end()){
                 symtable_func* curr_ent =  curr_class->methods[temp];
                 t = curr_ent->returntype;    
-                // DEBUG("I GOT HERE");
-                // DEBUG("t.t");
+                DEBUG("I GOT HERE");
+                DEBUG(t.t);
             }
             
         }
@@ -394,7 +394,12 @@ symtable_func::symtable_func(){;}
 symtable_func::symtable_func (TreeNode* function, TreeNode* params, TreeNode* returntype, ll line_no){
     this->name = function->lexeme;
     this->returntype = create_string_type(returntype);
-    
+    if(curr_symtable_class!=NULL && this->name == "__init__"){
+        type tt;
+        tt.t = curr_symtable_class->name;
+        this->returntype = tt;
+    }
+    DEBUG(this->name << ' ' << this->returntype.t);
     for(int i =0;i<params->children.size();i++){
         symtable_entry* temp = new symtable_entry(params->children[i], line_no);
         this->paramlist[temp->name] = temp;
@@ -516,7 +521,7 @@ void symtable_class :: add_func(symtable_func* function){
     temp->type = t;
     
     string funcname = this->name;
-    if(funcname == this->name){
+    if(function->name == this->name){
        type tt;
        tt.t = funcname;
        function->returntype = tt;
@@ -534,6 +539,7 @@ void symtable_class :: add_func(symtable_func* function){
     // funcname.push_back('-');
     // funcname.push_back('>');
     // funcname = funcname + function->returntype;
+    DEBUG(function->returntype.t);
     if(methods.find(funcname)!=methods.end()){
          Error::sem_func_redeclare(function->name,function->line_no,methods[funcname]->line_no);
     }

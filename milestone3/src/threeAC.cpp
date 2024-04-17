@@ -92,11 +92,11 @@ void three_ac::threeac_relabel(){
     for (int i = 0; i < threeAC.size(); i++){
         if (threeAC[i]->optype == "label"){
             if (i+1< threeAC.size() && threeAC[i+1]->optype == "label"){
+
                 unused_map[threeAC[i+1]->arg1] = threeAC[i]->arg1;
                 threeAC[i+1]->comment = "Unused";
-            }else{
-                unused_map[threeAC[i]->arg1] = threeAC[i]->arg1;
             }
+            unused_map[threeAC[i]->arg1] = threeAC[i]->arg1;
         }
     }
     for (auto tac: threeAC){

@@ -833,6 +833,9 @@ while_stmt: KEY_WHILE
 funcdef : "def" NAME parameters funcdef_dash {
         curr_symtable_func  = new symtable_func($2,$3,$4,yylineno); 
         if(curr_symtable_class != NULL){
+            DEBUG(curr_symtable_func->name);
+            DEBUG(curr_symtable_func->returntype.t);
+
             curr_symtable_class->add_func(curr_symtable_func);
         }else{
             curr_symtable_global->add_func(curr_symtable_func);
@@ -1424,9 +1427,9 @@ atom_expr : atom trailerlist
                                 func_id += "@" + type_to_string(x->type);
                                 }
                             }
-                            //DEBUG(func_id);
+                            DEBUG(func_id);
                             struct type ret = string_to_type(func_id);
-                            //DEBUG(ret.t);
+                            DEBUG(ret.t);
                             if (ret.t == "-1"){
                                 int error = 1;
                                 if ($1->lexeme == "len"){
@@ -1543,14 +1546,16 @@ atom_expr : atom trailerlist
                             
                         }
                     }else if ($2->children[i]->lexeme == "."){
-                        DEBUG("Inside . : "<<$2->children[i]->lexeme);
+                        //DEBUG("Inside . : "<<$2->children[i]->lexeme);
                         if (i + 1 < $2->children.size() && $2->children[i+1]->lexeme == "()"){
                             // method call  
-                            
+                            DEBUG("ENTERED METHOD CALL");
                             string class_id = type_to_string(temp);
                             string class_name = class_id;
                             class_id += "." + $2->children[i]->children[0]->lexeme;
                             class_id+="@"+class_name;
+                            DEBUG(class_name);
+                            DEBUG(class_id);
                             for (auto x: $2->children[i+1]->children){
                                 class_id += "@" + type_to_string(x->type);
                             }
