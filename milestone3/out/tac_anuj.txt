@@ -1,52 +1,69 @@
+	beginfunc A.__init__@A
+	#t_0 = #popparam
+	#t_1 = 0
+	#t_2 = #t_0 + #t_1
+	*(#t_2) = 0
+	#t_4 = 8
+	#t_5 = #t_0 + #t_4
+	*(#t_5) = 0
+	return 
+	endfunc 
+	beginfunc A.print_x@A
+	#t_7 = #popparam
+	#t_8 = 0
+	#t_9 = #t_7 + #t_8
+	#t_10 = *(#t_9)
+	param #t_10
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_12 = 0
+	#t_13 = #t_7 + #t_12
+	#t_14 = 0
+	#t_15 = #t_7 + #t_14
+	#t_16 = *(#t_15)
+	#t_17 = #t_16 * 2
+	*(#t_13) = #t_17
+	return #t_7
+	endfunc 
+	beginfunc A.print_y@A
+	#t_18 = #popparam
+	#t_19 = 8
+	#t_20 = #t_18 + #t_19
+	#t_21 = *(#t_20)
+	param #t_21
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	return #t_18
+	endfunc 
 	beginfunc global.main
-	a1 = 4
-	a2 = 2
-	a3 = 5
-	a4 = 10
-	a5 = 9
-	a6 = 2
-	a7 = 8
-	a8 = 5
-	#t_0 = a3 + a4
-	a9 = #t_0
-	#t_1 = a9 - a1
-	param #t_1
-	shiftpointer 8
-	call print@int 1
+	#t_23 = #space  16
+	param #t_23
 	shiftpointer 0
-	#t_3 = a9 + a7
-	#t_4 = #t_3 + a8
-	param #t_4
+	call A.__init__@A 1
 	shiftpointer 8
-	call print@int 1
-	shiftpointer 0
-	#t_6 = a1 / a2
-	param #t_6
-	shiftpointer 8
-	call print@int 1
-	shiftpointer 0
-	#t_8 = a4 / a3
-	#t_9 = a5 * a6
-	#t_10 = #t_8 + #t_9
-	a10 = #t_10
-	param a10
-	shiftpointer 8
-	call print@int 1
-	shiftpointer 0
-	#t_12 = a1 < a2
-	param #t_12
-	shiftpointer 8
-	call print@bool 1
-	shiftpointer 0
-	#t_14 = a1 > a2
-	param #t_14
-	shiftpointer 8
-	call print@bool 1
-	shiftpointer 0
-	#t_16 = a1 ** a2
-	a8 = #t_16
-	param a8
-	shiftpointer 8
-	call print@int 1
-	shiftpointer 0
+	a = #t_23
+	#t_25 = 0
+	#t_26 = a + #t_25
+	*(#t_26) = 1
+	#t_27 = 8
+	#t_28 = a + #t_27
+	*(#t_28) = 2
+	param a
+	shiftpointer 16
+	call A.print_x@A 1
+	shiftpointer -16
+	#t_29 = #returnval
+	param a
+	shiftpointer 16
+	call A.print_x@A 1
+	shiftpointer -16
+	#t_30 = #returnval
+	param a
+	shiftpointer 16
+	call A.print_y@A 1
+	shiftpointer -16
+	#t_31 = #returnval
+	return 
 	endfunc 

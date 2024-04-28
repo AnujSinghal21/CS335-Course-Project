@@ -7,7 +7,7 @@ while getopts ":mre" opt; do
       # Replace the echo command with the command you want to run for -m flag
       ;;
     r )
-      ./parser -input ./../tests/testcase1.py -tac ./../out/tac_anuj.txt -ast ./../out/ast.dot -csv ./../out/symtab.csv -asm ./../out/x86_anuj.s  
+      ./parser -input ./../out/test.py -tac ./../out/tac_anuj.txt -ast ./../out/ast.dot -csv ./../out/symtab.csv -asm ./../out/x86_anuj.s  
       # Replace the echo command with the command you want to run for -r flag
       ;;
     e )

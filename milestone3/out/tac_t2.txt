@@ -1,0 +1,37 @@
+	beginfunc global.main
+	x = 1
+	y = 2
+	z = 2
+label:@Label_1
+	#t_0 = z > 1
+	if_false #t_0 goto @Label_4
+	#t_1 = x > y
+	if_false #t_1 goto @Label_2
+	#t_2 = x + y
+	x = #t_2
+	goto @Label_3
+label:@Label_2
+	#t_3 = x + 7
+	x = #t_3
+label:@Label_3
+	#t_4 = z - 1
+	z = #t_4
+	goto @Label_1
+label:@Label_4
+	i = 0
+label:@Label_5
+	i = 1
+label:@Label_6
+	#t_5 = i < x
+	if_false #t_5 goto @Label_7
+	#t_6 = z + 1
+	z = #t_6
+	#t_7 = i + 1
+	i = #t_7
+	goto @Label_6
+label:@Label_7
+	param z
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	endfunc 

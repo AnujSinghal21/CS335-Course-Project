@@ -1,4 +1,14 @@
 .data
+str_const_1: .asciz "rectangle1 area"
+str_const_2: .asciz "rectangle2 area"
+str_const_3: .asciz "rectangle1 has larger area"
+str_const_4: .asciz "Both has same area"
+str_const_5: .asciz "rectangle1 has smaller area"
+str_const_6: .asciz "rectangle1 perimeter"
+str_const_7: .asciz "rectangle2 perimeter"
+str_const_8: .asciz "rectangle1 has larger perimeter"
+str_const_9: .asciz "Both has same perimeter"
+str_const_10: .asciz "rectangle1 has smaller perimeter"
 .globl main
 .text
 func1: 
@@ -11,7 +21,7 @@ func1:
 	movq -8(%rbp), %rcx
 	addq %rcx, %rbx
 	movq %rbx, -16(%rbp)
-	movq $0, %rbx
+	movq 24(%rbp), %rbx
 	movq -16(%rbp), %rcx
 	movq %rbx, (%rcx)
 	movq $8, %rbx
@@ -20,55 +30,39 @@ func1:
 	movq -24(%rbp), %rcx
 	addq %rcx, %rbx
 	movq %rbx, -32(%rbp)
-	movq $0, %rbx
+	movq 32(%rbp), %rbx
 	movq -32(%rbp), %rcx
 	movq %rbx, (%rcx)
-	movq $0, %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
 	movq %rbp, %rsp
 	popq %rbp
 	ret
 func2: 
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $72, %rsp
+	subq $56, %rsp
 	movq $0, %rbx
 	movq %rbx, -8(%rbp)
 	movq 16(%rbp), %rbx
 	movq -8(%rbp), %rcx
 	addq %rcx, %rbx
 	movq %rbx, -16(%rbp)
+	movq $8, %rbx
+	movq %rbx, -24(%rbp)
+	movq 16(%rbp), %rbx
+	movq -24(%rbp), %rcx
+	addq %rcx, %rbx
+	movq %rbx, -32(%rbp)
 	movq -16(%rbp), %rbx
 	movq (%rbx), %rcx
-	movq %rcx, -24(%rbp)
-	pushq -24(%rbp)
-	call print_int
-	addq $8, %rsp
-	movq $0, %rbx
-	movq %rbx, -32(%rbp)
-	movq 16(%rbp), %rbx
-	movq -32(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -40(%rbp)
-	movq $0, %rbx
-	movq %rbx, -48(%rbp)
-	movq 16(%rbp), %rbx
-	movq -48(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -56(%rbp)
-	movq -56(%rbp), %rbx
+	movq %rcx, -40(%rbp)
+	movq -32(%rbp), %rbx
 	movq (%rbx), %rcx
-	movq %rcx, -64(%rbp)
-	movq -64(%rbp), %rbx
-	movq $2, %rcx
+	movq %rcx, -48(%rbp)
+	movq -40(%rbp), %rbx
+	movq -48(%rbp), %rcx
 	imulq %rcx, %rbx
-	movq %rbx, -72(%rbp)
-	movq -72(%rbp), %rbx
-	movq -40(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq 16(%rbp), %rax
+	movq %rbx, -56(%rbp)
+	movq -56(%rbp), %rax
 	movq %rbp, %rsp
 	popq %rbp
 	ret
@@ -78,20 +72,34 @@ func2:
 func3: 
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $24, %rsp
-	movq $8, %rbx
+	subq $64, %rsp
+	movq $0, %rbx
 	movq %rbx, -8(%rbp)
 	movq 16(%rbp), %rbx
 	movq -8(%rbp), %rcx
 	addq %rcx, %rbx
 	movq %rbx, -16(%rbp)
+	movq $8, %rbx
+	movq %rbx, -24(%rbp)
+	movq 16(%rbp), %rbx
+	movq -24(%rbp), %rcx
+	addq %rcx, %rbx
+	movq %rbx, -32(%rbp)
 	movq -16(%rbp), %rbx
 	movq (%rbx), %rcx
-	movq %rcx, -24(%rbp)
-	pushq -24(%rbp)
-	call print_int
-	addq $8, %rsp
-	movq 16(%rbp), %rax
+	movq %rcx, -40(%rbp)
+	movq -32(%rbp), %rbx
+	movq (%rbx), %rcx
+	movq %rcx, -48(%rbp)
+	movq -40(%rbp), %rbx
+	movq -48(%rbp), %rcx
+	addq %rcx, %rbx
+	movq %rbx, -56(%rbp)
+	movq $2, %rbx
+	movq -56(%rbp), %rcx
+	imulq %rcx, %rbx
+	movq %rbx, -64(%rbp)
+	movq -64(%rbp), %rax
 	movq %rbp, %rsp
 	popq %rbp
 	ret
@@ -101,53 +109,157 @@ func3:
 main: 
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $96, %rsp
+	subq $176, %rsp
 	movq %rbp, %rbx
 	addq $-24, %rbx
 	movq %rbx, -8(%rbp)
 	movq $16, -8(%rbx)
+	pushq $10
+	pushq $5
 	pushq -8(%rbp)
 	call func1
-	addq $8, %rsp
+	addq $24, %rsp
 	movq -8(%rbp), %rbx
 	movq %rbx, -40(%rbp)
-	movq $0, %rbx
+	movq %rbp, %rbx
+	addq $-64, %rbx
 	movq %rbx, -48(%rbp)
-	movq -40(%rbp), %rbx
-	movq -48(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -56(%rbp)
-	movq $1, %rbx
-	movq -56(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq $8, %rbx
-	movq %rbx, -64(%rbp)
-	movq -40(%rbp), %rbx
-	movq -64(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -72(%rbp)
-	movq $2, %rbx
-	movq -72(%rbp), %rcx
-	movq %rbx, (%rcx)
-	pushq -40(%rbp)
-	call func2
-	addq $8, %rsp
-	movq %rax, %rbx
+	movq $16, -8(%rbx)
+	pushq $12
+	pushq $4
+	pushq -48(%rbp)
+	call func1
+	addq $24, %rsp
+	movq -48(%rbp), %rbx
 	movq %rbx, -80(%rbp)
+	lea str_const_1(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
 	pushq -40(%rbp)
 	call func2
 	addq $8, %rsp
 	movq %rax, %rbx
 	movq %rbx, -88(%rbp)
+	movq -88(%rbp), %rbx
+	movq %rbx, -96(%rbp)
+	pushq -96(%rbp)
+	call print_int
+	addq $8, %rsp
+	lea str_const_2(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+	pushq -80(%rbp)
+	call func2
+	addq $8, %rsp
+	movq %rax, %rbx
+	movq %rbx, -104(%rbp)
+	movq -104(%rbp), %rbx
+	movq %rbx, -112(%rbp)
+	pushq -112(%rbp)
+	call print_int
+	addq $8, %rsp
+	movq -96(%rbp), %rbx
+	movq -112(%rbp), %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	setg %dl
+	movq %rdx, -120(%rbp)
+	movq -120(%rbp), %rbx
+	testq %rbx, %rbx
+	jz Label_1
+	lea str_const_3(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+	jmp Label_4
+Label_1: 
+	movq -96(%rbp), %rbx
+	movq -112(%rbp), %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	sete %dl
+	movq %rdx, -128(%rbp)
+	movq -128(%rbp), %rbx
+	testq %rbx, %rbx
+	jz Label_2
+	lea str_const_4(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+	jmp Label_3
+Label_2: 
+	lea str_const_5(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+Label_3: 
+Label_4: 
+	lea str_const_6(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
 	pushq -40(%rbp)
 	call func3
 	addq $8, %rsp
 	movq %rax, %rbx
-	movq %rbx, -96(%rbp)
-	movq $0, %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
+	movq %rbx, -136(%rbp)
+	movq -136(%rbp), %rbx
+	movq %rbx, -144(%rbp)
+	pushq -144(%rbp)
+	call print_int
+	addq $8, %rsp
+	lea str_const_7(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+	pushq -80(%rbp)
+	call func3
+	addq $8, %rsp
+	movq %rax, %rbx
+	movq %rbx, -152(%rbp)
+	movq -152(%rbp), %rbx
+	movq %rbx, -160(%rbp)
+	pushq -160(%rbp)
+	call print_int
+	addq $8, %rsp
+	movq -144(%rbp), %rbx
+	movq -160(%rbp), %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	setg %dl
+	movq %rdx, -168(%rbp)
+	movq -168(%rbp), %rbx
+	testq %rbx, %rbx
+	jz Label_5
+	lea str_const_8(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+	jmp Label_8
+Label_5: 
+	movq -144(%rbp), %rbx
+	movq -160(%rbp), %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	sete %dl
+	movq %rdx, -176(%rbp)
+	movq -176(%rbp), %rbx
+	testq %rbx, %rbx
+	jz Label_6
+	lea str_const_9(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+	jmp Label_7
+Label_6: 
+	lea str_const_10(%rip), %r8
+	pushq %r8
+	call print_string
+	addq $8, %rsp
+Label_7: 
+Label_8: 
 	movq %rbp, %rsp
 	popq %rbp
 	jmp exit0

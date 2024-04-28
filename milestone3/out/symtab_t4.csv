@@ -1,0 +1,57 @@
+Functions Definition
+Function: global.main
+Lexeme, Type, Token, LineNo, Size
+numbers, list[int], NAME, 48, 8
+
+
+
+Function: global.max_sum_of_two@list[int]
+Lexeme, Type, Token, LineNo, Size
+arr, list[int], NAME, 29, 8
+i, int, NAME, 36, 8
+j, int, NAME, 38, 8
+max_sum, int, NAME, 35, 8
+n, int, NAME, 31, 8
+temp_sum, int, NAME, 41, 8
+
+
+
+Function: print@bool
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@float
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@int
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@str
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: global.second_max@list[int]
+Lexeme, Type, Token, LineNo, Size
+arr, list[int], NAME, 1, 8
+first_max, int, NAME, 7, 8
+i, int, NAME, 10, 8
+n, int, NAME, 3, 8
+second_max, int, NAME, 8, 8
+
+
+
+Function: global.sum_list@list[int]
+Lexeme, Type, Token, LineNo, Size
+arr, list[int], NAME, 19, 8
+i, int, NAME, 24, 8
+n, int, NAME, 21, 8
+total, int, NAME, 22, 8
+
+
+

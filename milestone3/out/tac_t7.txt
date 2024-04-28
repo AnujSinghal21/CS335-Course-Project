@@ -1,0 +1,152 @@
+	beginfunc Rectangle.__init__@Rectangle@int@int
+	#t_0 = #popparam
+	#t_1 = #popparam
+	#t_2 = #popparam
+	#t_3 = 0
+	#t_4 = #t_0 + #t_3
+	*(#t_4) = #t_1
+	#t_6 = 8
+	#t_7 = #t_0 + #t_6
+	*(#t_7) = #t_2
+	endfunc 
+	beginfunc Rectangle.calculate_area@Rectangle
+	#t_9 = #popparam
+	#t_10 = 0
+	#t_11 = #t_9 + #t_10
+	#t_12 = 8
+	#t_13 = #t_9 + #t_12
+	#t_14 = *(#t_11)
+	#t_15 = *(#t_13)
+	#t_16 = #t_14 * #t_15
+	return #t_16
+	endfunc 
+	beginfunc Rectangle.calculate_perimeter@Rectangle
+	#t_17 = #popparam
+	#t_18 = 0
+	#t_19 = #t_17 + #t_18
+	#t_20 = 8
+	#t_21 = #t_17 + #t_20
+	#t_22 = *(#t_19)
+	#t_23 = *(#t_21)
+	#t_24 = #t_22 + #t_23
+	#t_25 = 2 * #t_24
+	return #t_25
+	endfunc 
+	beginfunc global.main
+	#t_26 = #space  16
+	param 10
+	param 5
+	param #t_26
+	shiftpointer 16
+	call Rectangle.__init__@Rectangle@int@int 3
+	shiftpointer -8
+	rectangle1 = #t_26
+	#t_28 = #space  16
+	param 12
+	param 4
+	param #t_28
+	shiftpointer 16
+	call Rectangle.__init__@Rectangle@int@int 3
+	shiftpointer -8
+	rectangle2 = #t_28
+	param "rectangle1 area"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param rectangle1
+	shiftpointer 16
+	call Rectangle.calculate_area@Rectangle 1
+	shiftpointer -8
+	#t_31 = #returnval
+	area1 = #t_31
+	param area1
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	param "rectangle2 area"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param rectangle2
+	shiftpointer 16
+	call Rectangle.calculate_area@Rectangle 1
+	shiftpointer -8
+	#t_34 = #returnval
+	area2 = #t_34
+	param area2
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_36 = area1 > area2
+	if_false #t_36 goto @Label_1
+	param "rectangle1 has larger area"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_4
+label:@Label_1
+	#t_38 = area1 == area2
+	if_false #t_38 goto @Label_2
+	param "Both has same area"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_3
+label:@Label_2
+	param "rectangle1 has smaller area"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+label:@Label_3
+label:@Label_4
+	param "rectangle1 perimeter"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param rectangle1
+	shiftpointer 16
+	call Rectangle.calculate_perimeter@Rectangle 1
+	shiftpointer -8
+	#t_42 = #returnval
+	per1 = #t_42
+	param per1
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	param "rectangle2 perimeter"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param rectangle2
+	shiftpointer 16
+	call Rectangle.calculate_perimeter@Rectangle 1
+	shiftpointer -8
+	#t_45 = #returnval
+	per2 = #t_45
+	param per2
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_47 = per1 > per2
+	if_false #t_47 goto @Label_5
+	param "rectangle1 has larger perimeter"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_8
+label:@Label_5
+	#t_49 = per1 == per2
+	if_false #t_49 goto @Label_6
+	param "Both has same perimeter"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_7
+label:@Label_6
+	param "rectangle1 has smaller perimeter"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+label:@Label_7
+label:@Label_8
+	endfunc 

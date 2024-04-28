@@ -1,0 +1,119 @@
+	beginfunc global.bubbleSort@list[int]@int
+	#t_0 = #popparam
+	#t_1 = #popparam
+	i = 0
+	param #t_0
+	shiftpointer 8
+	call len 1
+	shiftpointer 0
+	#t_2 = #returnval
+	n = #t_2
+label:@Label_1
+	i = 0
+label:@Label_2
+	#t_3 = i < n
+	if_false #t_3 goto @Label_12
+	swapped = False
+label:@Label_3
+	j = 0
+label:@Label_4
+	#t_4 = n - i
+	#t_5 = #t_4 - 1
+	#t_6 = j < #t_5
+	if_false #t_6 goto @Label_9
+	#t_7 = #t_1 < i
+	if_false #t_7 goto @Label_5
+	goto @Label_9
+	goto @Label_6
+label:@Label_5
+label:@Label_6
+	#t_8 = j * 8
+	#t_9 = #t_8 + #t_0
+	#t_10 = j + 1
+	#t_11 = #t_10 * 8
+	#t_12 = #t_11 + #t_0
+	#t_13 = *(#t_9)
+	#t_14 = *(#t_12)
+	#t_15 = #t_13 > #t_14
+	if_false #t_15 goto @Label_7
+	#t_16 = j * 8
+	#t_17 = #t_16 + #t_0
+	#t_18 = *(#t_17)
+	temp = #t_18
+	#t_19 = j * 8
+	#t_20 = #t_19 + #t_0
+	#t_21 = j + 1
+	#t_22 = #t_21 * 8
+	#t_23 = #t_22 + #t_0
+	#t_24 = *(#t_23)
+	#t_25 = *(#t_23)
+	*(#t_20) = #t_25
+	#t_26 = j + 1
+	#t_27 = #t_26 * 8
+	#t_28 = #t_27 + #t_0
+	*(#t_28) = temp
+	swapped = True
+	goto @Label_8
+label:@Label_7
+label:@Label_8
+	#t_29 = j + 1
+	j = #t_29
+	goto @Label_4
+label:@Label_9
+	#t_30 = notswapped
+	if_false #t_30 goto @Label_10
+	goto @Label_12
+	goto @Label_11
+label:@Label_10
+label:@Label_11
+	#t_31 = i + 1
+	i = #t_31
+	goto @Label_2
+label:@Label_12
+	endfunc 
+	beginfunc global.main
+	#t_32 = -2
+	#t_33 = -9
+	#t_34 = #space  40
+	*(#t_34) = #t_32
+	#t_35 = #t_34 + 8
+	*(#t_35) = 45
+	#t_36 = #t_34 + 16
+	*(#t_36) = 0
+	#t_37 = #t_34 + 24
+	*(#t_37) = 11
+	#t_38 = #t_34 + 32
+	*(#t_38) = #t_33
+	param #t_34
+	shiftpointer 8
+	call len 1
+	shiftpointer 0
+	#t_39 = #returnval
+	n = #t_39
+	param n
+	param #t_34
+	shiftpointer 16
+	call global.bubbleSort@list[int]@int 2
+	shiftpointer -16
+	param 'Sorted Array in Ascending Order:'
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	i = 0
+label:@Label_13
+	i = 0
+label:@Label_14
+	#t_42 = i < n
+	if_false #t_42 goto @Label_15
+	#t_43 = i * 8
+	#t_44 = #t_43 + #t_34
+	#t_45 = *(#t_44)
+	param #t_45
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_47 = i + 1
+	i = #t_47
+	goto @Label_14
+label:@Label_15
+	endfunc 

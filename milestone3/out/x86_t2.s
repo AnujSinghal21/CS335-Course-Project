@@ -1,153 +1,90 @@
 .data
 .globl main
 .text
-func1: 
-	pushq %rbp
-	movq %rsp, %rbp
-	subq $32, %rsp
-	movq $0, %rbx
-	movq %rbx, -8(%rbp)
-	movq 16(%rbp), %rbx
-	movq -8(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -16(%rbp)
-	movq $0, %rbx
-	movq -16(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq $8, %rbx
-	movq %rbx, -24(%rbp)
-	movq 16(%rbp), %rbx
-	movq -24(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -32(%rbp)
-	movq $0, %rbx
-	movq -32(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq $0, %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
-	movq %rbp, %rsp
-	popq %rbp
-	ret
-func2: 
-	pushq %rbp
-	movq %rsp, %rbp
-	subq $72, %rsp
-	movq $0, %rbx
-	movq %rbx, -8(%rbp)
-	movq 16(%rbp), %rbx
-	movq -8(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -16(%rbp)
-	movq -16(%rbp), %rbx
-	movq (%rbx), %rcx
-	movq %rcx, -24(%rbp)
-	pushq -24(%rbp)
-	call print_int
-	addq $8, %rsp
-	movq $0, %rbx
-	movq %rbx, -32(%rbp)
-	movq 16(%rbp), %rbx
-	movq -32(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -40(%rbp)
-	movq $0, %rbx
-	movq %rbx, -48(%rbp)
-	movq 16(%rbp), %rbx
-	movq -48(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -56(%rbp)
-	movq -56(%rbp), %rbx
-	movq (%rbx), %rcx
-	movq %rcx, -64(%rbp)
-	movq -64(%rbp), %rbx
-	movq $2, %rcx
-	imulq %rcx, %rbx
-	movq %rbx, -72(%rbp)
-	movq -72(%rbp), %rbx
-	movq -40(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq 16(%rbp), %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
-	movq %rbp, %rsp
-	popq %rbp
-	ret
-func3: 
-	pushq %rbp
-	movq %rsp, %rbp
-	subq $24, %rsp
-	movq $8, %rbx
-	movq %rbx, -8(%rbp)
-	movq 16(%rbp), %rbx
-	movq -8(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -16(%rbp)
-	movq -16(%rbp), %rbx
-	movq (%rbx), %rcx
-	movq %rcx, -24(%rbp)
-	pushq -24(%rbp)
-	call print_int
-	addq $8, %rsp
-	movq 16(%rbp), %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
-	movq %rbp, %rsp
-	popq %rbp
-	ret
 main: 
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $96, %rsp
-	movq %rbp, %rbx
-	addq $-24, %rbx
+	movq $1, %rbx
 	movq %rbx, -8(%rbp)
-	movq $16, -8(%rbx)
-	pushq -8(%rbp)
-	call func1
-	addq $8, %rsp
+	movq $2, %rbx
+	movq %rbx, -16(%rbp)
+	movq $2, %rbx
+	movq %rbx, -24(%rbp)
+Label_1: 
+	movq -24(%rbp), %rbx
+	movq $1, %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	setg %dl
+	movq %rdx, -32(%rbp)
+	movq -32(%rbp), %rbx
+	testq %rbx, %rbx
+	jz Label_4
 	movq -8(%rbp), %rbx
-	movq %rbx, -40(%rbp)
-	movq $0, %rbx
-	movq %rbx, -48(%rbp)
+	movq -16(%rbp), %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	setg %dl
+	movq %rdx, -40(%rbp)
 	movq -40(%rbp), %rbx
-	movq -48(%rbp), %rcx
+	testq %rbx, %rbx
+	jz Label_2
+	movq -8(%rbp), %rbx
+	movq -16(%rbp), %rcx
+	addq %rcx, %rbx
+	movq %rbx, -48(%rbp)
+	movq -48(%rbp), %rbx
+	movq %rbx, -8(%rbp)
+	jmp Label_3
+Label_2: 
+	movq -8(%rbp), %rbx
+	movq $7, %rcx
 	addq %rcx, %rbx
 	movq %rbx, -56(%rbp)
-	movq $1, %rbx
-	movq -56(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq $8, %rbx
+	movq -56(%rbp), %rbx
+	movq %rbx, -8(%rbp)
+Label_3: 
+	movq -24(%rbp), %rbx
+	movq $1, %rcx
+	subq %rcx, %rbx
 	movq %rbx, -64(%rbp)
-	movq -40(%rbp), %rbx
-	movq -64(%rbp), %rcx
-	addq %rcx, %rbx
+	movq -64(%rbp), %rbx
+	movq %rbx, -24(%rbp)
+	jmp Label_1
+Label_4: 
+	movq $0, %rbx
 	movq %rbx, -72(%rbp)
-	movq $2, %rbx
-	movq -72(%rbp), %rcx
-	movq %rbx, (%rcx)
-	pushq -40(%rbp)
-	call func2
-	addq $8, %rsp
-	movq %rax, %rbx
-	movq %rbx, -80(%rbp)
-	pushq -40(%rbp)
-	call func2
-	addq $8, %rsp
-	movq %rax, %rbx
+Label_5: 
+	movq $1, %rbx
+	movq %rbx, -72(%rbp)
+Label_6: 
+	movq -72(%rbp), %rbx
+	movq -8(%rbp), %rcx
+	movq $0, %rdx
+	cmpq %rcx, %rbx
+	setl %dl
+	movq %rdx, -80(%rbp)
+	movq -80(%rbp), %rbx
+	testq %rbx, %rbx
+	jz Label_7
+	movq -24(%rbp), %rbx
+	movq $1, %rcx
+	addq %rcx, %rbx
 	movq %rbx, -88(%rbp)
-	pushq -40(%rbp)
-	call func3
-	addq $8, %rsp
-	movq %rax, %rbx
+	movq -88(%rbp), %rbx
+	movq %rbx, -24(%rbp)
+	movq -72(%rbp), %rbx
+	movq $1, %rcx
+	addq %rcx, %rbx
 	movq %rbx, -96(%rbp)
-	movq $0, %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
+	movq -96(%rbp), %rbx
+	movq %rbx, -72(%rbp)
+	jmp Label_6
+Label_7: 
+	pushq -24(%rbp)
+	call print_int
+	addq $8, %rsp
 	movq %rbp, %rsp
 	popq %rbp
 	jmp exit0

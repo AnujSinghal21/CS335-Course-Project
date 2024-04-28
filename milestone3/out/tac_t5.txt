@@ -1,0 +1,87 @@
+	beginfunc global.binarySearch@list[int]@int@int@int
+	#t_0 = #popparam
+	#t_1 = #popparam
+	#t_2 = #popparam
+	#t_3 = #popparam
+label:@Label_1
+	#t_4 = #t_2 <= #t_3
+	if_false #t_4 goto @Label_6
+	#t_5 = #t_3 - #t_2
+	#t_6 = #t_5 // 2
+	#t_7 = #t_2 + #t_6
+	mid = #t_7
+	#t_8 = mid * 8
+	#t_9 = #t_8 + #t_0
+	#t_10 = *(#t_9)
+	#t_11 = #t_10 == #t_1
+	if_false #t_11 goto @Label_2
+	return mid
+	goto @Label_5
+label:@Label_2
+	#t_12 = mid * 8
+	#t_13 = #t_12 + #t_0
+	#t_14 = *(#t_13)
+	#t_15 = #t_14 < #t_1
+	if_false #t_15 goto @Label_3
+	#t_16 = mid + 1
+	#t_2 = #t_16
+	goto @Label_4
+label:@Label_3
+	#t_17 = mid - 1
+	#t_3 = #t_17
+label:@Label_4
+label:@Label_5
+	goto @Label_1
+label:@Label_6
+	#t_18 = -1
+	return #t_18
+	endfunc 
+	beginfunc global.main
+	#t_19 = #space  56
+	*(#t_19) = 3
+	#t_20 = #t_19 + 8
+	*(#t_20) = 4
+	#t_21 = #t_19 + 16
+	*(#t_21) = 5
+	#t_22 = #t_19 + 24
+	*(#t_22) = 6
+	#t_23 = #t_19 + 32
+	*(#t_23) = 7
+	#t_24 = #t_19 + 40
+	*(#t_24) = 8
+	#t_25 = #t_19 + 48
+	*(#t_25) = 9
+	param #t_19
+	shiftpointer 8
+	call len 1
+	shiftpointer 0
+	#t_26 = #returnval
+	#t_27 = #t_26 - 1
+	param #t_27
+	param 0
+	param 7
+	param #t_19
+	shiftpointer 32
+	call global.binarySearch@list[int]@int@int@int 4
+	shiftpointer -24
+	#t_28 = #returnval
+	result = #t_28
+	#t_29 = -1
+	#t_30 = result != #t_29
+	if_false #t_30 goto @Label_7
+	param "Element is present at index:"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param result
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	goto @Label_8
+label:@Label_7
+	param "Element is not present"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+label:@Label_8
+	endfunc 

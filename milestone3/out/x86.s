@@ -4,7 +4,7 @@
 func1: 
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $32, %rsp
+	subq $16, %rsp
 	movq $0, %rbx
 	movq %rbx, -8(%rbp)
 	movq 16(%rbp), %rbx
@@ -13,15 +13,6 @@ func1:
 	movq %rbx, -16(%rbp)
 	movq $0, %rbx
 	movq -16(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq $8, %rbx
-	movq %rbx, -24(%rbp)
-	movq 16(%rbp), %rbx
-	movq -24(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -32(%rbp)
-	movq $0, %rbx
-	movq -32(%rbp), %rcx
 	movq %rbx, (%rcx)
 	movq $0, %rax
 	movq %rbp, %rsp
@@ -62,8 +53,8 @@ func2:
 	movq (%rbx), %rcx
 	movq %rcx, -64(%rbp)
 	movq -64(%rbp), %rbx
-	movq $2, %rcx
-	imulq %rcx, %rbx
+	movq $1, %rcx
+	addq %rcx, %rbx
 	movq %rbx, -72(%rbp)
 	movq -72(%rbp), %rbx
 	movq -40(%rbp), %rcx
@@ -75,75 +66,43 @@ func2:
 	movq %rbp, %rsp
 	popq %rbp
 	ret
-func3: 
-	pushq %rbp
-	movq %rsp, %rbp
-	subq $24, %rsp
-	movq $8, %rbx
-	movq %rbx, -8(%rbp)
-	movq 16(%rbp), %rbx
-	movq -8(%rbp), %rcx
-	addq %rcx, %rbx
-	movq %rbx, -16(%rbp)
-	movq -16(%rbp), %rbx
-	movq (%rbx), %rcx
-	movq %rcx, -24(%rbp)
-	pushq -24(%rbp)
-	call print_int
-	addq $8, %rsp
-	movq 16(%rbp), %rax
-	movq %rbp, %rsp
-	popq %rbp
-	ret
-	movq %rbp, %rsp
-	popq %rbp
-	ret
 main: 
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $96, %rsp
+	subq $72, %rsp
 	movq %rbp, %rbx
-	addq $-24, %rbx
+	addq $-16, %rbx
 	movq %rbx, -8(%rbp)
-	movq $16, -8(%rbx)
+	movq $8, -8(%rbx)
 	pushq -8(%rbp)
 	call func1
 	addq $8, %rsp
 	movq -8(%rbp), %rbx
-	movq %rbx, -40(%rbp)
+	movq %rbx, -32(%rbp)
 	movq $0, %rbx
+	movq %rbx, -40(%rbp)
+	movq -32(%rbp), %rbx
+	movq -40(%rbp), %rcx
+	addq %rcx, %rbx
 	movq %rbx, -48(%rbp)
-	movq -40(%rbp), %rbx
+	movq $10, %rbx
 	movq -48(%rbp), %rcx
-	addq %rcx, %rbx
+	movq %rbx, (%rcx)
+	pushq -32(%rbp)
+	call func2
+	addq $8, %rsp
+	movq %rax, %rbx
 	movq %rbx, -56(%rbp)
-	movq $1, %rbx
-	movq -56(%rbp), %rcx
-	movq %rbx, (%rcx)
-	movq $8, %rbx
+	pushq -32(%rbp)
+	call func2
+	addq $8, %rsp
+	movq %rax, %rbx
 	movq %rbx, -64(%rbp)
-	movq -40(%rbp), %rbx
-	movq -64(%rbp), %rcx
-	addq %rcx, %rbx
+	pushq -32(%rbp)
+	call func2
+	addq $8, %rsp
+	movq %rax, %rbx
 	movq %rbx, -72(%rbp)
-	movq $2, %rbx
-	movq -72(%rbp), %rcx
-	movq %rbx, (%rcx)
-	pushq -40(%rbp)
-	call func2
-	addq $8, %rsp
-	movq %rax, %rbx
-	movq %rbx, -80(%rbp)
-	pushq -40(%rbp)
-	call func2
-	addq $8, %rsp
-	movq %rax, %rbx
-	movq %rbx, -88(%rbp)
-	pushq -40(%rbp)
-	call func3
-	addq $8, %rsp
-	movq %rax, %rbx
-	movq %rbx, -96(%rbp)
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

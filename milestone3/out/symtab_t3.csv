@@ -1,0 +1,42 @@
+Functions Definition
+Function: global.main
+Lexeme, Type, Token, LineNo, Size
+dist, int, NAME, 20, 8
+num_dist, int, NAME, 18, 8
+steps1, int, NAME, 22, 8
+steps2, int, NAME, 24, 8
+
+
+
+Function: global.numstep2@int
+Lexeme, Type, Token, LineNo, Size
+n, int, NAME, 10, 8
+
+
+
+Function: global.numstep@int
+Lexeme, Type, Token, LineNo, Size
+n, int, NAME, 1, 8
+
+
+
+Function: print@bool
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@float
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@int
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@str
+Lexeme, Type, Token, LineNo, Size
+
+
+

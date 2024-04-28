@@ -1,0 +1,114 @@
+	beginfunc global.numstep@int
+	#t_0 = #popparam
+	#t_1 = #t_0 == 1
+	#t_2 = #t_0 == 3
+	#t_3 = #t_1 or #t_2
+	if_false #t_3 goto @Label_1
+	return 1
+	goto @Label_6
+label:@Label_1
+	#t_4 = #t_0 > 3
+	if_false #t_4 goto @Label_2
+	#t_5 = #t_0 - 1
+	param #t_5
+	shiftpointer 8
+	call global.numstep@int 1
+	shiftpointer 0
+	#t_6 = #returnval
+	#t_7 = #t_0 - 3
+	param #t_7
+	shiftpointer 8
+	call global.numstep@int 1
+	shiftpointer 0
+	#t_8 = #returnval
+	#t_9 = #t_6 + #t_8
+	return #t_9
+	goto @Label_5
+label:@Label_2
+	#t_10 = #t_0 < 3
+	if_false #t_10 goto @Label_3
+	#t_11 = #t_0 - 1
+	param #t_11
+	shiftpointer 8
+	call global.numstep@int 1
+	shiftpointer 0
+	#t_12 = #returnval
+	return #t_12
+	goto @Label_4
+label:@Label_3
+label:@Label_4
+label:@Label_5
+label:@Label_6
+	endfunc 
+	beginfunc global.numstep2@int
+	#t_13 = #popparam
+	#t_14 = #t_13 == 1
+	#t_15 = #t_13 == 2
+	#t_16 = #t_14 or #t_15
+	if_false #t_16 goto @Label_7
+	return 1
+	goto @Label_8
+label:@Label_7
+	#t_17 = #t_13 - 1
+	param #t_17
+	shiftpointer 8
+	call global.numstep2@int 1
+	shiftpointer 0
+	#t_18 = #returnval
+	#t_19 = #t_13 - 2
+	param #t_19
+	shiftpointer 8
+	call global.numstep2@int 1
+	shiftpointer 0
+	#t_20 = #returnval
+	#t_21 = #t_18 + #t_20
+	return #t_21
+label:@Label_8
+	endfunc 
+	beginfunc global.main
+	num_dist = 40
+label:@Label_9
+	dist = 1
+label:@Label_10
+	#t_22 = dist < num_dist
+	if_false #t_22 goto @Label_15
+	param dist
+	shiftpointer 8
+	call global.numstep@int 1
+	shiftpointer 0
+	#t_23 = #returnval
+	steps1 = #t_23
+	param dist
+	shiftpointer 8
+	call global.numstep2@int 1
+	shiftpointer 0
+	#t_24 = #returnval
+	steps2 = #t_24
+	#t_25 = steps1 > steps2
+	if_false #t_25 goto @Label_11
+	param "1 and 3 has more ways"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_14
+label:@Label_11
+	#t_27 = steps1 ^ steps2
+	#t_28 = #t_27 == 0
+	if_false #t_28 goto @Label_12
+	param "TAKE AS YOUR WISH"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_13
+label:@Label_12
+	param "1 and 2 has more ways"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+label:@Label_13
+label:@Label_14
+	#t_31 = dist + 1
+	dist = #t_31
+	goto @Label_10
+label:@Label_15
+	endfunc 

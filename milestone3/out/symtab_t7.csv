@@ -1,0 +1,55 @@
+Functions Definition
+Function: global.main
+Lexeme, Type, Token, LineNo, Size
+area1, int, NAME, 19, 8
+area2, int, NAME, 22, 8
+per1, int, NAME, 34, 8
+per2, int, NAME, 37, 8
+rectangle1, Rectangle, NAME, 16, 0
+rectangle2, Rectangle, NAME, 17, 0
+
+
+
+Function: print@bool
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@float
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@int
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Function: print@str
+Lexeme, Type, Token, LineNo, Size
+
+
+
+Class: Rectangle
+Function: Rectangle.__init__@Rectangle@int@int
+Lexeme, Type, Token, LineNo, Size
+length, int, NAME, 2, 8
+self, Rectangle, NAME, 0, 8
+width, int, NAME, 2, 8
+
+
+
+Function: Rectangle.calculate_area@Rectangle
+Lexeme, Type, Token, LineNo, Size
+self, Rectangle, NAME, 0, 8
+
+
+
+Function: Rectangle.calculate_perimeter@Rectangle
+Lexeme, Type, Token, LineNo, Size
+self, Rectangle, NAME, 0, 8
+
+
+
+Rectangle.length, int, NAME, 0, 8
+Rectangle.width, int, NAME, 0, 8

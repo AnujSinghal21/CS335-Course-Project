@@ -1,0 +1,204 @@
+	beginfunc global.second_max@list[int]
+	#t_0 = #popparam
+	param #t_0
+	shiftpointer 8
+	call len 1
+	shiftpointer 0
+	#t_1 = #returnval
+	n = #t_1
+	#t_2 = n < 2
+	if_false #t_2 goto @Label_1
+	param "list must have at least two elements"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_2
+label:@Label_1
+label:@Label_2
+	#t_4 = -1000000
+	first_max = #t_4
+	#t_5 = -1000000
+	second_max = #t_5
+label:@Label_3
+	i = 0
+label:@Label_4
+	#t_6 = i < n
+	if_false #t_6 goto @Label_9
+	#t_7 = i * 8
+	#t_8 = #t_7 + #t_0
+	#t_9 = *(#t_8)
+	#t_10 = #t_9 > first_max
+	if_false #t_10 goto @Label_5
+	second_max = first_max
+	#t_11 = i * 8
+	#t_12 = #t_11 + #t_0
+	#t_13 = *(#t_12)
+	#t_14 = *(#t_12)
+	first_max = #t_14
+	goto @Label_8
+label:@Label_5
+	#t_15 = i * 8
+	#t_16 = #t_15 + #t_0
+	#t_17 = *(#t_16)
+	#t_18 = #t_17 > second_max
+	#t_19 = i * 8
+	#t_20 = #t_19 + #t_0
+	#t_21 = *(#t_20)
+	#t_22 = #t_21 != first_max
+	#t_23 = #t_18 and #t_22
+	if_false #t_23 goto @Label_6
+	#t_24 = i * 8
+	#t_25 = #t_24 + #t_0
+	#t_26 = *(#t_25)
+	#t_27 = *(#t_25)
+	second_max = #t_27
+	goto @Label_7
+label:@Label_6
+label:@Label_7
+label:@Label_8
+	#t_28 = i + 1
+	i = #t_28
+	goto @Label_4
+label:@Label_9
+	return second_max
+	endfunc 
+	beginfunc global.sum_list@list[int]
+	#t_29 = #popparam
+	param #t_29
+	shiftpointer 8
+	call len 1
+	shiftpointer 0
+	#t_30 = #returnval
+	n = #t_30
+	total = 0
+label:@Label_10
+	i = 0
+label:@Label_11
+	#t_31 = i < n
+	if_false #t_31 goto @Label_12
+	#t_32 = i * 8
+	#t_33 = #t_32 + #t_29
+	#t_34 = *(#t_33)
+	#t_35 = total + #t_34
+	total = #t_35
+	#t_36 = i + 1
+	i = #t_36
+	goto @Label_11
+label:@Label_12
+	return total
+	endfunc 
+	beginfunc global.max_sum_of_two@list[int]
+	#t_37 = #popparam
+	param #t_37
+	shiftpointer 8
+	call len 1
+	shiftpointer 0
+	#t_38 = #returnval
+	n = #t_38
+	#t_39 = n < 2
+	if_false #t_39 goto @Label_13
+	param "list must have at least two elements."
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	goto @Label_14
+label:@Label_13
+label:@Label_14
+	#t_41 = -1000000
+	max_sum = #t_41
+label:@Label_15
+	i = 0
+label:@Label_16
+	#t_42 = i < n
+	if_false #t_42 goto @Label_22
+label:@Label_17
+	#t_43 = i + 1
+	j = #t_43
+label:@Label_18
+	#t_44 = j < n
+	if_false #t_44 goto @Label_21
+	#t_45 = i * 8
+	#t_46 = #t_45 + #t_37
+	#t_47 = j * 8
+	#t_48 = #t_47 + #t_37
+	#t_49 = *(#t_46)
+	#t_50 = *(#t_48)
+	#t_51 = #t_49 + #t_50
+	temp_sum = #t_51
+	#t_52 = temp_sum > max_sum
+	if_false #t_52 goto @Label_19
+	max_sum = temp_sum
+	goto @Label_20
+label:@Label_19
+label:@Label_20
+	#t_53 = j + 1
+	j = #t_53
+	goto @Label_18
+label:@Label_21
+	#t_54 = i + 1
+	i = #t_54
+	goto @Label_16
+label:@Label_22
+	return max_sum
+	endfunc 
+	beginfunc global.main
+	#t_55 = -4
+	#t_56 = -10
+	#t_57 = #space  72
+	*(#t_57) = 3
+	#t_58 = #t_57 + 8
+	*(#t_58) = 6
+	#t_59 = #t_57 + 16
+	*(#t_59) = 8
+	#t_60 = #t_57 + 24
+	*(#t_60) = 10
+	#t_61 = #t_57 + 32
+	*(#t_61) = 1
+	#t_62 = #t_57 + 40
+	*(#t_62) = 2
+	#t_63 = #t_57 + 48
+	*(#t_63) = 1
+	#t_64 = #t_57 + 56
+	*(#t_64) = #t_55
+	#t_65 = #t_57 + 64
+	*(#t_65) = #t_56
+	param "second max"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param #t_57
+	shiftpointer 8
+	call global.second_max@list[int] 1
+	shiftpointer 0
+	#t_67 = #returnval
+	param #t_67
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	param "sum of list"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param #t_57
+	shiftpointer 8
+	call global.sum_list@list[int] 1
+	shiftpointer 0
+	#t_70 = #returnval
+	param #t_70
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	param "largest pair sum"
+	shiftpointer 8
+	call print@str 1
+	shiftpointer 0
+	param #t_57
+	shiftpointer 8
+	call global.max_sum_of_two@list[int] 1
+	shiftpointer 0
+	#t_73 = #returnval
+	param #t_73
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	endfunc 

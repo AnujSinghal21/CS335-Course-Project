@@ -1,0 +1,52 @@
+	beginfunc A.__init__@A
+	#t_0 = #popparam
+	#t_1 = 0
+	#t_2 = #t_0 + #t_1
+	*(#t_2) = 0
+	return 
+	endfunc 
+	beginfunc A.print@A
+	#t_4 = #popparam
+	#t_5 = 0
+	#t_6 = #t_4 + #t_5
+	#t_7 = *(#t_6)
+	param #t_7
+	shiftpointer 8
+	call print@int 1
+	shiftpointer 0
+	#t_9 = 0
+	#t_10 = #t_4 + #t_9
+	#t_11 = 0
+	#t_12 = #t_4 + #t_11
+	#t_13 = *(#t_12)
+	#t_14 = #t_13 + 1
+	*(#t_10) = #t_14
+	return #t_4
+	endfunc 
+	beginfunc global.main
+	#t_15 = #space  8
+	param #t_15
+	shiftpointer 0
+	call A.__init__@A 1
+	shiftpointer 8
+	a = #t_15
+	#t_17 = 0
+	#t_18 = a + #t_17
+	*(#t_18) = 10
+	param a
+	shiftpointer 8
+	call A.print@A 1
+	shiftpointer -8
+	#t_19 = #returnval
+	param a
+	shiftpointer 8
+	call A.print@A 1
+	shiftpointer -8
+	#t_20 = #returnval
+	param a
+	shiftpointer 8
+	call A.print@A 1
+	shiftpointer -8
+	#t_21 = #returnval
+	return 
+	endfunc 

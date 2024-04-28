@@ -1,0 +1,60 @@
+make: Nothing to be done for 'all'.
+Running testcases
+################# Running Testcase #1 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t1.txt
+x86 written in file: ./../out/x86_t1.s
+Execution Results: ----------------------------------------
+################# Running Testcase #2 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t2.txt
+x86 written in file: ./../out/x86_t2.s
+Execution Results: ----------------------------------------
+################# Running Testcase #3 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t3.txt
+x86 written in file: ./../out/x86_t3.s
+Execution Results: ----------------------------------------
+TAKE AS YOUR WISH
+TAKE AS YOUR WISH
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has more ways
+1 and 2 has mo################# Running Testcase #4 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t4.txt
+x86 written in file: ./../out/x86_t4.s
+Execution Results: ----------------------------------------
+################# Running Testcase #5 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t5.txt
+x86 written in file: ./../out/x86_t5.s
+Execution Results: ----------------------------------------
+################# Running Testcase #6 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t6.txt
+x86 written in file: ./../out/x86_t6.s
+Execution Results: ----------------------------------------
+################# Running Testcase #7 ######################
+Compilation Results: ----------------------------------------
+3AC written in file: ./../out/tac_t7.txt
+x86 written in file: ./../out/x86_t7.s
+Execution Results: ----------------------------------------

@@ -1,7 +1,18 @@
 Functions Definition
+Function: global.binarySearch@list[int]@int@int@int
+Lexeme, Type, Token, LineNo, Size
+array, list[int], NAME, 1, 8
+high, int, NAME, 1, 8
+low, int, NAME, 1, 8
+mid, int, NAME, 4, 8
+x, int, NAME, 1, 8
+
+
+
 Function: global.main
 Lexeme, Type, Token, LineNo, Size
-a, A, NAME, 17, 0
+array, list[int], NAME, 15, 8
+result, int, NAME, 17, 8
 
 
 
@@ -25,24 +36,3 @@ Lexeme, Type, Token, LineNo, Size
 
 
 
-Class: A
-Function: A.__init__@A
-Lexeme, Type, Token, LineNo, Size
-self, A, NAME, 0, 8
-
-
-
-Function: A.print_x@A
-Lexeme, Type, Token, LineNo, Size
-self, A, NAME, 0, 8
-
-
-
-Function: A.print_y@A
-Lexeme, Type, Token, LineNo, Size
-self, A, NAME, 0, 8
-
-
-
-A.x, int, NAME, 0, 8
-A.y, int, NAME, 0, 8
