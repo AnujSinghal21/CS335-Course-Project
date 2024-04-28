@@ -17,7 +17,7 @@ void Error::sem_var_redeclare(string varname,long long line_no, long long prev_l
 
 void Error::type_mismatch(int yylineno, struct type t1, struct type t2, string op){
     if(!(type_equal(t2,int_node) && (type_equal(t1,float_node) || type_equal(t1,bool_node)))){
-    cout << "TYPE_ERROR: Incompatible types "<< type_to_string(t1) << " and " << type_to_string(t2) << " at \"" << op << "\" at line no" << yylineno << endl;
+    cout << "TYPE_ERROR: Incompatible types "<< type_to_string(t1) << " and " << type_to_string(t2) << " at \"" << op << "\" at line no " << (yylineno -2)<< endl;
     Error::clean_up();
     }
 }
@@ -70,19 +70,19 @@ int yyerror(const char* msg) {
     }
     terminated = 1;
     if (last_token == "INDENT"){
-        cout << "SYNTAX ERROR: Unexpected indent at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected indent at line " << (yylineno -2)<< endl;
     }else if (last_token == "DEDENT"){
-        cout << "SYNTAX ERROR: Unexpected dedent at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected dedent at line " << (yylineno -2)<< endl;
     }else if (last_token == "NEWLINE"){
-        cout << "SYNTAX ERROR: Unexpected line break at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected line break at line " << (yylineno -2)<< endl;
     }else if (last_token == "NUMBER"){
-        cout << "SYNTAX ERROR: Unexpected number: " << last_token_value << " at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected number: " << last_token_value << " at line " << (yylineno -2)<< endl;
     }else if (last_token == "STRING"){
-        cout << "SYNTAX ERROR: Unexpected string literal: " << last_token_value << " at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected string literal: " << last_token_value << " at line " << (yylineno -2)<< endl;
     }else if (last_token == "NAME"){
-        cout << "SYNTAX ERROR: Unexpected identifier: " << last_token_value << " at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected identifier: " << last_token_value << " at line " << (yylineno -2)<< endl;
     }else{
-        cout << "SYNTAX ERROR: Unexpected token: " << last_token << " at line " << yylineno << endl;
+        cout << "SYNTAX ERROR: Unexpected token: " << last_token << " at line " << (yylineno -2)<< endl;
     }
     return 0;
 }
